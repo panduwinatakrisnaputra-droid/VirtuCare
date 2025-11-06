@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>VirtuCare</title>
+    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-gamepad-controls@0.1.0/dist/aframe-gamepad-controls.min.js"></script>
+    <script src="js/controller-listener.js"></script>
+    <script src="js/player-move.js"></script>
+    <script src="js/physics.js"></script>
+</head>
+<body>
+    <!-- CONTROLLER -->
+
+    <script>
+
+AFRAME.registerComponent("physics-grab", {
+    init: function () 
+    {
+        let self = this;
+
+        this.el.addEventListener("raycaster-grabbed", function() {
+           self.el.addState("grabbed"); 
+        });
+
+        this.el.addEventListener("raycaster-released", function() {
+           self.el.removeState("grabbed"); 
+        });
+    },
+
+    tick: function()
+    {
+
+    }
+});
+
+<a-entity 
+        id="player" 
+        position="0 0 0" 
+        player-move="controllerListenerId: #controller-data;
+                     navigationMeshClass: environmentGround;">
+        
+        <a-camera></a-camera>
+    
+        <a-entity 
+            id="controller-data" 
+            controller-listener="leftControllerId:  #left-controller; 
+                                 rightControllerId: #right-controller;">
+        </a-entity>
+
+        <a-entity 
+            id="left-controller"
+            oculus-touch-controls="hand: left">
+        </a-entity>
+
+        <a-entity
+            id="right-controller"
+            oculus-touch-controls="hand: right"
+            raycaster="objects: .raycaster-target, .environmentGround;"
+            raycaster-extras="controllerListenerId: #controller-data; 
+                              beamImageSrc: #gradient; beamLength: 0.5;">
+        </a-entity>
+
+    </a-entity>
+
+</script>
+    <a-scene physics="debug: true">
+        <!-- Preload Textures -->
+        <a-assets>
+            <img id="floorTexture" src="texture/floor.jpg" />
+            <img id="wallTexture" src="texture/wall.jpg" />
+            <img id="ceilingTexture" src="texture/ceiling.jpg" />
+        </a-assets>
+        <a-assets>
+            <a-asset-item id="model" src="assets/simple_hospital_bed.glb"></a-asset-item>
+        </a-assets>
+        <!-- Floor -->
+        <a-plane position="0 0 0" rotation="-90 0 0" width="20" height="20" src="#floorTexture" repeat="5 5" static-body>
+        </a-plane>
+        <a-plane position="0 7 0" rotation="90 0 0" width="20" height="20" src="#ceilingTexture" repeat="5 5" static-body>
+        </a-plane>
+        <!--FONT-->
+        
+         <!-- Walls -->
+        <a-box position="0 0 -6" width="20" height="15" depth="0.1" src="#wallTexture" repeat="5 2" static-body>
+        </a-box>
+        <a-box position="-6 0 0" width="0.1" height="15" depth="20" src="#wallTexture" repeat="5 2" static-body>
+        </a-box>
+        <a-box position="6 0 0" width="0.1" height="15" depth="20" src="#wallTexture" repeat="5 2" static-body>
+        </a-box>
+        <a-box position="0 0 6" width="20" height="15" depth="0.1" src="#wallTexture" repeat="5 2" static-body>
+        </a-box>
+        <!-- Model 3D -->
+        <a-entity gltf-model="#model" position="4.5 1 -3" rotation="0 0 0" scale="0.015 0.015 0.015"></a-entity>
+        
+        <!-- Ambient Lighting -->
+        <a-light type="ambient" color="#ffdcb2" intensity="0.3">
+        </a-light>
+
+        <!-- Subtle Ceiling Light -->
+        <a-light type="point" color="#ffe6cc" intensity="0.5" position="0 6 0">
+        </a-light>
+
+        <!-- Player Rig for Movement -->
+        <a-entity id="cameraRig" position="0 1.6 5" movement-controls="speed: 0.02" gamepad-controls="fly: true; speed: 0.02ww">
+          <a-camera position="0 0 0" wasd-controls look-controls>
+              <a-cursor color="red" fuse="true"></a-cursor>
+          </a-camera>
+
+          <!-- VR Controllers -->
+          <a-entity oculus-touch-controls="hand: left" class="controller" controller-movement></a-entity>
+          <a-entity oculus-touch-controls="hand: right" class="controller"></a-entity> 
+        </a-entity>
+       
+    </a-scene>
+
+    <script src="script.js"></script>
+</body>
+</html>
