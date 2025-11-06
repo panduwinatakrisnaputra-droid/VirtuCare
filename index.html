@@ -10,9 +10,12 @@
     <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-gamepad-controls@0.1.0/dist/aframe-gamepad-controls.min.js"></script>
     <script src="https://unpkg.com/aframe-super-hands-component@4.0.3/dist/aframe-super-hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="js/hand-VR.js"></script>
 </head>
 <body>
 </script>
+
 <a-entity gltf-model="assets/ruang_periksa"
 position="0 0 -3"
 scale="0.5 0.5 0.5">
@@ -30,7 +33,8 @@ scale="0.5 0.5 0.5">
             <a-asset-item id="model" src="assets/ruang_periksa.glb"></a-asset-item>
         </a-assets>
         
-        <a-entity gltf-model="#model" position="0 0 -3" scale="1 1 1"></a-entity>
+        <a-entity gltf-model="#model" position="0 0 -3" scale="1 1 1"  dynamic-body="shape: box; mass: 1" grabbable="usePhysics: true" hoverable>></a-entity>
+        <a-entity id="camera" camera wasd-controls look-controls kinematic-body></a-entity>
 
         
         <!-- Ambient Lighting -->
@@ -46,6 +50,10 @@ scale="0.5 0.5 0.5">
           <a-camera position="0 0 0" wasd-controls look-controls>
               <a-cursor color="red" fuse="true"></a-cursor>
           </a-camera>
+          
+          <!-- Kamera pemain -->
+      <a-entity id="player" camera position="0 1.6 0" wasd-controls look-controls dynamic-body></a-entity>
+      
         <!-- VR Controllers -->
           <a-entity oculus-touch-controls="hand: left" class="controller" controller-movement></a-entity>
           <a-entity oculus-touch-controls="hand: right" class="controller"></a-entity> 
