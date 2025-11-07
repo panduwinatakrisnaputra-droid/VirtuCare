@@ -4,39 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>VirtuCare</title>
+    <title>Gallery Art Exhibitions</title>
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-gamepad-controls@0.1.0/dist/aframe-gamepad-controls.min.js"></script>
-    <script src="https://unpkg.com/aframe-super-hands-component@4.0.3/dist/aframe-super-hands.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-    <script src="js/hand-VR.js"></script>
 </head>
 <body>
-</script>
-
-<a-entity gltf-model="assets/ruang_periksa"
-position="0 0 -3"
-scale="0.5 0.5 0.5">
-</a-entity>
     <a-scene physics="debug: true">
         <!-- Preload Textures -->
         <a-assets>
-            <img id="ceilingTexture" src="texture/ceiling.jpg" />
+            <img id="ceilingTexture" src="assets/texture/ceiling.jpg" />
         </a-assets>
-        <!-- ceiling -->
+
+        <!-- Floor -->
         <a-plane position="0 12 0" rotation="90 0 0" width="20" height="20" src="#ceilingTexture" repeat="5 5" static-body>
         </a-plane>
+
         <!--ROOM-->
          <a-assets>
             <a-asset-item id="model" src="assets/ruang_periksa.glb"></a-asset-item>
         </a-assets>
         
-        <a-entity gltf-model="#model" position="0 0 -3" scale="1 1 1"  dynamic-body="shape: box; mass: 1" grabbable="usePhysics: true" hoverable>></a-entity>
-        <a-entity id="camera" camera wasd-controls look-controls kinematic-body></a-entity>
-
-        
+        <a-entity gltf-model="#model" position="0 0 -3" scale="1 1 1" ></a-entity>
         <!-- Ambient Lighting -->
         <a-light type="ambient" color="#ffdcb2" intensity="0.3">
         </a-light>
@@ -46,18 +36,16 @@ scale="0.5 0.5 0.5">
         </a-light>
 
         <!-- Player Rig for Movement -->
-        <a-entity id="cameraRig" position="0 4 3" movement-controls="speed: 0.02" gamepad-controls="fly: true; speed: 0.02ww">
+        <a-entity id="cameraRig" position="0 1.6 5" movement-controls="speed: 0.02" gamepad-controls="fly: true; speed: 0.02ww">
           <a-camera position="0 0 0" wasd-controls look-controls>
               <a-cursor color="red" fuse="true"></a-cursor>
           </a-camera>
-          
-          <!-- Kamera pemain -->
-      <a-entity id="player" camera position="0 1.6 0" wasd-controls look-controls dynamic-body></a-entity>
-      
-        <!-- VR Controllers -->
+
+          <!-- VR Controllers -->
           <a-entity oculus-touch-controls="hand: left" class="controller" controller-movement></a-entity>
           <a-entity oculus-touch-controls="hand: right" class="controller"></a-entity> 
         </a-entity>
+       
     </a-scene>
 
     <script src="script.js"></script>
