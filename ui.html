@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VirtuCare: Simulasi Kesehatan Edukatif</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-billboard-component@0.1.2/dist/aframe-look-at-billboard-component.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui-container">
+        <h3>VirtuCare: Simulasi Kesehatan Edukatif</h3>
+        <p>Gunakan controller untuk berinteraksi dengan menu</p>
+        <p>Tekan tombol grip untuk memindahkan menu</p>
+    </div>
+
+    <a-scene background="color: #1a1a2e" cursor="rayOrigin: mouse" vr-joystick-fix>
+        <a-assets>
+            <a-asset-item id="ruangan" src="assets/RUANGAN FIX.glb"></a-asset-item>
+        </a-assets>
+        <a-entity id="rig" movement-controls> 
+            
+            <a-entity camera look-controls position="0 1.6 0"></a-entity>
+            
+            <a-entity 
+                id="right-hand" laser-controls="hand: right" 
+                raycaster="objects: .interactive"
+                line="color: #0080ff; opacity: 0.5">
+                <a-cursor color="#FFFFFF" fuse="false" raycaster="objects: .interactive">
+                </a-cursor>
+            </a-entity>
+
+            <a-entity 
+                id="right-hand" laser-controls="hand: left" 
+                raycaster="objects: .interactive"
+                movement-controls="hand: left">
+                <a-cursor color="#FFFFFF" fuse="false" raycaster="objects: .interactive">
+                </a-cursor> 
+            </a-entity>
+
+        </a-entity>
+        <a-entity gltf-model="#ruangan"
+            position="-2.5 0 -9"
+            scale = "0.5 0.5 0.5"></a-entity>
+        <a-entity id="main-menu" class="interactive" menu-dragger position="0 2 -2">
+            <a-plane 
+                id="menu-background"
+                class="interactive"
+                position="0 0 0" 
+                width="2.5" 
+                height="1.8" 
+                color="#2d5a7a"
+                opacity="0.9"
+                shadow="receive: false">
+            </a-plane>
+            
+            <a-entity 
+                id="start-button" 
+                class="interactive button" 
+                position="0 0.1 0.01"
+                animation__mouseenter="property: scale; to: 1.1 1.1 1; startEvents: mouseenter; dur: 200"
+                animation__mouseleave="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 200"
+                event-set__mouseenter="_target: #start-background; color: #4CAF50"
+                event-set__mouseleave="_target: #start-background; color: #2E7D32">
+                <a-plane 
+                    id="start-background"
+                    width="1.5" 
+                    height="0.3" 
+                    color="#2E7D32"
+                    opacity="0.9">
+                </a-plane>
+                <a-text 
+                    value="Mulai Simulasi" 
+                    position="0 0 0.01" 
+                    align="center" 
+                    width="1.5"
+                    color="#ffffff">
+                </a-text>
+            </a-entity>
+            
+            <a-entity 
+                id="tools-button" 
+                class="interactive button" 
+                position="0 -0.3 0.01"
+                animation__mouseenter="property: scale; to: 1.1 1.1 1; startEvents: mouseenter; dur: 200"
+                animation__mouseleave="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 200"
+                event-set__mouseenter="_target: #tools-background; color: #2196F3"
+                event-set__mouseleave="_target: #tools-background; color: #1565C0">
+                <a-plane 
+                    id="tools-background"
+                    width="1.5" 
+                    height="0.3" 
+                    color="#1565C0"
+                    opacity="0.9">
+                </a-plane>
+                <a-text 
+                    value="Alat Kesehatan" 
+                    position="0 0 0.01" 
+                    align="center" 
+                    width="1.5"
+                    color="#ffffff">
+                </a-text>
+            </a-entity>
+            
+            <a-entity 
+                id="exit-button" 
+                class="interactive button" 
+                position="0 -0.7 0.01"
+                animation__mouseenter="property: scale; to: 1.1 1.1 1; startEvents: mouseenter; dur: 200"
+                animation__mouseleave="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 200"
+                event-set__mouseenter="_target: #exit-background; color: #f44336"
+                event-set__mouseleave="_target: #exit-background; color: #c62828">
+                <a-plane 
+                    id="exit-background"
+                    width="1.5" 
+                    height="0.3" 
+                    color="#c62828"
+                    opacity="0.9">
+                </a-plane>
+                <a-text 
+                    value="Keluar" 
+                    position="0 0 0.01" 
+                    align="center" 
+                    width="1.5"
+                    color="#ffffff">
+                </a-text>
+            </a-entity>
+        </a-entity>
+
+        <a-entity environment="preset: default; groundColor: #4455aa; grid: cross"></a-entity>
+        
+        <a-entity light="type: ambient; color: #888; intensity: 0.5"></a-entity>
+        <a-entity light="type: directional; color: #fff; intensity: 0.8" position="5 5 5"></a-entity>
+    </a-scene>
+
+    <script>
+        
+        // PERUBAHAN 1: Komponen untuk "membangunkan" joystick setelah masuk VR
+        // PERUBAHAN: Dijalankan pada 'klik' pertama, bukan 'enter-vr'
+       // PERBAIKAN BARU: Menggunakan Jeda Waktu (Timeout) setelah Masuk VR
+        AFRAME.registerComponent('vr-joystick-fix', {
+          init: function () {
+            // Dijalankan saat event 'enter-vr' selesai
+            this.el.sceneEl.addEventListener('enter-vr', () => {
+              console.log("Masuk VR. Menunggu 1 detik untuk 'membangunkan' joystick...");
+              
+              // Beri jeda 1 detik (1000ms)
+              setTimeout(this.forceJoystickWakeUp.bind(this), 1000);
+            });
+          },
+
+          forceJoystickWakeUp: function () {
+            console.log("Memaksa 'movement-controls' untuk update!");
+            var movementControls = document.querySelectorAll('[movement-controls]');
+            
+            movementControls.forEach(function (el) {
+              var comp = el.components['movement-controls'];
+              if (comp) {
+                // Panggil play() dan update() untuk 'menyegarkan' komponen
+                if (typeof comp.play === 'function') {
+                  comp.play();
+                }
+                if (typeof comp.update === 'function') {
+                  comp.update(comp.data); // Memaksa re-check state
+                }
+              }
+            });
+          }
+        });
+    
+        // Komponen untuk membuat objek dapat digrab (Gunakan versi yang sudah diperbaiki)
+        // PERBAIKAN: Komponen 'grabbable' yang berfungsi dengan 'trigger' (mousedown)
+        AFRAME.registerComponent('grabbable', {
+            init: function () {
+                // Mendengarkan 'mousedown' (trigger) BUKAN 'grab-start'
+                this.el.addEventListener('mousedown', this.onGrabStart.bind(this));
+                
+                // Mendengarkan 'mouseup' di scene, untuk memastikan menu lepas
+                // bahkan jika trigger dilepas di luar menu
+                this.el.sceneEl.addEventListener('mouseup', this.onGrabEnd.bind(this));
+                
+                this.originalParent = this.el.parentNode;
+                this.grabbingController = null;
+            },
+            
+            onGrabStart: function (evt) {
+                // Cek apakah yang diklik adalah background menu?
+                // Kita tidak ingin grab jika yang diklik adalah tombol.
+                if (evt.target.id !== 'menu-background') {
+                    return; // Hentikan jika yang diklik bukan background
+                }
+
+                // Dapatkan controller dari event raycaster
+                this.grabbingController = evt.detail.cursorEl; 
+                if (!this.grabbingController) { return; } // Pengaman
+
+                // Pindahkan menu ke controller
+                this.grabbingController.appendChild(this.el);
+                
+                // Atur posisi relatif (1.5m di depan controller)
+                this.el.setAttribute('position', '0 0 -1.5'); 
+            },
+            
+            onGrabEnd: function (evt) {
+                // Hanya jalankan jika kita sedang meng-grab
+                if (this.grabbingController) {
+                    
+                    // Kembalikan ke scene (originalParent)
+                    this.originalParent.appendChild(this.el);
+                    
+                    // Gunakan logika penempatan dunia yang sudah diperbaiki
+                    let camera = document.querySelector('[camera]');
+                    let cameraWorldPos = new THREE.Vector3();
+                    let cameraWorldDir = new THREE.Vector3();
+                    
+                    camera.object3D.getWorldPosition(cameraWorldPos);
+                    camera.object3D.getWorldDirection(cameraWorldDir);
+                    
+                    let distance = 2; // Jarak menu di depan kamera
+                    
+                    let newWorldPosition = {
+                        x: cameraWorldPos.x + cameraWorldDir.x * distance,
+                        y: cameraWorldPos.y, // Sejajar tinggi kamera
+                        z: cameraWorldPos.z + cameraWorldDir.z * distance
+                    };
+
+                    this.el.setAttribute('position', newWorldPosition);
+                    
+                    // Bersihkan status
+                    this.grabbingController = null;
+                }
+            }
+        });
+
+        // PERUBAHAN 1: Event listener tombol (NON-BLOCKING)
+        document.querySelector('#start-button').addEventListener('click', function() {
+            console.log('Memulai simulasi kesehatan edukatif!');
+        });
+
+        document.querySelector('#tools-button').addEventListener('click', function() {
+            console.log('Menampilkan daftar alat kesehatan: Stetoskop, Tensi Digital, Termometer Digital, Infus');
+        });
+
+        document.querySelector('#exit-button').addEventListener('click', function() {
+            console.log('Keluar dari VirtuCare...');
+            console.log('Terima kasih telah menggunakan VirtuCare!');
+        });
+    </script>
+</body>
+</html>
