@@ -1,161 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>VirtuCare: Simulasi Kesehatan Edukatif</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-look-at-billboard-component@0.1.2/dist/aframe-look-at-billboard-component.min.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-    
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-        }
-        #ui-container {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
-            pointer-events: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery Art Exhibitions (Babylon.js)</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+
+  <!-- Babylon.js -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
 </head>
 <body>
-    <a-scene background="color: #1a1a2e" cursor="rayOrigin: mouse" vr-joystick-fix>
-        <a-assets>
-            <a-asset-item id="ruangan" src="assets/ruang_periksa.glb"></a-asset-item>
-        </a-assets>
-        <a-entity id="rig" movement-controls> 
-            
-            <a-entity camera look-controls position="0 1.6 0"></a-entity>
-            
-            <a-entity 
-                id="right-hand" laser-controls="hand: right" 
-                raycaster="objects: .interactive"
-                line="color: #0080ff; opacity: 0.5">
-                <a-cursor color="#FFFFFF" fuse="false" raycaster="objects: .interactive">
-                </a-cursor>
-            </a-entity>
+  <canvas id="renderCanvas"></canvas>
 
-            <a-entity 
-                id="right-hand" laser-controls="hand: left" 
-                raycaster="objects: .interactive"
-                movement-controls="hand: left">
-                <a-cursor color="#FFFFFF" fuse="false" raycaster="objects: .interactive">
-                </a-cursor> 
-            </a-entity>
+  <script>
+    // --- Inisialisasi engine dan hilangkan loading screen bawaan ---
+    const canvas = document.getElementById("renderCanvas");
+    const engine = new BABYLON.Engine(canvas, true);
 
-        </a-entity>
-        <a-entity gltf-model="#ruangan"
-            position="0 0 0"
-            scale = "0.4 0.4 0.4"></a-entity>
-    
-    <script>
-        
-        // PERUBAHAN 1: Komponen untuk "membangunkan" joystick setelah masuk VR
-        // PERUBAHAN: Dijalankan pada 'klik' pertama, bukan 'enter-vr'
-       // PERBAIKAN BARU: Menggunakan Jeda Waktu (Timeout) setelah Masuk VR
-        AFRAME.registerComponent('vr-joystick-fix', {
-          init: function () {
-            // Dijalankan saat event 'enter-vr' selesai
-            this.el.sceneEl.addEventListener('enter-vr', () => {
-              console.log("Masuk VR. Menunggu 1 detik untuk 'membangunkan' joystick...");
-              
-              // Beri jeda 1 detik (1000ms)
-              setTimeout(this.forceJoystickWakeUp.bind(this), 1000);
-            });
-          },
+    // Matikan loading screen default Babylon
+    engine.displayLoadingUI = function() {};
+    engine.hideLoadingUI();
 
-          forceJoystickWakeUp: function () {
-            console.log("Memaksa 'movement-controls' untuk update!");
-            var movementControls = document.querySelectorAll('[movement-controls]');
-            
-            movementControls.forEach(function (el) {
-              var comp = el.components['movement-controls'];
-              if (comp) {
-                // Panggil play() dan update() untuk 'menyegarkan' komponen
-                if (typeof comp.play === 'function') {
-                  comp.play();
-                }
-                if (typeof comp.update === 'function') {
-                  comp.update(comp.data); // Memaksa re-check state
-                }
-              }
-            });
-          }
-        });
-    
-        // Komponen untuk membuat objek dapat digrab (Gunakan versi yang sudah diperbaiki)
-        // PERBAIKAN: Komponen 'grabbable' yang berfungsi dengan 'trigger' (mousedown)
-        AFRAME.registerComponent('grabbable', {
-            init: function () {
-                // Mendengarkan 'mousedown' (trigger) BUKAN 'grab-start'
-                this.el.addEventListener('mousedown', this.onGrabStart.bind(this));
-                
-                // Mendengarkan 'mouseup' di scene, untuk memastikan menu lepas
-                // bahkan jika trigger dilepas di luar menu
-                this.el.sceneEl.addEventListener('mouseup', this.onGrabEnd.bind(this));
-                
-                this.originalParent = this.el.parentNode;
-                this.grabbingController = null;
-            },
-            
-            onGrabStart: function (evt) {
-                // Cek apakah yang diklik adalah background menu?
-                // Kita tidak ingin grab jika yang diklik adalah tombol.
-                if (evt.target.id !== 'menu-background') {
-                    return; // Hentikan jika yang diklik bukan background
-                }
+    // --- Scene setup ---
+    const createScene = function () {
+      const scene = new BABYLON.Scene(engine);
+      scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+      scene.collisionsEnabled = true;
 
-                // Dapatkan controller dari event raycaster
-                this.grabbingController = evt.detail.cursorEl; 
-                if (!this.grabbingController) { return; } // Pengaman
+      // --- Kamera dengan POV lebih tinggi ---
+      const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 4 , 8), scene);
+      camera.setTarget(new BABYLON.Vector3(0, 4, 0)); // Pandang lurus ke tengah ruangan
+      camera.attachControl(canvas, true);
+      camera.applyGravity = false;
+      camera.checkCollisions = true;
+      camera.speed = 0.2;
+      camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
+      camera.keysUp.push(87); // W
+      camera.keysDown.push(83); // S
+      camera.keysLeft.push(65); // A
+      camera.keysRight.push(68); // D
+      camera.speed = 0.2;
 
-                // Pindahkan menu ke controller
-                this.grabbingController.appendChild(this.el);
-                
-                // Atur posisi relatif (1.5m di depan controller)
-                this.el.setAttribute('position', '0 0 -1.5'); 
-            },
-            
-            onGrabEnd: function (evt) {
-                // Hanya jalankan jika kita sedang meng-grab
-                if (this.grabbingController) {
-                    
-                    // Kembalikan ke scene (originalParent)
-                    this.originalParent.appendChild(this.el);
-                    
-                    // Gunakan logika penempatan dunia yang sudah diperbaiki
-                    let camera = document.querySelector('[camera]');
-                    let cameraWorldPos = new THREE.Vector3();
-                    let cameraWorldDir = new THREE.Vector3();
-                    
-                    camera.object3D.getWorldPosition(cameraWorldPos);
-                    camera.object3D.getWorldDirection(cameraWorldDir);
-                    
-                    let distance = 2; // Jarak menu di depan kamera
-                    
-                    let newWorldPosition = {
-                        x: cameraWorldPos.x + cameraWorldDir.x * distance,
-                        y: cameraWorldPos.y, // Sejajar tinggi kamera
-                        z: cameraWorldPos.z + cameraWorldDir.z * distance
-                    };
+      // --- Cahaya ---
+      const ambientLight = new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0, 1, 0), scene);
+      ambientLight.intensity = 0.3;
+      ambientLight.diffuse = new BABYLON.Color3(1, 0.86, 0.7);
 
-                    this.el.setAttribute('position', newWorldPosition);
-                    
-                    // Bersihkan status
-                    this.grabbingController = null;
-                }
-            }
-        });
+      const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 6, 0), scene);
+      pointLight.intensity = 0.5;
+      pointLight.diffuse = new BABYLON.Color3(1, 0.9, 0.8);
 
-    </script>
+      // --- Lantai ---
+      const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
+      const groundMaterial = new BABYLON.StandardMaterial("groundMat", scene);
+      groundMaterial.diffuseTexture = new BABYLON.Texture("assets/texture/ceiling.jpg", scene);
+      groundMaterial.diffuseTexture.uScale = 5;
+      groundMaterial.diffuseTexture.vScale = 5;
+      ground.material = groundMaterial;
+      ground.checkCollisions = true;
+
+      // --- Load Model GLB ---
+      BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, function () {
+        const model = scene.meshes[scene.meshes.length - 1];
+        model.position = new BABYLON.Vector3(0, 0, -3);
+        model.scaling = new BABYLON.Vector3(1, 1, 1);
+      });
+
+      // --- Aktifkan VR (opsional) ---
+      scene.createDefaultXRExperienceAsync({
+        floorMeshes: [ground]
+      });
+
+      return scene;
+    };
+
+    const scene = createScene();
+
+    // --- Render Loop ---
+    engine.runRenderLoop(() => {
+      scene.render();
+    });
+
+    // --- Resize handler ---
+    window.addEventListener("resize", () => {
+      engine.resize();
+    });
+  </script>
 </body>
 </html>
