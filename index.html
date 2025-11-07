@@ -36,19 +36,129 @@
         </a-light>
 
         <!-- Player Rig for Movement -->
-        <a-entity id="cameraRig" position="0 3 3" movement-controls="speed: 0.02" gamepad-controls="fly: true; speed: 0.02ww">
-          <a-camera position="0 0 0" wasd-controls look-controls>
-              <a-cursor color="red" fuse="true"></a-cursor>
-          </a-camera>
-          <a-entity camera look-controls position="0 1.6 0"></a-entity>
+        <a-scene background="color: #1a1a2e" cursor="rayOrigin: mouse" vr-joystick-fix>
+        <a-assets>
+            <a-asset-item id="ruangan" src="assets/RUANGAN FIX.glb"></a-asset-item>
+        </a-assets>
+        <a-entity id="rig" movement-controls> 
+            
+            <a-entity camera look-controls position="0 1.6 0"></a-entity>
+            
+            <a-entity 
+                id="right-hand" laser-controls="hand: right" 
+                raycaster="objects: .interactive"
+                line="color: #0080ff; opacity: 0.5">
+                <a-cursor color="#FFFFFF" fuse="false" raycaster="objects: .interactive">
+                </a-cursor>
+            </a-entity>
+
+            <a-entity 
+                id="right-hand" laser-controls="hand: left" 
+                raycaster="objects: .interactive"
+                movement-controls="hand: left">
+                <a-cursor color="#FFFFFF" fuse="false" raycaster="objects: .interactive">
+                </a-cursor> 
+            </a-entity>
 
           <!-- VR Controllers -->
-          <a-entity oculus-touch-controls="hand: left" class="controller" controller-movement></a-entity>
-          <a-entity oculus-touch-controls="hand: right" class="controller"></a-entity> 
-        </a-entity>
        
     </a-scene>
 
-    <script src="script.js"></script>
+    <script> // PERUBAHAN 1: Komponen untuk "membangunkan" joystick setelah masuk VR
+        // PERUBAHAN: Dijalankan pada 'klik' pertama, bukan 'enter-vr'
+       // PERBAIKAN BARU: Menggunakan Jeda Waktu (Timeout) setelah Masuk VR
+        AFRAME.registerComponent('vr-joystick-fix', {
+          init: function () {
+            // Dijalankan saat event 'enter-vr' selesai
+            this.el.sceneEl.addEventListener('enter-vr', () => {
+              console.log("Masuk VR. Menunggu 1 detik untuk 'membangunkan' joystick...");
+              
+              // Beri jeda 1 detik (1000ms)
+              setTimeout(this.forceJoystickWakeUp.bind(this), 1000);
+            });
+          },
+
+          forceJoystickWakeUp: function () {
+            console.log("Memaksa 'movement-controls' untuk update!");
+            var movementControls = document.querySelectorAll('[movement-controls]');
+            
+            movementControls.forEach(function (el) {
+              var comp = el.components['movement-controls'];
+              if (comp) {
+                // Panggil play() dan update() untuk 'menyegarkan' komponen
+                if (typeof comp.play === 'function') {
+                  comp.play();
+                }
+                if (typeof comp.update === 'function') {
+                  comp.update(comp.data); // Memaksa re-check state
+                }
+              }
+            });
+          }
+        });
+    
+        // Komponen untuk membuat objek dapat digrab (Gunakan versi yang sudah diperbaiki)
+        // PERBAIKAN: Komponen 'grabbable' yang berfungsi dengan 'trigger' (mousedown)
+        AFRAME.registerComponent('grabbable', {
+            init: function () {
+                // Mendengarkan 'mousedown' (trigger) BUKAN 'grab-start'
+                this.el.addEventListener('mousedown', this.onGrabStart.bind(this));
+                
+                // Mendengarkan 'mouseup' di scene, untuk memastikan menu lepas
+                // bahkan jika trigger dilepas di luar menu
+                this.el.sceneEl.addEventListener('mouseup', this.onGrabEnd.bind(this));
+                
+                this.originalParent = this.el.parentNode;
+                this.grabbingController = null;
+            },
+            
+            onGrabStart: function (evt) {
+                // Cek apakah yang diklik adalah background menu?
+                // Kita tidak ingin grab jika yang diklik adalah tombol.
+                if (evt.target.id !== 'menu-background') {
+                    return; // Hentikan jika yang diklik bukan background
+                }
+
+                // Dapatkan controller dari event raycaster
+                this.grabbingController = evt.detail.cursorEl; 
+                if (!this.grabbingController) { return; } // Pengaman
+
+                // Pindahkan menu ke controller
+                this.grabbingController.appendChild(this.el);
+                
+                // Atur posisi relatif (1.5m di depan controller)
+                this.el.setAttribute('position', '0 0 -1.5'); 
+            },
+            
+            onGrabEnd: function (evt) {
+                // Hanya jalankan jika kita sedang meng-grab
+                if (this.grabbingController) {
+                    
+                    // Kembalikan ke scene (originalParent)
+                    this.originalParent.appendChild(this.el);
+                    
+                    // Gunakan logika penempatan dunia yang sudah diperbaiki
+                    let camera = document.querySelector('[camera]');
+                    let cameraWorldPos = new THREE.Vector3();
+                    let cameraWorldDir = new THREE.Vector3();
+                    
+                    camera.object3D.getWorldPosition(cameraWorldPos);
+                    camera.object3D.getWorldDirection(cameraWorldDir);
+                    
+                    let distance = 2; // Jarak menu di depan kamera
+                    
+                    let newWorldPosition = {
+                        x: cameraWorldPos.x + cameraWorldDir.x * distance,
+                        y: cameraWorldPos.y, // Sejajar tinggi kamera
+                        z: cameraWorldPos.z + cameraWorldDir.z * distance
+                    };
+
+                    this.el.setAttribute('position', newWorldPosition);
+                    
+                    // Bersihkan status
+                    this.grabbingController = null;
+                }
+            }
+        });</script>
 </body>
 </html>
