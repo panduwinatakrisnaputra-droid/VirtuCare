@@ -28,12 +28,6 @@
     </style>
 </head>
 <body>
-    <div id="ui-container">
-        <h3>VirtuCare: Simulasi Kesehatan Edukatif</h3>
-        <p>Gunakan controller untuk berinteraksi dengan menu</p>
-        <p>Tekan tombol grip untuk memindahkan menu</p>
-    </div>
-
     <a-scene background="color: #1a1a2e" cursor="rayOrigin: mouse" vr-joystick-fix>
         <a-assets>
             <a-asset-item id="ruangan" src="assets/ruang_periksa.glb"></a-asset-item>
@@ -162,19 +156,6 @@
             }
         });
 
-        // PERUBAHAN 1: Event listener tombol (NON-BLOCKING)
-        document.querySelector('#start-button').addEventListener('click', function() {
-            console.log('Memulai simulasi kesehatan edukatif!');
-        });
-
-        document.querySelector('#tools-button').addEventListener('click', function() {
-            console.log('Menampilkan daftar alat kesehatan: Stetoskop, Tensi Digital, Termometer Digital, Infus');
-        });
-
-        document.querySelector('#exit-button').addEventListener('click', function() {
-            console.log('Keluar dari VirtuCare...');
-            console.log('Terima kasih telah menggunakan VirtuCare!');
-        });
     </script>
 </body>
 </html>
