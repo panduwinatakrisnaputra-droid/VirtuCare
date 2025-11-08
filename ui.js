@@ -12,13 +12,17 @@ const canvas = document.getElementById("renderCanvas");
             // Lampu dasar
             const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.8;
-
+                
             // --- Setup XR (PERBAIKAN DI SINI) ---
             // Mengganti VRExperience dengan XRExperience
             const xrHelper = await scene.createDefaultXRExperienceAsync({
                 createDeviceOrientationCamera: false
             });
-
+        BABYLON.SceneLoader.Append("assets/", "RUANGAN FIX.glb", scene, function (scene) {
+        const model = scene.meshes[scene.meshes.length - 1];
+        model.position = new BABYLON.Vector3(0, 0, 0);
+        model.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+      });
             // --- Pembuatan UI ---
 
             // 1. Buat Mesh (Plane)
@@ -126,3 +130,4 @@ const canvas = document.getElementById("renderCanvas");
         window.addEventListener("resize", function () {
             engine.resize();
         });
+
