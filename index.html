@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VirtuCare 1 </title>
+  <title>VirtuCare 2 </title>
   <style>
     html, body {
       width: 100%;
@@ -130,12 +130,12 @@
         const xrCamera = xr.baseExperience.camera;
 
         // Tinggi kamera sejajar manusia (1.6 meter)
-        xrCamera.position.y = 2;
+        xrCamera.position.y = 3;
 
         // Pastikan tinggi tetap sejajar saat masuk ke mode VR
         xr.baseExperience.onStateChangedObservable.add(state => {
           if (state === BABYLON.WebXRState.IN_XR) {
-            xrCamera.position.y = 2;
+            xrCamera.position.y = 3;
           }
         });
       });
