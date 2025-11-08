@@ -39,13 +39,14 @@
       scene.collisionsEnabled = true;
 
       // === Kamera ===
-      const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 6, 8), scene);
-      camera.setTarget(new BABYLON.Vector3(0, 6, 0));
+      const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 4, 8), scene);
+      camera.setTarget(new BABYLON.Vector3(0, 4, 0));
       camera.attachControl(canvas, true);
       camera.checkCollisions = true;
       camera.applyGravity = true;
-      camera.ellipsoid = new BABYLON.Vector3(1, 3, 1);
+      camera.ellipsoid = new BABYLON.Vector3(1, 1.7, 1);
       camera.speed = 0.3;
+      camera.position.y = 1.7;
 
       // Keyboard control
       camera.keysUp.push(87); // W
@@ -150,6 +151,7 @@ itable.isVisible = false
     window.addEventListener("resize", () => {
       engine.resize();
     });
+    
   </script>
 </body>
 </html>
