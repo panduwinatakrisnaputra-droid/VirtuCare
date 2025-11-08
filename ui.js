@@ -17,9 +17,6 @@ BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, function (scen
         const model = scene.meshes[scene.meshes.length - 1];
         model.position = new BABYLON.Vector3(0, 0, 0);
         model.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-        model.getChildMeshes().forEach(mesh => {
-          mesh.checkCollisions = true;
-        });
 });
             // --- Setup XR (PERBAIKAN DI SINI) ---
             // Mengganti VRExperience dengan XRExperience
@@ -135,3 +132,4 @@ button.onPointerClickObservable.add(() => {
             engine.resize();
 
         });
+
