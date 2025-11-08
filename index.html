@@ -75,10 +75,9 @@
         const model = scene.meshes[scene.meshes.length - 1];
         model.position = new BABYLON.Vector3(0, 0, 0);
         model.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-        model.getChildMeshes().forEach(mesh => {
-          mesh.checkCollisions = true;
+        model.getChildMeshes().forEach(m => m.checkCollisions = true);
         });
-      });
+      };
 
       // === Collider dinding ===
       const colliderMat = new BABYLON.StandardMaterial("colliderMat", scene);
@@ -133,6 +132,18 @@ itable.position = new BABYLON.Vector3(7.5, 1, -8.5);
 itable.checkCollisions = true;
 itable.isVisible = false
 
+      // === Analog movement (thumbstick kiri) ===
+      const featuresManager = xr.baseExperience.featuresManager;
+      const movementFeature = featuresManager.enableFeature(
+        BABYLON.WebXRFeatureName.MOVEMENT,
+        "stable",
+        {
+          xrInput: xr.input,
+          movementSpeed: 2.0, // kecepatan jalan
+          rotationSpeed: 0.0, // biar rotasi tetap pakai kepala
+          backwardMovementSpeed: 1.5
+        }
+      );
       // === Aktifkan XR/VR ===
       scene.createDefaultXRExperienceAsync({
         floorMeshes: [ground]
