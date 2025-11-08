@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>A</title>
+  <title>Gallery Art Exhibitions (Babylon.js)</title>
   <style>
     html, body {
       width: 100%;
@@ -132,23 +132,33 @@
         // Tinggi kamera sejajar manusia (1.6 meter)
         xrCamera.position.y = 1.6;
 
-        // Aktifkan gerakan dengan joystick (thumbstick)
+        // Coba disable teleportasi dulu (jika gagal, lanjut)
+        try {
+          xr.baseExperience.featuresManager.disableFeature(BABYLON.WebXRFeatureName.TELEPORTATION);
+        } catch (e) {
+          console.warn("Teleportation disable failed:", e);
+        }
+
+        // Aktifkan gerakan dengan joystick (thumbstick) - prioritaskan ini
         xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.MOVEMENT, "latest", {
           xrInput: xr.input,
-          // Opsi untuk gerakan joystick: kecepatan dan mode
-          movementSpeed: 1.0,  // Kecepatan gerakan (sesuaikan 0.5-2.0)
-          rotationSpeed: 1.0,  // Kecepatan rotasi (jika joystick digunakan untuk putar)
-          // Pastikan joystick digunakan untuk gerakan linear
-          useThumbstickForMovement: true  // Prioritaskan thumbstick untuk maju/mundur/kiri/kanan
+          movementSpeed: 1.0,  // Kecepatan gerakan
+          rotationSpeed: 0.5,  // Rotasi lebih lambat agar fokus gerakan
+          useThumbstickForMovement: true,  // Paksa thumbstick untuk gerakan linear
+          // Opsi tambahan untuk memaksa joystick
+          disableTeleportOnThumbstick: true  // Jika didukung, ini cegah teleport saat thumbstick digunakan
         });
 
-        // Nonaktifkan teleportasi agar fokus pada joystick
-        xr.baseExperience.featuresManager.disableFeature(BABYLON.WebXRFeatureName.TELEPORTATION);
-
-        // Pastikan tinggi tetap sejajar saat masuk ke mode VR
+        // Event listener tambahan: Jika teleport masih muncul, cegah input teleport
         xr.baseExperience.onStateChangedObservable.add(state => {
           if (state === BABYLON.WebXRState.IN_XR) {
             xrCamera.position.y = 1.6;
+            // Cek dan cegah teleport jika masih aktif
+            const teleportFeature = xr.baseExperience.featuresManager.getEnabledFeatures().find(f => f.featureName === BABYLON.WebXRFeatureName.TELEPORTATION);
+            if (teleportFeature) {
+              console.log("Teleport still active - forcing disable");
+              xr.baseExperience.featuresManager.disableFeature(BABYLON.WebXRFeatureName.TELEPORTATION);
+            }
           }
         });
       });
