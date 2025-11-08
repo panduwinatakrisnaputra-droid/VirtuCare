@@ -18,25 +18,6 @@ const canvas = document.getElementById("renderCanvas");
             const xrHelper = await scene.createDefaultXRExperienceAsync({
                 createDeviceOrientationCamera: false
             });
-        BABYLON.SceneLoader.ImportMeshAsync(
-                "",                 // Nama mesh (biarkan "" untuk impor semua)
-                "assets/",          // Path (folder) ke file model
-                "RUANGAN FIX.glb",   // Nama file model
-                scene               // Scene target
-            ).then((result) => {
-                // Model berhasil dimuat. 'result.meshes' adalah array
-                // berisi semua mesh yang ada di dalam file glTF.
-                
-                // 'result.meshes[0]' biasanya adalah root node dari model
-                if (result.meshes.length > 0) {
-                    console.log("Model berhasil dimuat!");
-                    // Contoh: Mengatur posisi model pertama
-                    result.meshes[0].position = new BABYLON.Vector3(0, 0, 0);
-                }
-
-            }).catch((error) => {
-                console.error("Gagal memuat model:", error);
-            });
             // --- Pembuatan UI ---
 
             // 1. Buat Mesh (Plane)
@@ -127,7 +108,12 @@ const canvas = document.getElementById("renderCanvas");
             const grabBehavior = new BABYLON.SixDofDragBehavior();
             grabBehavior.allowMultiPointer = true;
             uiPlane.addBehavior(grabBehavior);
-
+        
+        BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, function (scene) {
+        const model = scene.meshes[scene.meshes.length - 1];
+        model.position = new BABYLON.Vector3(0, 0, 0);
+        model.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+      });
             return scene;
         };
 
@@ -144,5 +130,6 @@ const canvas = document.getElementById("renderCanvas");
         window.addEventListener("resize", function () {
             engine.resize();
         });
+
 
 
