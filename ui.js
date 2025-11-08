@@ -13,7 +13,7 @@ camera.attachControl(canvas, true);
 const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 light.intensity = 0.8;
 
-BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, function (scene) {
+BABYLON.SceneLoader.Append("assets/", "RUANGAN FIX.glb", scene, function (scene) {
         const model = scene.meshes[scene.meshes.length - 1];
         model.position = new BABYLON.Vector3(0, 0, 0);
         model.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
@@ -132,4 +132,5 @@ button.onPointerClickObservable.add(() => {
             engine.resize();
 
         });
+
 
