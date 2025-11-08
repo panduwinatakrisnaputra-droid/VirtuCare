@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gallery Art Exhibitions (Babylon.js)</title>
+  <title>A</title>
   <style>
     html, body {
       width: 100%;
@@ -132,11 +132,18 @@
         // Tinggi kamera sejajar manusia (1.6 meter)
         xrCamera.position.y = 1.6;
 
-        // Aktifkan fitur gerakan lanjutan (misalnya, walking atau kontrol khusus)
+        // Aktifkan gerakan dengan joystick (thumbstick)
         xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.MOVEMENT, "latest", {
           xrInput: xr.input,
-          // Opsi tambahan bisa ditambahkan di sini, seperti kecepatan gerakan
+          // Opsi untuk gerakan joystick: kecepatan dan mode
+          movementSpeed: 1.0,  // Kecepatan gerakan (sesuaikan 0.5-2.0)
+          rotationSpeed: 1.0,  // Kecepatan rotasi (jika joystick digunakan untuk putar)
+          // Pastikan joystick digunakan untuk gerakan linear
+          useThumbstickForMovement: true  // Prioritaskan thumbstick untuk maju/mundur/kiri/kanan
         });
+
+        // Nonaktifkan teleportasi agar fokus pada joystick
+        xr.baseExperience.featuresManager.disableFeature(BABYLON.WebXRFeatureName.TELEPORTATION);
 
         // Pastikan tinggi tetap sejajar saat masuk ke mode VR
         xr.baseExperience.onStateChangedObservable.add(state => {
