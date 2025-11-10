@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gallery Art Exhibitions (Babylon.js)</title>
+  <title>VirtuCare VR</title>
   <style>
     html, body {
       width: 100%;
@@ -19,156 +19,159 @@
     }
   </style>
 
-  <!-- Babylon.js -->
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="https://cdn.babylonjs.com/cannon.js"></script>
+
 </head>
 <body>
   <canvas id="renderCanvas"></canvas>
-
   <script>
+    //gravitasi
+
     const canvas = document.getElementById("renderCanvas");
     const engine = new BABYLON.Engine(canvas, true);
 
-    const createScene = function () {
+    
+    async function createScene() {
       const scene = new BABYLON.Scene(engine);
-      scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
       scene.collisionsEnabled = true;
+      scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
 
-      // === Kamera utama (untuk mode non-VR) ===
-      const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 5, 8), scene);
-      camera.setTarget(new BABYLON.Vector3(0, 5, 0));
-      camera.attachControl(canvas, true);
-      camera.checkCollisions = true;
-      camera.applyGravity = true;
-      camera.ellipsoid = new BABYLON.Vector3(1, 1.7, 1);
-      camera.speed = 0.3;
-      camera.position.y = 1.7;
-
-      camera.keysUp.push(87); // W
-      camera.keysDown.push(83); // S
-      camera.keysLeft.push(65); // A
-      camera.keysRight.push(68); // D
-
-      // === Cahaya ===
-      const ambientLight = new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0, 1, 0), scene);
-      ambientLight.intensity = 0.5;
-
-      const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 8, 0), scene);
-      pointLight.intensity = 0.6;
-
-      // === Lantai ===
-      const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 20, height: 30 }, scene);
-      const groundMaterial = new BABYLON.StandardMaterial("groundMat", scene);
-      groundMaterial.diffuseTexture = new BABYLON.Texture("assets/texture/ceiling.jpg", scene);
-      groundMaterial.diffuseTexture.uScale = 10;
-      groundMaterial.diffuseTexture.vScale = 10;
-      ground.material = groundMaterial;
+      // === Cahaya dan Lantai ===
+      new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+      const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
+      const gMat = new BABYLON.StandardMaterial("gmat", scene);
+      gMat.diffuseColor = new BABYLON.Color3(0.3, 0.5, 0.3);
+      ground.material = gMat;
       ground.checkCollisions = true;
 
-      // === Load model GLB ===
-      BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, function (scene) {
-        const model = scene.meshes[scene.meshes.length - 1];
-        model.position = new BABYLON.Vector3(0, 0, 0);
-        model.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-        model.getChildMeshes().forEach(mesh => {
-          mesh.checkCollisions = true;
-        });
+      ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+        ground,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.2, friction: 0.8 },
+        scene
+      );
+      // === Load ruangan dan objek ===
+      BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, (scene) => {
+        scene.meshes.forEach(mesh => mesh.checkCollisions = true);
       });
 
-      // === Collider dinding transparan ===
-      const colliderMat = new BABYLON.StandardMaterial("colliderMat", scene);
-      colliderMat.diffuseColor = new BABYLON.Color3(0.3, 0.6, 1);
-      colliderMat.alpha = 0.4;
+      // Fungsi bantu untuk menambah fisika pada barang
+      const loadBarang = (fileName, position) => {
+        BABYLON.SceneLoader.Append("assets/", fileName, scene, function (scene) {
+          const obj = scene.meshes[scene.meshes.length - 1];
+          obj.position = position;
+          obj.scaling = new BABYLON.Vector3(1, 1, 1);
+          obj.physicsImpostor = new BABYLON.PhysicsImpostor(
+            obj,
+            BABYLON.PhysicsImpostor.BoxImpostor,
+            { mass: 2, restitution: 0.1, friction: 0.9 },
+            scene
+          );
+        });
+      };
 
-      const wallFront = BABYLON.MeshBuilder.CreateBox("wallFront", { width: 20, height: 10, depth: 0.2 }, scene);
-      wallFront.position = new BABYLON.Vector3(0, 5, -10);
-      wallFront.checkCollisions = true;
-      wallFront.material = colliderMat;
-
-      const wallBack = BABYLON.MeshBuilder.CreateBox("wallBack", { width: 20, height: 10, depth: 0.2 }, scene);
-      wallBack.position = new BABYLON.Vector3(0, 5, 10);
-      wallBack.checkCollisions = true;
-      wallBack.material = colliderMat;
-
-      const wallLeft = BABYLON.MeshBuilder.CreateBox("wallLeft", { width: 0.2, height: 10, depth: 20 }, scene);
-      wallLeft.position = new BABYLON.Vector3(-10, 5, 0);
-      wallLeft.checkCollisions = true;
-      wallLeft.material = colliderMat;
-
-      const wallRight = BABYLON.MeshBuilder.CreateBox("wallRight", { width: 0.2, height: 10, depth: 20 }, scene);
-      wallRight.position = new BABYLON.Vector3(10, 5, 0);
-      wallRight.checkCollisions = true;
-      wallRight.material = colliderMat;
-
-      // === Collider tambahan (meja, kursi, ranjang, dll) ===
-      const table = BABYLON.MeshBuilder.CreateBox("table", { width: 2, height: 2, depth: 5 }, scene);
-      table.position = new BABYLON.Vector3(5, 1, 6);
-      table.checkCollisions = true;
-      table.isVisible = false;
-
-      const chair = BABYLON.MeshBuilder.CreateBox("chair", { width: 1.5, height: 2, depth: 3.5 }, scene);
-      chair.position = new BABYLON.Vector3(2, 1, 5.7);
-      chair.checkCollisions = true;
-      chair.isVisible = false;
-
-      const bed = BABYLON.MeshBuilder.CreateBox("bed", { width: 6, height: 2.5, depth: 3 }, scene);
-      bed.position = new BABYLON.Vector3(6.5, 1, -2);
-      bed.checkCollisions = true;
-      bed.isVisible = false;
-
-      const itable = BABYLON.MeshBuilder.CreateBox("itable", { width: 5, height: 2.5, depth: 3 }, scene);
-      itable.position = new BABYLON.Vector3(7.5, 1, -8.5);
-      itable.checkCollisions = true;
-      itable.isVisible = false;
-
-      // === === CAMERA VR (POV manusia) === ===
-      scene.createDefaultXRExperienceAsync({
-        floorMeshes: [ground]
-      }).then(xr => {
-        const xrCamera = xr.baseExperience.camera;
-
-        // Tinggi kamera sejajar manusia (1.6 meter)
-        xrCamera.position.y = 1.6;
-
-        // Coba disable teleportasi dulu (jika gagal, lanjut)
-        try {
-          xr.baseExperience.featuresManager.disableFeature(BABYLON.WebXRFeatureName.TELEPORTATION);
-        } catch (e) {
-          console.warn("Teleportation disable failed:", e);
+      // Objek interaktif
+      let stethoscope = null;
+      await BABYLON.SceneLoader.AppendAsync("assets/", "stethoscope.glb", scene).then(() => {
+        stethoscope = scene.meshes.find(m => m.name.toLowerCase().includes("stethoscope"));
+        if (stethoscope) {
+          stethoscope.position = new BABYLON.Vector3(-8, 29.3, 166);
+          stethoscope.scaling.scaleInPlace(0.003);
         }
-
-        // Aktifkan gerakan dengan joystick (thumbstick) - prioritaskan ini
-        xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.MOVEMENT, "latest", {
-          xrInput: xr.input,
-          movementSpeed: 1.0,  // Kecepatan gerakan
-          rotationSpeed: 0.5,  // Rotasi lebih lambat agar fokus gerakan
-          useThumbstickForMovement: true,  // Paksa thumbstick untuk gerakan linear
-          // Opsi tambahan untuk memaksa joystick
-          disableTeleportOnThumbstick: true  // Jika didukung, ini cegah teleport saat thumbstick digunakan
-        });
-
-        // Event listener tambahan: Jika teleport masih muncul, cegah input teleport
-        xr.baseExperience.onStateChangedObservable.add(state => {
-          if (state === BABYLON.WebXRState.IN_XR) {
-            xrCamera.position.y = 1.6;
-            // Cek dan cegah teleport jika masih aktif
-            const teleportFeature = xr.baseExperience.featuresManager.getEnabledFeatures().find(f => f.featureName === BABYLON.WebXRFeatureName.TELEPORTATION);
-            if (teleportFeature) {
-              console.log("Teleport still active - forcing disable");
-              xr.baseExperience.featuresManager.disableFeature(BABYLON.WebXRFeatureName.TELEPORTATION);
-            }
-          }
-        });
       });
+      BABYLON.SceneLoader.Append("assets/", "perban.glb", scene, function (scene) {
+      const perban = scene.meshes[scene.meshes.length - 1];
+      perban.position = new BABYLON.Vector3(-2.5, -0.3, -2.7);
+      perban.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+    });
+      
+
+      // === Aktifkan WebXR dengan fallback ===
+      let xr = null;
+      try {
+        xr = await scene.createDefaultXRExperienceAsync({
+          floorMeshes: [ground],
+          disableTeleportation: true
+        });
+        console.log("✅ WebXR aktif");
+      } catch (e) {
+        console.warn("⚠️ WebXR tidak didukung, pakai mode biasa:", e);
+
+        // Kamera biasa (tanpa XR)
+        const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 3, -3), scene);
+        camera.attachControl(canvas, true);
+        camera.applyGravity = true;
+        camera.ellipsoid = new BABYLON.Vector3(0.5, 1.5, 0.5);
+        camera.checkCollisions = true;
+        camera.speed = 0.2;
+
+        camera.keysUp.push(87);  // W
+        camera.keysDown.push(83); // S
+        camera.keysLeft.push(65); // A
+        camera.keysRight.push(68); // D
+      }
+
+      // === Gerakan Joystick (hanya aktif jika XR berhasil) ===
+      if (xr) {
+        const xrCamera = xr.baseExperience.camera;
+        xrCamera.position.y = 2;
+
+        xr.baseExperience.featuresManager.enableFeature(
+          BABYLON.WebXRFeatureName.MOVEMENT,
+          "latest",
+          {
+            xrInput: xr.input,
+            movementSpeed: 1.2,
+            rotationSpeed: 0.6,
+            useThumbstickForMovement: true,
+            disableTeleportOnThumbstick: true
+          }
+        );
+
+        // === Grab / Release logic (XR Controller) ===
+        let grabbedMesh = null;
+        let grabOffset = new BABYLON.Vector3();
+
+        xr.input.onControllerAddedObservable.add(controller => {
+          controller.onMotionControllerInitObservable.add(motionController => {
+            const trigger = motionController.getComponentOfType("trigger");
+
+            // Grab
+            trigger.onButtonStateChangedObservable.add(() => {
+              if (trigger.pressed && !grabbedMesh && stethoscope) {
+                const pointerPos = controller.pointer.position;
+                const dist = BABYLON.Vector3.Distance(pointerPos, stethoscope.position);
+                if (dist < 0.3) {
+                  grabbedMesh = stethoscope;
+                  grabOffset = grabbedMesh.position.subtract(pointerPos);
+                }
+              } else if (!trigger.pressed && grabbedMesh) {
+                // Release
+                grabbedMesh = null;
+              }
+            });
+
+            // Update posisi objek saat di-grab
+            scene.onBeforeRenderObservable.add(() => {
+              if (grabbedMesh && controller.pointer) {
+                grabbedMesh.position = controller.pointer.position.add(grabOffset);
+              }
+            });
+          });
+        });
+      }
 
       return scene;
-    };
+    }
 
-    const scene = createScene();
-    engine.runRenderLoop(() => scene.render());
+    createScene().then(scene => {
+      engine.runRenderLoop(() => scene.render());
+    });
+
     window.addEventListener("resize", () => engine.resize());
+    
   </script>
 </body>
 </html>
