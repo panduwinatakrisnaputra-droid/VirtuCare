@@ -19,76 +19,79 @@
     }
   </style>
 
+  <!-- BabylonJS + Physics -->
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
   <script src="https://cdn.babylonjs.com/cannon.js"></script>
-
 </head>
 <body>
   <canvas id="renderCanvas"></canvas>
   <script>
-    //gravitasi
-
     const canvas = document.getElementById("renderCanvas");
     const engine = new BABYLON.Engine(canvas, true);
 
-    
     async function createScene() {
       const scene = new BABYLON.Scene(engine);
       scene.collisionsEnabled = true;
-      scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
 
-      // === Cahaya dan Lantai ===
+      // === Aktifkan physics dengan CANNON.js ===
+      const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
+      const physicsPlugin = new BABYLON.CannonJSPlugin();
+      scene.enablePhysics(gravityVector, physicsPlugin);
+
+      // === Cahaya ===
       new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+
+      // === Lantai ===
       const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
       const gMat = new BABYLON.StandardMaterial("gmat", scene);
       gMat.diffuseColor = new BABYLON.Color3(0.3, 0.5, 0.3);
       ground.material = gMat;
       ground.checkCollisions = true;
-
       ground.physicsImpostor = new BABYLON.PhysicsImpostor(
         ground,
         BABYLON.PhysicsImpostor.BoxImpostor,
-        { mass: 0, restitution: 0.2, friction: 0.8 },
+        { mass: 0, restitution: 0.1, friction: 1 },
         scene
       );
-      // === Load ruangan dan objek ===
-      BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, (scene) => {
-        scene.meshes.forEach(mesh => mesh.checkCollisions = true);
+
+      // === Load ruangan utama ===
+      BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, () => {
+        scene.meshes.forEach(mesh => {
+          mesh.checkCollisions = true;
+          if (mesh.name !== "ground") {
+            mesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+              mesh,
+              BABYLON.PhysicsImpostor.MeshImpostor,
+              { mass: 0, restitution: 0.2, friction: 0.9 },
+              scene
+            );
+          }
+        });
       });
 
-      // Fungsi bantu untuk menambah fisika pada barang
-      const loadBarang = (fileName, position) => {
-        BABYLON.SceneLoader.Append("assets/", fileName, scene, function (scene) {
-          const obj = scene.meshes[scene.meshes.length - 1];
-          obj.position = position;
-          obj.scaling = new BABYLON.Vector3(1, 1, 1);
-          obj.physicsImpostor = new BABYLON.PhysicsImpostor(
-            obj,
-            BABYLON.PhysicsImpostor.BoxImpostor,
-            { mass: 2, restitution: 0.1, friction: 0.9 },
-            scene
-          );
-        });
+      // === Fungsi untuk menambah barang dengan gravitasi ===
+      const loadBarang = async (fileName, position, scale = 1, mass = 2) => {
+        const result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", fileName, scene);
+        const obj = result.meshes[0];
+        obj.position = position;
+        obj.scaling.scaleInPlace(scale);
+        obj.checkCollisions = true;
+
+        obj.physicsImpostor = new BABYLON.PhysicsImpostor(
+          obj,
+          BABYLON.PhysicsImpostor.BoxImpostor,
+          { mass: mass, restitution: 0.1, friction: 0.9 },
+          scene
+        );
+        return obj;
       };
 
-      // Objek interaktif
-      let stethoscope = null;
-      await BABYLON.SceneLoader.AppendAsync("assets/", "stethoscope.glb", scene).then(() => {
-        stethoscope = scene.meshes.find(m => m.name.toLowerCase().includes("stethoscope"));
-        if (stethoscope) {
-          stethoscope.position = new BABYLON.Vector3(-8, 29.3, 166);
-          stethoscope.scaling.scaleInPlace(0.003);
-        }
-      });
-      BABYLON.SceneLoader.Append("assets/", "perban.glb", scene, function (scene) {
-      const perban = scene.meshes[scene.meshes.length - 1];
-      perban.position = new BABYLON.Vector3(-2.5, -0.3, -2.7);
-      perban.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
-    });
-      
+      // === Muat barang-barang ===
+      const stethoscope = await loadBarang("stethoscope.glb", new BABYLON.Vector3(-8, 10, 5), 0.003, 1);
+      const perban = await loadBarang("perban.glb", new BABYLON.Vector3(-2.5, 2, -2.7), 0.1, 1);
 
-      // === Aktifkan WebXR dengan fallback ===
+      // === Aktifkan WebXR ===
       let xr = null;
       try {
         xr = await scene.createDefaultXRExperienceAsync({
@@ -97,81 +100,6 @@
         });
         console.log("✅ WebXR aktif");
       } catch (e) {
-        console.warn("⚠️ WebXR tidak didukung, pakai mode biasa:", e);
+        console.warn("⚠️ WebXR tidak didukung, mode biasa digunakan:", e);
 
-        // Kamera biasa (tanpa XR)
-        const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 3, -3), scene);
-        camera.attachControl(canvas, true);
-        camera.applyGravity = true;
-        camera.ellipsoid = new BABYLON.Vector3(0.5, 1.5, 0.5);
-        camera.checkCollisions = true;
-        camera.speed = 0.2;
-
-        camera.keysUp.push(87);  // W
-        camera.keysDown.push(83); // S
-        camera.keysLeft.push(65); // A
-        camera.keysRight.push(68); // D
-      }
-
-      // === Gerakan Joystick (hanya aktif jika XR berhasil) ===
-      if (xr) {
-        const xrCamera = xr.baseExperience.camera;
-        xrCamera.position.y = 2;
-
-        xr.baseExperience.featuresManager.enableFeature(
-          BABYLON.WebXRFeatureName.MOVEMENT,
-          "latest",
-          {
-            xrInput: xr.input,
-            movementSpeed: 1.2,
-            rotationSpeed: 0.6,
-            useThumbstickForMovement: true,
-            disableTeleportOnThumbstick: true
-          }
-        );
-
-        // === Grab / Release logic (XR Controller) ===
-        let grabbedMesh = null;
-        let grabOffset = new BABYLON.Vector3();
-
-        xr.input.onControllerAddedObservable.add(controller => {
-          controller.onMotionControllerInitObservable.add(motionController => {
-            const trigger = motionController.getComponentOfType("trigger");
-
-            // Grab
-            trigger.onButtonStateChangedObservable.add(() => {
-              if (trigger.pressed && !grabbedMesh && stethoscope) {
-                const pointerPos = controller.pointer.position;
-                const dist = BABYLON.Vector3.Distance(pointerPos, stethoscope.position);
-                if (dist < 0.3) {
-                  grabbedMesh = stethoscope;
-                  grabOffset = grabbedMesh.position.subtract(pointerPos);
-                }
-              } else if (!trigger.pressed && grabbedMesh) {
-                // Release
-                grabbedMesh = null;
-              }
-            });
-
-            // Update posisi objek saat di-grab
-            scene.onBeforeRenderObservable.add(() => {
-              if (grabbedMesh && controller.pointer) {
-                grabbedMesh.position = controller.pointer.position.add(grabOffset);
-              }
-            });
-          });
-        });
-      }
-
-      return scene;
-    }
-
-    createScene().then(scene => {
-      engine.runRenderLoop(() => scene.render());
-    });
-
-    window.addEventListener("resize", () => engine.resize());
-    
-  </script>
-</body>
-</html>
+        // Kame
