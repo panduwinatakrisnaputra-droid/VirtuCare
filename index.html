@@ -102,4 +102,97 @@
       } catch (e) {
         console.warn("⚠️ WebXR tidak didukung, mode biasa digunakan:", e);
 
-        // Kame
+        // Kamera karakter (tanpa XR)
+        const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 3, -3), scene);
+        camera.attachControl(canvas, true);
+        camera.applyGravity = true;
+        camera.checkCollisions = true;
+        camera.ellipsoid = new BABYLON.Vector3(0.5, 1.5, 0.5);
+        camera.speed = 0.2;
+
+        camera.keysUp.push(87);  // W
+        camera.keysDown.push(83); // S
+        camera.keysLeft.push(65); // A
+        camera.keysRight.push(68); // D
+      }
+
+      // === Jika XR aktif, tambahkan karakter & physics tubuh pemain ===
+      if (xr) {
+        const xrCamera = xr.baseExperience.camera;
+        xrCamera.position.y = 2;
+
+        // Buat "body" untuk karakter agar bisa jatuh & berdiri di lantai
+        const playerBody = BABYLON.MeshBuilder.CreateSphere("playerBody", { diameter: 0.5 }, scene);
+        playerBody.position = xrCamera.position.clone();
+        playerBody.isVisible = false;
+
+        playerBody.physicsImpostor = new BABYLON.PhysicsImpostor(
+          playerBody,
+          BABYLON.PhysicsImpostor.SphereImpostor,
+          { mass: 2, restitution: 0, friction: 1 },
+          scene
+        );
+
+        // Sinkronisasi XR camera dengan physics body
+        scene.onBeforeRenderObservable.add(() => {
+          const bodyPos = playerBody.physicsImpostor.getObjectCenter();
+          xrCamera.position.copyFrom(bodyPos.add(new BABYLON.Vector3(0, 1.5, 0)));
+        });
+
+        // Pergerakan (joystick)
+        xr.baseExperience.featuresManager.enableFeature(
+          BABYLON.WebXRFeatureName.MOVEMENT,
+          "latest",
+          {
+            xrInput: xr.input,
+            movementSpeed: 1.2,
+            rotationSpeed: 0.6,
+            useThumbstickForMovement: true,
+            disableTeleportOnThumbstick: true
+          }
+        );
+
+        // === Grab / Lepas barang ===
+        let grabbedMesh = null;
+        let grabOffset = new BABYLON.Vector3();
+
+        xr.input.onControllerAddedObservable.add(controller => {
+          controller.onMotionControllerInitObservable.add(motionController => {
+            const trigger = motionController.getComponentOfType("trigger");
+
+            trigger.onButtonStateChangedObservable.add(() => {
+              const pointerPos = controller.pointer.position;
+              const targetObj = [stethoscope, perban].find(obj => 
+                BABYLON.Vector3.Distance(obj.position, pointerPos) < 0.3
+              );
+
+              if (trigger.pressed && targetObj && !grabbedMesh) {
+                grabbedMesh = targetObj;
+                grabbedMesh.physicsImpostor.sleep(); // hentikan physics sementara
+                grabOffset = grabbedMesh.position.subtract(pointerPos);
+              } else if (!trigger.pressed && grabbedMesh) {
+                grabbedMesh.physicsImpostor.wakeUp();
+                grabbedMesh = null;
+              }
+            });
+
+            scene.onBeforeRenderObservable.add(() => {
+              if (grabbedMesh && controller.pointer) {
+                grabbedMesh.position = controller.pointer.position.add(grabOffset);
+              }
+            });
+          });
+        });
+      }
+
+      return scene;
+    }
+
+    createScene().then(scene => {
+      engine.runRenderLoop(() => scene.render());
+    });
+
+    window.addEventListener("resize", () => engine.resize());
+  </script>
+</body>
+</html>
