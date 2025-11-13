@@ -14,8 +14,7 @@
   <script src="https://cdn.babylonjs.com/ammo.js"></script>
 
   <!-- file JS eksternal untuk fisika -->
-  <script src="physics.js"></script>
-  <script src="walk.js"></script>
+  <script src="/js/physics.js"></script>
 </head>
 <body>
   <canvas id="renderCanvas"></canvas>
@@ -179,10 +178,25 @@ BABYLON.SceneLoader.ImportMesh("", "assets/", "kasa.glb", scene, function (meshe
   rootMesh.scaling = new BABYLON.Vector3(5, 5, 5);
 });
 
-BABYLON.SceneLoader.ImportMesh("", "assets/", "kasa.glb", scene, function (meshes) {
+BABYLON.SceneLoader.ImportMesh("", "assets/", "suntik.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-19, 2.6, -3.5);
-  rootMesh.scaling = new BABYLON.Vector3(5, 5, 5);
+  rootMesh.position = new BABYLON.Vector3(-19, 2.3, -7.5);
+  rootMesh.scaling = new BABYLON.Vector3(0.002, 0.002, 0.002);
+});
+
+BABYLON.SceneLoader.ImportMesh("", "assets/", "thermometer.glb", scene, function (meshes) {
+  const rootMesh = meshes[0]; // ambil mesh utama
+  rootMesh.position = new BABYLON.Vector3(-19, 2.6, -11.5);
+  rootMesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+  rootMesh.rotation = new BABYLON.Vector3(80, 160, 0);
+});
+
+BABYLON.SceneLoader.ImportMesh("", "assets/", "tensimeter.glb", scene, function (meshes) {
+  const rootMesh = meshes[0]; // ambil mesh utama
+  rootMesh.position = new BABYLON.Vector3(-19, 2.6, -15.5);
+  rootMesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+  rootMesh.rotation = new BABYLON.Vector3(80, 160, 0);
+  
 });
 
       return scene;
