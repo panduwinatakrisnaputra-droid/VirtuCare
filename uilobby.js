@@ -32,7 +32,7 @@ const canvas = document.getElementById("renderCanvas");
     BABYLON.SceneLoader.ImportMeshAsync(
                 "",                 // Nama mesh (biarkan "" untuk impor semua)
                 "assets/",          // Path (folder) ke file model
-                "RUANGAN FIX.glb",   // Nama file model
+                "ruang_periksa.glb",   // Nama file model
                 scene               // Scene target
             ).then((result) => {
                 // Model berhasil dimuat. 'result.meshes' adalah array
@@ -222,3 +222,4 @@ const canvas = document.getElementById("renderCanvas");
             engine.resize();
         });
         
+
