@@ -64,7 +64,7 @@ const canvas = document.getElementById("renderCanvas");
         });
         console.log("✅ WebXR aktif");
         const xrCamera = xr.baseExperience.camera;
-        xrCamera.position.y = 1;
+        xrCamera.position.y = 3;
         xrCamera.applyGravity = true;
         xrCamera.checkCollisions = true;
 
