@@ -15,7 +15,15 @@
 
   <!-- file JS eksternal untuk fisika -->
   <script type="module" src="physics.js"></script>
-  <script type="module" src="walk.js"></script>
+   <script type="module">
+    import initXRMovement from './xr-movement.js';
+    // setelah scene, camera, ground dibuat:
+    initXRMovement(scene, camera, ground).then(xr => {
+      // xr null jika WebXR gagal / dinonaktifkan
+      console.log("initXRMovement selesai, xr:", xr);
+    });
+  </script>
+
 </head>
 <body>
   <canvas id="renderCanvas"></canvas>
