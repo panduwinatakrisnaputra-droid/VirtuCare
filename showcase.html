@@ -16,7 +16,7 @@
   <!-- file JS eksternal untuk fisika -->
   <script type="module" src="physics.js"></script>
    <script type="module">
-    import initXRMovement from './xr-movement.js';
+    import initXRMovement from './walk.js';
     // setelah scene, camera, ground dibuat:
     initXRMovement(scene, camera, ground).then(xr => {
       // xr null jika WebXR gagal / dinonaktifkan
