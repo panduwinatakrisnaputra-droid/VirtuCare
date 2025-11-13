@@ -75,8 +75,6 @@ const canvas = document.getElementById("renderCanvas");
             xrInput: xr.input,
             movementSpeed: 0.1,
             rotationSpeed: 0.1,
-            movementControls: ["right-xr-standard-thumbstick"],
-            rotationControls: ["left-xr-standard-thumbstick"],
             useThumbstickForMovement: false,
             disableTeleportOnThumbstick: true,
             checkCollisions: true,
@@ -222,4 +220,5 @@ const canvas = document.getElementById("renderCanvas");
             engine.resize();
         });
         
+
 
