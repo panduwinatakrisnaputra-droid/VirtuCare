@@ -68,7 +68,7 @@ const canvas = document.getElementById("renderCanvas");
         xrCamera.applyGravity = true;
         xrCamera.checkCollisions = true;
 
-        xr.baseExperience.featuresManager.enableFeature(
+        /*xr.baseExperience.featuresManager.enableFeature(
           BABYLON.WebXRFeatureName.MOVEMENT,
           "latest",
           {
@@ -81,7 +81,7 @@ const canvas = document.getElementById("renderCanvas");
             applyGravity: true,
             ellipsoid: new BABYLON.Vector3(0.5, 1, 0.5)
           }
-        );
+        );*/
       } catch (e) {
         console.warn("⚠️ WebXR tidak didukung, pakai mode biasa:", e);
         scene.activeCamera = camera;
@@ -220,5 +220,6 @@ const canvas = document.getElementById("renderCanvas");
             engine.resize();
         });
         
+
 
 
