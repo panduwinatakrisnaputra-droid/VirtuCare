@@ -14,9 +14,9 @@
   <script src="https://cdn.babylonjs.com/ammo.js"></script>
 
   <!-- file JS eksternal untuk fisika -->
-  <script src="js/physics.js"></script>
+  <script src="./js/physics.js"></script>
    <script type="module">
-    import initXRMovement from 'js/walk.js';
+    import initXRMovement from './js/walk.js';
     // setelah scene, camera, ground dibuat:
     initXRMovement(scene, camera, ground).then(xr => {
       // xr null jika WebXR gagal / dinonaktifkan
