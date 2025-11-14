@@ -15,13 +15,6 @@
 
   <!-- file JS eksternal untuk fisika -->
   <script src="js/physics.js"></script>
-   <script type="module">
-  import initXRMovement from './js/walk.js';
-  // Setelah scene, camera, dan ground dibuat:
-  initXRMovement(scene, camera, ground).then(xr => {
-    console.log("initXRMovement selesai:", xr);
-  });
-</script>
 
 
 </head>
@@ -72,143 +65,224 @@
       // ================================
 // Kamera sebagai "Player" (POV manusia)
 // ================================
-var camera = new BABYLON.UniversalCamera("playerCam", new BABYLON.Vector3(-15, 3, 5), scene);
-camera.attachControl(canvas, true);
+const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(-15, 2, 0), scene);
+    camera.attachControl(canvas, true);
+    camera.applyGravity = true;
+    camera.ellipsoid = new BABYLON.Vector3(0.5, 1, 0.5);
+    camera.checkCollisions = true;
+    camera.speed = 0.2;
+    camera.keysUp.push(87); camera.keysDown.push(83); camera.keysLeft.push(65); camera.keysRight.push(68); 
 
-// Kecepatan & sensitivitas
-camera.speed = 0.3;
-camera.angularSensibility = 4000;
-
-// Collision & gravity
-camera.checkCollisions = true;
-camera.applyGravity = true;
-
-// Set ellipsoid agar tinggi manusia tetap
-camera.ellipsoid = new BABYLON.Vector3(0.5, 3, 0.5); // x = lebar, y = tinggi, z = kedalaman
-camera.ellipsoidOffset = new BABYLON.Vector3(0, 3, 0);
-
-// Optional: arah awal menghadap belakang
-camera.rotation.y += Math.PI;
-
-
-      // WASD control
-      camera.keysUp.push(87);    // W
-      camera.keysDown.push(83);  // S
-      camera.keysLeft.push(65);  // A
-      camera.keysRight.push(68); // D
+    let xr = null;
 
       // ================================
 // Tambahkan Model + Collision
 // ================================
-BABYLON.SceneLoader.Append("assets/", "ruang_periksa.glb", scene, function () {
-  console.log("✅ Model dimuat!");
-
-  
-  // Tunggu sampai model selesai dimuat sepenuhnya
-  scene.executeWhenReady(() => {
-    // Loop semua mesh di scene
-    scene.meshes.forEach(mesh => {
-      // Abaikan ground, kamera, dan helper mesh
-      if (mesh.name !== "ground" && mesh.name !== "playerCam" && mesh.name !== "__root__") {
-        mesh.checkCollisions = true; // Aktifkan collision
-        mesh.isPickable = true;      // Boleh diklik (optional)
-      }
-    });
-    console.log("🧱 Collision diaktifkan untuk semua mesh model ruang_periksa.glb");
-  });
-});
+BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene 
+    ).then((result) => {
+        if (result.meshes.length > 0) {
+            result.meshes[0].position = new BABYLON.Vector3(-22.5, 0, 8);
+            result.meshes[0].scaling = new BABYLON.Vector3(-0.5, 0.5, 0.5);
+            result.meshes[0].getChildMeshes().forEach(mesh => { 
+                mesh.checkCollisions = true;
+             });
+        }
+    }).catch((error) => { console.error("Gagal memuat model:", error); });
 
 
       // ================================
       // Aktifkan VR / XR Mode
       // ================================
-      try {
-  if (window.isSecureContext && window.navigator.xr) {
-    const xr = await scene.createDefaultXRExperienceAsync({
-      floorMeshes: [ground]
-    });
-    console.log("✅ WebXR aktif (HTTPS)");
-  } else {
-    console.warn("⚠️ WebXR dinonaktifkan - Jalankan di HTTPS untuk mengaktifkan VR/AR");
-  }
-} catch (e) {
-  console.warn("❌ WebXR gagal diinisialisasi:", e);
-}
+try {
+        xr = await scene.createDefaultXRExperienceAsync({
+          floorMeshes: [ground],
+          disableTeleportation: true,
+          cameraOptions:{
+            checkCollisions: true,
+            applyGravity: true,
+            ellipsoid: new BABYLON.Vector3(0.5, 2, 0.5)
+          }
+        });
+        console.log("✅ WebXR aktif");
+        const xrCamera = xr.baseExperience.camera;
+        xrCamera.position.y = 4;
+        xrCamera.applyGravity = true;
+        xrCamera.checkCollisions = true;
+
+        xr.baseExperience.featuresManager.enableFeature(
+          BABYLON.WebXRFeatureName.MOVEMENT,
+          "latest",
+          {
+            xrInput: xr.input,
+            movementSpeed: 0.1,
+            rotationSpeed: 0.2,
+            movementControls: ["left-xr-standard-thumbstick"],
+            rotationControls: ["right-xr-standard-thumbstick"],
+            useThumbstickForMovement: true,
+            disableTeleportOnThumbstick: true,
+            checkCollisions: true,
+            applyGravity: true,
+            ellipsoid: new BABYLON.Vector3(0.5, 2, 0.5)
+          }
+        );
+      } catch (e) {
+        console.warn("⚠️ WebXR tidak didukung, pakai mode biasa:", e);
+        scene.activeCamera = camera;
+        camera.applyGravity = true;
+        camera.checkCollisions = true;
+        
+      }
+      console.log("WebXR state: ", xr.baseExperience.state);
+        console.log("Current Camera: ", scene.activeCamera);
+    
 
 // ================================
 // Muat GLB dengan physics
 // ================================
 BABYLON.SceneLoader.ImportMesh("", "assets/", "perban.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-19, 2.5, 0.5);
+  rootMesh.position = new BABYLON.Vector3(-17, 2, 7.8);
   rootMesh.scaling = new BABYLON.Vector3(0.03, 0.03, 0.03);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
  });
 
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "oximeter.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-11, 2.6, 0.5);
+  rootMesh.position = new BABYLON.Vector3(-17, 2, 9.7);
   rootMesh.scaling = new BABYLON.Vector3(0.13, 0.13, 0.13);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "gunting medis.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-11, 2.55, -3.5);
-  rootMesh.scaling = new BABYLON.Vector3(0.035, 0.035, 0.035);
+  rootMesh.position = new BABYLON.Vector3(-17, 2, 11.7);
+  rootMesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "reflex hammer.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-11, 2.6, -7.5);
+  rootMesh.position = new BABYLON.Vector3(-13, 2, -5.6);
   rootMesh.scaling = new BABYLON.Vector3(3, 3, 3);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "stethoscope.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-11, 2.6, -11.5);
-  rootMesh.scaling = new BABYLON.Vector3(0.002, 0.002, 0.002);
+  rootMesh.position = new BABYLON.Vector3(-13, 2, -7.8);
+  rootMesh.scaling = new BABYLON.Vector3(0.0015, 0.0015, 0.0015);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "TIANG INFUS.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-7.5, 0.2, -18.5);
-  rootMesh.scaling = new BABYLON.Vector3(0.07, 0.07, 0.07);
-});
-
-BABYLON.SceneLoader.ImportMesh("", "assets/", "TIANG INFUS.glb", scene, function (meshes) {
-  const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-7.5, 0.2, -18.5);
-  rootMesh.scaling = new BABYLON.Vector3(0.07, 0.07, 0.07);
+  rootMesh.position = new BABYLON.Vector3(-11, 0.1, -9.3);
+  rootMesh.scaling = new BABYLON.Vector3(0.04, 0.04, 0.04);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "kasa.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-19, 2.6, -3.5);
+  rootMesh.position = new BABYLON.Vector3(-17, 2, 0.2);
   rootMesh.scaling = new BABYLON.Vector3(5, 5, 5);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "suntik.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-19, 2.3, -7.5);
-  rootMesh.scaling = new BABYLON.Vector3(0.002, 0.002, 0.002);
+  rootMesh.position = new BABYLON.Vector3(-17, 2, -1.67);
+  rootMesh.scaling = new BABYLON.Vector3(0.001, 0.001, 0.001);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "thermometer.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-19, 2.6, -11.5);
-  rootMesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+  rootMesh.position = new BABYLON.Vector3(-17, 2, -3.8);
+  rootMesh.scaling = new BABYLON.Vector3(0.25, 0.25, 0.25);
   rootMesh.rotation = new BABYLON.Vector3(80, 160, 0);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
+  rootMesh.applyGravity = true;
 });
 
 BABYLON.SceneLoader.ImportMesh("", "assets/", "tensimeter.glb", scene, function (meshes) {
   const rootMesh = meshes[0]; // ambil mesh utama
-  rootMesh.position = new BABYLON.Vector3(-19, 2.6, -15.5);
+  rootMesh.position = new BABYLON.Vector3(-17, 2, -5.7);
   rootMesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
   rootMesh.rotation = new BABYLON.Vector3(80, 160, 0);
-  
-});
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
 
-      return scene;
+});
+const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 1.6, width: 0.7, depth: 10}, scene);
+mejaCollision1.position = new BABYLON.Vector3(-17, 0.5, 12);
+mejaCollision1.isVisible = true;
+mejaCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
+    mejaCollision1,
+    BABYLON.PhysicsImpostor.BoxImpostor, 
+    { mass: 0, restitution: 0.2 }, 
+    scene
+);
+const mejaCollision2= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 1.6, width: 0.7, depth: 10}, scene);
+mejaCollision2.position = new BABYLON.Vector3(-13, 0.5, 12);
+mejaCollision2.isVisible = true;
+mejaCollision2.physicsImpostor = new BABYLON.PhysicsImpostor(
+    mejaCollision2,
+    BABYLON.PhysicsImpostor.BoxImpostor, 
+    { mass: 0, restitution: 0.2 }, 
+    scene
+);
+
+return scene;
     };
 
     
