@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Simulasi</title>
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    #renderCanvas { width: 100%; height: 100%; touch-action: none; }
+  </style>
+
+  <!-- Babylon.js Core + GLTF Loader + Physics Engine -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+  <script src="https://cdn.babylonjs.com/ammo.js"></script>
+
+  <!-- file JS eksternal untuk fisika -->
+  <script src="js/physics.js"></script>
+
+
+</head>
+<body>
+  <canvas id="renderCanvas"></canvas>
+
+  <script>
+
+    
+    // ================================
+    // Inisialisasi Engine & Canvas
+    // ================================
+    const canvas = document.getElementById("renderCanvas");
+    const engine = new BABYLON.Engine(canvas, true);
+
+    // ================================
+    // Fungsi utama: Membuat Scene
+    // ================================
+    const createScene = async function () {
+      const scene = new BABYLON.Scene(engine);
+      scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.95);
+
+      // Aktifkan sistem fisika dari file physics.js
+      await enablePhysics(scene);
+
+      // ================================
+      // Buat ground (lantai dunia)
+      // ================================
+      const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
+      ground.checkCollisions = true;
+      ground.position.y = 0;
+
+      // Tambahkan Physics Impostor agar terpengaruh fisika
+      ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+        ground,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.9 },
+        scene
+      );
+
+      // ================================
+      // Cahaya dan Arah
+      // ================================
+      const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+      light.intensity = 0.7;
+
+      const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+      dirLight.intensity = 1;
+
+      // ================================
+// Kamera sebagai "Player" (POV manusia)
+// ================================
+const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(-15, 2, 20), scene);
+    camera.attachControl(canvas, true);
+    camera.applyGravity = true;
+    camera.ellipsoid = new BABYLON.Vector3(0.5, 1, 0.5);
+    camera.checkCollisions = true;
+    camera.speed = 0.2;
+    camera.keysUp.push(87); camera.keysDown.push(83); camera.keysLeft.push(65); camera.keysRight.push(68); 
+
+    let xr = null;
+
+      // ================================
+// Tambahkan Model + Collision
+// ================================
+BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene 
+    ).then((result) => {
+        if (result.meshes.length > 0) {
+            result.meshes[0].position = new BABYLON.Vector3(-22.5, 0, 8);
+            result.meshes[0].scaling = new BABYLON.Vector3(-0.5, 0.5, 0.5);
+            result.meshes[0].getChildMeshes().forEach(mesh => { 
+                mesh.checkCollisions = true;
+             });
+        }
+    }).catch((error) => { console.error("Gagal memuat model:", error); });
+
+
+      // ================================
+      // Aktifkan VR / XR Mode
+      // ================================
+try {
+        xr = await scene.createDefaultXRExperienceAsync({
+          floorMeshes: [ground],
+          disableTeleportation: true,
+          cameraOptions:{
+            checkCollisions: true,
+            applyGravity: true,
+            ellipsoid: new BABYLON.Vector3(0.5, 2, 0.5)
+          }
+        });
+        console.log("✅ WebXR aktif");
+        const xrCamera = xr.baseExperience.camera;
+        xrCamera.position.y = 4;
+        xrCamera.applyGravity = true;
+        xrCamera.checkCollisions = true;
+
+        xr.baseExperience.featuresManager.enableFeature(
+          BABYLON.WebXRFeatureName.MOVEMENT,
+          "latest",
+          {
+            xrInput: xr.input,
+            movementSpeed: 0.1,
+            rotationSpeed: 0.2,
+            movementControls: ["left-xr-standard-thumbstick"],
+            rotationControls: ["right-xr-standard-thumbstick"],
+            useThumbstickForMovement: true,
+            disableTeleportOnThumbstick: true,
+            checkCollisions: true,
+            applyGravity: true,
+            ellipsoid: new BABYLON.Vector3(0.5, 2, 0.5)
+          }
+        );
+      } catch (e) {
+  console.warn("⚠️ WebXR tidak didukung, pakai mode biasa:", e);
+  xr = null; // pastikan null agar aman dicek di bawah
+  scene.activeCamera = camera;
+  camera.applyGravity = true;
+  camera.checkCollisions = true;
+}
+
+// ==================================
+// LOG aman tanpa error
+// ==================================
+if (xr && xr.baseExperience) {
+    console.log("WebXR state:", xr.baseExperience.state);
+    console.log("Current Camera (XR):", xr.baseExperience.camera);
+} else {
+    console.warn("WebXR tidak aktif (xr == null)");
+    console.log("Current Camera:", scene.activeCamera);
+}
+
+
+// ================================
+// Muat GLB dengan physics
+// ================================
+BABYLON.SceneLoader.ImportMesh("", "assets/", "pasien.glb", scene, function (meshes) {
+  const rootMesh = meshes[0]; // ambil mesh utama
+  rootMesh.position = new BABYLON.Vector3(-14.7, 1.2, 25.5);
+  rootMesh.scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
+
+
+  
+  // ===========================
+  // ROTASI POSISI TIDUR
+  // ===========================
+  rootMesh.rotation = new BABYLON.Vector3(3 * Math.PI / 2, 0, 3.2);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+    rootMesh,
+    BABYLON.PhysicsImpostor.BoxImpostor,
+    { mass: 0, restitution: 0.4 },
+    scene
+  );
+});
+
+BABYLON.SceneLoader.ImportMesh("", "assets/", "stethoscope.glb", scene, function (meshes) {
+  const rootMesh = meshes[0]; // ambil mesh utama
+  rootMesh.position = new BABYLON.Vector3(-17, 1.3, 27.5);
+  rootMesh.scaling = new BABYLON.Vector3(0.0015, 0.0015, 0.0015);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
+});
+
+BABYLON.SceneLoader.ImportMesh("", "assets/", "tensimeter.glb", scene, function (meshes) {
+  const rootMesh = meshes[0]; // ambil mesh utama
+  rootMesh.position = new BABYLON.Vector3(-17.5, 1.3, 27.5);
+  rootMesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+  rootMesh.rotation = new BABYLON.Vector3(80, 160, 0);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
+});
+
+BABYLON.SceneLoader.ImportMesh("", "assets/", "thermometer.glb", scene, function (meshes) {
+  const rootMesh = meshes[0]; // ambil mesh utama
+  rootMesh.position = new BABYLON.Vector3(-16.3, 1.3, 27.5);
+  rootMesh.scaling = new BABYLON.Vector3(0.25, 0.25, 0.25);
+  rootMesh.rotation = new BABYLON.Vector3(80, 160, 0);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
+  rootMesh.applyGravity = true;
+});
+
+BABYLON.SceneLoader.ImportMesh("", "assets/", "infus.glb", scene, function (meshes) {
+  const rootMesh = meshes[0]; // ambil mesh utama
+  rootMesh.position = new BABYLON.Vector3(-11, 0.1, 27.5);
+  rootMesh.scaling = new BABYLON.Vector3(0.04, 0.04, 0.04);
+  rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        rootMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor, 
+        { mass: 0, restitution: 0.4 }, 
+        scene
+    );
+});
+return scene;
+    };
+
+    
+    // ================================
+    // Jalankan Scene
+    // ================================
+    createScene().then(scene => {
+      engine.runRenderLoop(() => scene.render());
+    });
+
+    // Resize otomatis saat jendela berubah
+    window.addEventListener("resize", () => engine.resize());
+  </script>
+</body>
+</html>
