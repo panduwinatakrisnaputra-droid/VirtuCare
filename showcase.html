@@ -265,7 +265,7 @@ BABYLON.SceneLoader.ImportMesh("", "assets/", "tensimeter.glb", scene, function 
 });
 const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 1.6, width: 0.7, depth: 10}, scene);
 mejaCollision1.position = new BABYLON.Vector3(-17, 0.5, 12);
-mejaCollision1.isVisible = true;
+mejaCollision1.isVisible = false;
 mejaCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
     mejaCollision1,
     BABYLON.PhysicsImpostor.BoxImpostor, 
@@ -274,7 +274,7 @@ mejaCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
 );
 const mejaCollision2= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 1.6, width: 0.7, depth: 10}, scene);
 mejaCollision2.position = new BABYLON.Vector3(-13, 0.5, 12);
-mejaCollision2.isVisible = true;
+mejaCollision2.isVisible = false;
 mejaCollision2.physicsImpostor = new BABYLON.PhysicsImpostor(
     mejaCollision2,
     BABYLON.PhysicsImpostor.BoxImpostor, 
