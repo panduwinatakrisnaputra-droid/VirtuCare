@@ -155,6 +155,7 @@ const createScene = async function () {
     // 1. Buat Mesh (Plane)
     const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
     uiPlane.position = new BABYLON.Vector3(0, 2.8, 2.5);
+    uiPlane.rotation.x = -.2;
     uiPlane.scaling.scaleInPlace(3);
 
     // 2. Buat AdvancedDynamicTexture
@@ -360,3 +361,4 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
