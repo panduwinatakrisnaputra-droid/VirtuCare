@@ -30,14 +30,24 @@ const createScene = async function () {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "RUANGAN FIX.glb", scene 
     ).then((result) => {
         if (result.meshes.length > 0) {
-            result.meshes[0].position = new BABYLON.Vector3(-2, 0, 7);
-            result.meshes[0].scaling = new BABYLON.Vector3(-0.5, 0.5, 0.4);
+            result.meshes[0].position = new BABYLON.Vector3(-2, 0, 8.5);
+            result.meshes[0].scaling = new BABYLON.Vector3(-0.5, 0.5, 0.5);
             result.meshes[0].getChildMeshes().forEach(mesh => { 
                 mesh.checkCollisions = true;
              });
         }
     }).catch((error) => { console.error("Gagal memuat model:", error); });
-    
+    BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "Avatar_Virtucare.glb", scene 
+    ).then((result) => {
+        if (result.meshes.length > 0) {
+            result.meshes[0].position = new BABYLON.Vector3(0, .7, 2.7);
+            result.meshes[0].scaling = new BABYLON.Vector3(.3, .3, .3);
+            result.meshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
+            result.meshes[0].getChildMeshes().forEach(mesh => { 
+                mesh.checkCollisions = true;
+             });
+        }
+    }).catch((error) => { console.error("Gagal memuat model:", error); });
     // Setup XR (Kode disederhanakan)
     try {
         xr = await scene.createDefaultXRExperienceAsync({
@@ -98,7 +108,7 @@ const createScene = async function () {
 
     // --- DATA TEKS DIPISAH ---
     const TAHAP_1_JUDUL = "Halo, Calon Dokter!";
-    const TAHAP_1_BODY = "Selamat datang di VirtuCare, sebuah dunia virtual yang dirancang untuk membawa lebih dekat dengan pengalaman medis yang sesungguhnya.";
+    const TAHAP_1_BODY = "Kenalkan! aku PUKIMAK! Selamat datang di VirtuCare, sebuah dunia virtual yang dirancang untuk membawa lebih dekat dengan pengalaman medis yang sesungguhnya.";
     const TAHAP_2_BODY = "Saat ini, Anda berada di lobi VirtuCare, titik awal sebelum memulai pelatihan. Setiap interaksi dan setiap langkah yang diambil akan membawa semakin dekat menuju profesionalisme seorang tenaga medis.";
     const TAHAP_3_TEXT_FULL = "Siap melakukan simulasi?";
     const TAHAP_4_BODY = "Baik, karena belum siap melakukan simulasi, akan saya antarkan ke ruang showcase pengenalan alat medis dulu!";
@@ -144,7 +154,7 @@ const createScene = async function () {
     
     // 1. Buat Mesh (Plane)
     const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
-    uiPlane.position = new BABYLON.Vector3(0, 1.6, 2.5);
+    uiPlane.position = new BABYLON.Vector3(0, 2.8, 2.5);
     uiPlane.scaling.scaleInPlace(3);
 
     // 2. Buat AdvancedDynamicTexture
