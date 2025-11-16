@@ -30,7 +30,7 @@ const createScene = async function () {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene 
     ).then((result) => {
         if (result.meshes.length > 0) {
-            result.meshes[0].position = new BABYLON.Vector3(-2, 0.2, 7.9);
+            result.meshes[0].position = new BABYLON.Vector3(-2, -0.5, 7.9);
             result.meshes[0].scaling = new BABYLON.Vector3(-0.43, 0.43, 0.43);
             result.meshes[0].getChildMeshes().forEach(mesh => { 
                 mesh.checkCollisions = true;
@@ -500,6 +500,7 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
 
 
