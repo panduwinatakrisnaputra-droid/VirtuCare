@@ -545,7 +545,7 @@ const createScene = async function () {
                 lanjutButton.onPointerClickObservable.clear(); // Hapus listener lama
                 lanjutButton.onPointerClickObservable.add(() => {
                      // Logika setelah selesai
-                     alert("Simulasi Selesai!");
+                     window.location.href = "index.html";
                      // Lakukan navigasi atau reset di sini
                      // window.location.href = "index.html";
                 });
@@ -585,3 +585,4 @@ window.addEventListener("resize", () => engine.resize());
 // akan mendapatkan error. Anda bisa menghapus baris pemanggilan 
 // setupGrabLogic(scene, xr); jika belum siap.
 // ======================================
+
