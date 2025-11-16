@@ -184,16 +184,16 @@ const createScene = async function () {
     const heartbeatSound = new BABYLON.Sound("heartbeat", "audio/detak jantung.mp3", scene, null, { loop: true, volume: 0.6 });
     
     // Invisible interaction points
-    const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.3 }, scene);
+    const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.2 }, scene);
     chestTarget.position = new BABYLON.Vector3(-14.6, 1.3, 27);
     chestTarget.isVisible = false;
 
-    const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.3 }, scene);
-    headTarget.position = new BABYLON.Vector3(-14.6, 1.3, 27.5);
+    const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.2 }, scene);
+    headTarget.position = new BABYLON.Vector3(-14.6, 1.25, 27.5);
     headTarget.isVisible = false;
 
-    const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.25 }, scene);
-    armTarget.position = new BABYLON.Vector3(-14.1, 1.3, 26.7);
+    const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.2 }, scene);
+    armTarget.position = new BABYLON.Vector3(-14.25, 1.2, 27);
     armTarget.isVisible = false;
 
     // Tautkan GUI ke Target
@@ -574,7 +574,7 @@ const createScene = async function () {
     // setupGrabLogic(scene, xr); 
 
     setupGrabLogic(scene, xr);
-    
+
     return scene;
 };
 
