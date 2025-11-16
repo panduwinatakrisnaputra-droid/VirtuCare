@@ -747,8 +747,8 @@ const createFinalButton = (name, text, color, onClickHandler) => {
 const goToShowcase = () => {
     window.location.href = "showcase.html";
 };
-const goToPemeriksaan = () => {
-    window.location.href = "pemeriksaan.html";
+const goToSimulasi = () => {
+    window.location.href = "simulasi.html";
 };
 
 // --- HANDLER TOMBOL AKHIR (Logika Diperbarui) ---
@@ -773,7 +773,7 @@ const onSiapClick = () => {
         typeWriterEffect(TAHAP_5_BODY, confirmationTitle, scene, () => {
             // 5. Navigasi setelah selesai
             setTimeout(() => {
-                goToPemeriksaan();
+                goToSimulasi();
             }, 1000);
         });   
     };
