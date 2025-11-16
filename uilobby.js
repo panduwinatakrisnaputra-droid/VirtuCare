@@ -27,7 +27,7 @@ const createScene = async function () {
     let xr = null;
     
     // Loading Model (Kode disederhanakan)
-    BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene 
+    BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "RUANGAN FIX.glb", scene 
     ).then((result) => {
         if (result.meshes.length > 0) {
             result.meshes[0].position = new BABYLON.Vector3(-2, 0, 8.5);
@@ -361,6 +361,7 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
 
 
