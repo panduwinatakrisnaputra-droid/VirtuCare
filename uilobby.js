@@ -30,11 +30,11 @@ const createScene = async function () {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene 
     ).then((result) => {
         if (result.meshes.length > 0) {
-            result.meshes[0].position = new BABYLON.Vector3(-2, 0, 8.5);
-            result.meshes[0].scaling = new BABYLON.Vector3(-0.5, 0.5, 0.5);
+            result.meshes[0].position = new BABYLON.Vector3(-2, 0, 7.9);
+            result.meshes[0].scaling = new BABYLON.Vector3(-0.43, 0.43, 0.43);
             result.meshes[0].getChildMeshes().forEach(mesh => { 
                 mesh.checkCollisions = true;
-             });
+                });
         }
     }).catch((error) => { console.error("Gagal memuat model:", error); });
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "Avatar_Virtucare.glb", scene 
@@ -45,19 +45,20 @@ const createScene = async function () {
             result.meshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
             result.meshes[0].getChildMeshes().forEach(mesh => { 
                 mesh.checkCollisions = true;
-             });
+                });
         }
     }).catch((error) => { console.error("Gagal memuat model:", error); });
+    
     // Setup XR (Kode disederhanakan)
     try {
         xr = await scene.createDefaultXRExperienceAsync({
-          floorMeshes: [ground],
-          disableTeleportation: true,
-          cameraOptions:{
-            checkCollisions: true,
-            applyGravity: true,
-            ellipsoid: new BABYLON.Vector3(0.5, 1, 0.5)
-          }
+            floorMeshes: [ground],
+            disableTeleportation: true,
+            cameraOptions:{
+                checkCollisions: true,
+                applyGravity: true,
+                ellipsoid: new BABYLON.Vector3(0.5, 1, 0.5)
+            }
         });
         console.log("✅ WebXR aktif");
         const xrCamera = xr.baseExperience.camera;
@@ -66,29 +67,29 @@ const createScene = async function () {
         xrCamera.checkCollisions = true;
 
         xr.baseExperience.featuresManager.enableFeature(
-          BABYLON.WebXRFeatureName.MOVEMENT,
-          "latest",
-          {
-            xrInput: xr.input,
-            movementSpeed: 0,
-            rotationSpeed: 0.1,
-            movementControls: [],
-            rotationControls: ["right-xr-standard-thumbstick"],
-            useThumbstickForMovement: true,
-            disableTeleportOnThumbstick: true,
-            checkCollisions: true,
-            applyGravity: true,
-            ellipsoid: new BABYLON.Vector3(0.5, 1, 0.5)
-          }
+            BABYLON.WebXRFeatureName.MOVEMENT,
+            "latest",
+            {
+                xrInput: xr.input,
+                movementSpeed: 0,
+                rotationSpeed: 0.1,
+                movementControls: [],
+                rotationControls: ["right-xr-standard-thumbstick"],
+                useThumbstickForMovement: true,
+                disableTeleportOnThumbstick: true,
+                checkCollisions: true,
+                applyGravity: true,
+                ellipsoid: new BABYLON.Vector3(0.5, 1, 0.5)
+            }
         );
-      } catch (e) {
+        } catch (e) {
         console.warn("⚠️ WebXR tidak didukung, pakai mode biasa:", e);
         scene.activeCamera = camera;
         camera.applyGravity = true;
         camera.checkCollisions = true;
         
-      }
-      console.log("WebXR state: ", xr.baseExperience.state);
+        }
+        console.log("WebXR state: ", xr.baseExperience.state);
         console.log("Current Camera: ", scene.activeCamera);
     
     const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
@@ -113,6 +114,7 @@ const createScene = async function () {
     const TAHAP_3_TEXT_FULL = "Siap melakukan simulasi?";
     const TAHAP_4_BODY = "Baik, karena belum siap melakukan simulasi, akan saya antarkan ke ruang showcase pengenalan alat medis dulu!";
     const TAHAP_5_BODY = "Baik, karena kamu sudah siap untuk melakukan simulasi, akan saya antarkan ke ruang pemeriksaan!";
+    
     // --- FUNGSI TYPEWRITER EFFECT DENGAN CALLBACK ---
     function typeWriterEffect(targetText, textBlock, scene, onComplete = () => {}) {
         if (isTyping) {
@@ -133,8 +135,8 @@ const createScene = async function () {
             if (isTyping && charIndex <= currentTextTarget.length) {
                 // Perbaikan: Menggunakan properti frameId
                 if (scene.getEngine().frameId % TYPING_SPEED === 0) { 
-                     textBlock.text = currentTextTarget.substring(0, charIndex);
-                     charIndex++;
+                        textBlock.text = currentTextTarget.substring(0, charIndex);
+                        charIndex++;
                 }
             } else if (isTyping) {
                 // Selesai mengetik
@@ -150,7 +152,7 @@ const createScene = async function () {
         });
     }
 
-    // --- PEMBUATAN UI ---
+    // --- PEMBUATAN UI (PANEL UTAMA) ---
     
     // 1. Buat Mesh (Plane)
     const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
@@ -170,7 +172,7 @@ const createScene = async function () {
     mainPanel.thickness = 10;
     mainPanel.color = "white";
     adt.addControl(mainPanel);
-
+    
     // 5. Buat StackPanel
     const stackPanel = new BABYLON.GUI.StackPanel("buttonStack");
     stackPanel.widthInPixels = 1800;
@@ -259,7 +261,7 @@ const createScene = async function () {
             goToPemeriksaan();
         },1000)
         
-    });  
+    }); 
     };
     const onBelumSiapClick = () => { 
         console.log("Belum siap diklik!"); 
@@ -344,6 +346,146 @@ const createScene = async function () {
             lanjutButton.isHitTestVisible = true; // Aktifkan tombol Lanjut
         });
     }); 
+    
+    // --- PEMBUATAN PANEL KREDIT (BARU DAN TERPISAH) ---
+    
+    // 1. Buat Mesh (Plane) BARU khusus untuk kredit
+    const creditsPlane = BABYLON.MeshBuilder.CreatePlane("creditsPlane", scene);
+    // Atur posisi berbeda, misalnya sedikit di kanan panel utama
+    creditsPlane.position = new BABYLON.Vector3(1.4, 1.5, .8); 
+    creditsPlane.rotation.x = 0;
+    creditsPlane.rotation.y = 1;
+    creditsPlane.rotation.z = 0;
+    creditsPlane.scaling.scaleInPlace(3);
+    creditsPlane.isVisible = false; // Sembunyikan plane ini di awal
+
+    // 2. Buat ADT (Texture) BARU untuk plane kredit
+    const adtCredits = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(creditsPlane, 3000, 3000);
+
+    // 3. Buat Panel Kredit (Rectangle)
+    const creditsPanel = new BABYLON.GUI.Rectangle("creditsPanel");
+    creditsPanel.widthInPixels = 2000;
+    creditsPanel.heightInPixels = 1500;
+    creditsPanel.background = "rgba(10, 20, 70, 0.7)"; 
+    creditsPanel.cornerRadius = 50;
+    creditsPanel.thickness = 10;
+    creditsPanel.color = "white";
+    adtCredits.addControl(creditsPanel);
+
+    // 4. Tambahkan behavior geser (grab) ke plane BARU
+    const creditsGrabBehavior = new BABYLON.SixDofDragBehavior();
+    creditsGrabBehavior.allowMultiPointer = true;
+    creditsPlane.addBehavior(creditsGrabBehavior);
+
+    // --- ISI KONTEN PANEL KREDIT (BARU) ---
+    // (Ini adalah bagian yang hilang/salah tempat sebelumnya)
+
+    // Judul Panel Kredit
+    const creditsTitle = new BABYLON.GUI.TextBlock("creditsTitle", "Credits");
+    creditsTitle.color = "#FFD700";
+    creditsTitle.fontSizeInPixels = 100;
+    creditsTitle.fontStyle = "bold";
+    creditsTitle.heightInPixels = 150;
+    creditsTitle.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    creditsTitle.paddingTopInPixels = 30;
+    creditsPanel.addControl(creditsTitle);
+
+    // Tombol Tutup (Close) pada panel kredit
+    // <-- DEKLARASI 'closeCreditsButton' ADA DI SINI
+    const closeCreditsButton = BABYLON.GUI.Button.CreateSimpleButton("closeCredits", "Tutup");
+    closeCreditsButton.widthInPixels = 300;
+    closeCreditsButton.heightInPixels = 100;
+    closeCreditsButton.background = "#D9534F"; // Merah
+    closeCreditsButton.color = "white";
+    closeCreditsButton.fontSizeInPixels = 40;
+    closeCreditsButton.cornerRadius = 20;
+    closeCreditsButton.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    closeCreditsButton.paddingBottomInPixels = 30;
+    creditsPanel.addControl(closeCreditsButton);
+
+    // ScrollViewer untuk menampung daftar kredit
+    const creditsScrollViewer = new BABYLON.GUI.ScrollViewer("creditsScroll");
+    creditsScrollViewer.widthInPixels = 1800;
+    creditsScrollViewer.heightInPixels = 1000; 
+    creditsScrollViewer.topInPixels = 100; 
+    creditsScrollViewer.barSize = 30;
+    creditsScrollViewer.barColor = "grey";
+    creditsScrollViewer.thumbColor = "white";
+    creditsPanel.addControl(creditsScrollViewer);
+
+    // Konten Teks untuk di dalam ScrollViewer
+    const creditsContent = new BABYLON.GUI.TextBlock("creditsContent");
+    creditsContent.text = `
+    Project Manager
+    ULFATUN NADA
+
+    Concept Developer
+    ULFATUN NADA
+    NAYLA RISMA HARUMI
+
+    Report Writer
+    PUTRI SYNTIA NARLITA RACHMADANI
+    
+    Programmer
+    PANDU WINATA KRISNA PUTRA
+    MUHAMMAD SURURI ARDAN
+
+    3D Artist
+    MUHAMMAD HAIDAR ALLAMSYAH
+
+    Assets
+    - Model Ruang Periksa oleh MUHAMMAD HAIDAR ALLAMSYAH
+    - Model Avatar oleh NATHAN YUDHISTIRA SIAHAAN
+
+    Special Thanks
+    - Tim Babylon.js
+    - Dosen Pembimbing Bapak Sritrusta Sukaridhoto ST, Ph.D
+    
+    VirtuCare © 2025
+    `;
+    creditsContent.widthInPixels = 1750; 
+    creditsContent.textWrapping = true;
+    creditsContent.color = "white";
+    creditsContent.fontSizeInPixels = 50;
+    creditsContent.paddingTopInPixels = 20;
+    creditsContent.paddingLeftInPixels = 20;
+    creditsContent.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    creditsContent.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    creditsContent.resizeToFit = true; 
+    creditsScrollViewer.addControl(creditsContent);
+
+
+    // --- TOMBOL UNTUK MEMBUKA KREDIT (BARU) ---
+    // (Tombol ini ditambahkan ke 'adt' utama)
+    // <-- DEKLARASI 'openCreditsButton' ADA DI SINI
+    const openCreditsButton = BABYLON.GUI.Button.CreateSimpleButton("openCredits", "Credits");
+    openCreditsButton.rotation.y = 0;
+    openCreditsButton.widthInPixels = 400;
+    openCreditsButton.heightInPixels = 200;
+    openCreditsButton.background = "rgb(100, 100, 100)";
+    openCreditsButton.color = "white";
+    openCreditsButton.fontSizeInPixels = 65;
+    openCreditsButton.cornerRadius = 20;
+    openCreditsButton.thickness = 2;
+    openCreditsButton.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    openCreditsButton.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+    openCreditsButton.paddingTopInPixels = 30;
+    openCreditsButton.paddingRightInPixels = 30;
+    adt.addControl(openCreditsButton);
+
+    // --- LOGIKA BUKA/TUTUP PANEL KREDIT (BARU) ---
+    // (Sekarang aman karena kedua tombol sudah dideklarasikan)
+    openCreditsButton.onPointerClickObservable.add(() => {
+        // mainPanel.isVisible = false; // Opsional: Sembunyikan panel utama jika mau
+        creditsPlane.isVisible = true;      // <-- Ganti ke plane
+        // openCreditsButton.isVisible = false; // Opsional: Tombol tetap terlihat
+    });
+
+    closeCreditsButton.onPointerClickObservable.add(() => {
+        creditsPlane.isVisible = false;     // <-- Ganti ke plane
+        // mainPanel.isVisible = true; // Opsional: Tampilkan lagi panel utama
+        // openCreditsButton.isVisible = true; // Opsional
+    });
 
     return scene;
 };
@@ -361,8 +503,3 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
-
-
-
-
-
