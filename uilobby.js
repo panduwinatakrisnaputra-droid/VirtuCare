@@ -372,10 +372,6 @@ const createScene = async function () {
     creditsPanel.color = "white";
     adtCredits.addControl(creditsPanel);
 
-    // 4. Tambahkan behavior geser (grab) ke plane BARU
-    const creditsGrabBehavior = new BABYLON.SixDofDragBehavior();
-    creditsGrabBehavior.allowMultiPointer = true;
-    creditsPlane.addBehavior(creditsGrabBehavior);
 
     // --- ISI KONTEN PANEL KREDIT (BARU) ---
     // (Ini adalah bagian yang hilang/salah tempat sebelumnya)
@@ -503,3 +499,4 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
