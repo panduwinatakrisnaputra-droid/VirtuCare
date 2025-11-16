@@ -408,9 +408,8 @@ const createScene = async function () {
     const TAHAP_4_BODY = "Langkah 1: Periksa detak jantung dan paru pasien menggunakan stetoskop";
     const TAHAP_5_BODY = "Langkah 2: Lanjutkan pemeriksaan tekanan darah menggunakan tensimeter digital.";
     const TAHAP_6_BODY = "Langkah 3: Pastikan pasien tidak mengalami infeksi dengan memeriksa suhu tubuh menggunakan termometer digital.";
-    const TAHAP_7_BODY = "Langkah 4: Berikan tindakan medis berupa pemasangan infus cairan elektrolit.";
-    const TAHAP_8_BODY = "Pasien mengalami hipotensi ringan akibat kelelahan dan kurangnya asupan makanan. Tindakan yang diberikan adalah pemasangan infus cairan elektrolit untuk membantu menstabilkan tekanan darah pasien.";
-    const TAHAP_9_BODY = "Simulasi selesai. Anda telah berhasil menangani pasien dengan kondisi hipotensi ringan.";
+    const TAHAP_7_BODY = "Pasien mengalami hipotensi ringan akibat kelelahan dan kurangnya asupan makanan. Tindakan yang diberikan adalah pemasangan infus cairan elektrolit untuk membantu menstabilkan tekanan darah pasien.";
+    const TAHAP_8_BODY = "Simulasi selesai. Anda telah berhasil menangani pasien dengan kondisi hipotensi ringan.";
 
     // TYPEWRITER
     function typeWriterEffect(targetText, textBlock, scene, onComplete = () => {}) {
@@ -541,13 +540,7 @@ const createScene = async function () {
         if (currentState === 8) {
             dialogTitle.text = "";
             typeWriterEffect(TAHAP_8_BODY, dialogBody, scene, () => {
-                lanjutButton.isHitTestVisible = true; // Ditambahkan agar bisa lanjut ke state 9
-            });
-        }
-        if (currentState === 9) {
-            dialogTitle.text = "";
-            typeWriterEffect(TAHAP_9_BODY, dialogBody, scene, () => {
-                lanjutButton.textBlock.text = "Selesai";
+                 lanjutButton.textBlock.text = "Selesai";
                 lanjutButton.isHitTestVisible = true;
                 lanjutButton.onPointerClickObservable.clear(); // Hapus listener lama
                 lanjutButton.onPointerClickObservable.add(() => {
