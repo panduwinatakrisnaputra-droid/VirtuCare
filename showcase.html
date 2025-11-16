@@ -13,11 +13,6 @@
   <script src="https://cdn.babylonjs.com/ammo.js"></script>
   <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
 
-  <audio controls autoplay loop>
-        <source src="audio/BgmLobby.mp3" type="audio/mpeg">
-        Browser Anda tidak mendukung elemen audio HTML5.
-    </audio>
-
   <script src="js/physics.js"></script>
   <script src="js/interactions.js"></script>
   <script src="js/mascotAI.js"></script>
@@ -616,7 +611,7 @@ function typeWriterEffect(targetText, textBlock, scene, onComplete = () => {}) {
 // 1. Buat Mesh (Plane) UNTUK PANEL UTAMA
 const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
 uiPlane.parent = maskotPivot;
-uiPlane.position = new BABYLON.Vector3(0, 2.2, 0); // Posisi asli Anda
+uiPlane.position = new BABYLON.Vector3(0, 2.5, 0); // Posisi asli Anda
 uiPlane.rotation.x = -.5;
 uiPlane.rotation.y = -3.2;
 uiPlane.scaling.scaleInPlace(3);
@@ -752,8 +747,8 @@ const createFinalButton = (name, text, color, onClickHandler) => {
 const goToShowcase = () => {
     window.location.href = "showcase.html";
 };
-const goToSimulasi = () => {
-    window.location.href = "simulasi.html";
+const goToPemeriksaan = () => {
+    window.location.href = "pemeriksaan.html";
 };
 
 // --- HANDLER TOMBOL AKHIR (Logika Diperbarui) ---
@@ -778,7 +773,7 @@ const onSiapClick = () => {
         typeWriterEffect(TAHAP_5_BODY, confirmationTitle, scene, () => {
             // 5. Navigasi setelah selesai
             setTimeout(() => {
-                goToSimulasi();
+                goToPemeriksaan();
             }, 1000);
         });   
     };
@@ -870,7 +865,6 @@ function handleLanjutClick() {
     
 // 7. --- Membuat UI Dapat Di-"Grab" (Digeser) ---
 const grabBehavior = new BABYLON.PointerDragBehavior();
-grabBehavior.allowMultiPointer = false;
 uiPlane.addBehavior(grabBehavior);
 
 // +++ BARU +++ Tambahkan juga grab behavior ke MESH KEDUA
@@ -893,11 +887,7 @@ typeWriterEffect(TAHAP_1_JUDUL, dialogTitle, scene, () => {
     // Jalankan Scene
     // ================================
     createScene().then(scene => {
-      engine.runRenderLoop(() => {
-          if (scene && scene.activeCamera) { // Cek apakah scene valid
-              scene.render();
-          }
-      });
+      engine.runRenderLoop(() => scene.render());
     });
 
     // Resize otomatis saat jendela berubah
