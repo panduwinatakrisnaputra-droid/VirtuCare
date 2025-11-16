@@ -358,6 +358,7 @@ const createScene = async function () {
     creditsPlane.rotation.z = 0;
     creditsPlane.scaling.scaleInPlace(3);
     creditsPlane.isVisible = false; // Sembunyikan plane ini di awal
+    creditsPlane.isPickable = false;
 
     // 2. Buat ADT (Texture) BARU untuk plane kredit
     const adtCredits = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(creditsPlane, 3000, 3000);
@@ -499,5 +500,6 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
 
