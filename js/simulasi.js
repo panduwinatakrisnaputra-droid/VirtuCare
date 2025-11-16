@@ -1,129 +1,16 @@
+// ======================================
+// PENTING: Anda harus memastikan file ini dimuat setelah babylon.js, 
+// babylonjs.loaders.js, babylonjs.gui.js, babylonjs.materials.js, 
+// dan cannon.js di HTML Anda.
+// Anda juga perlu mendefinisikan fungsi setupGrabLogic di file lain atau di sini.
+// Karena setupGrabLogic tidak ada, saya asumsikan ia berada di file lain.
+// ======================================
+
 // ================================
 // Inisialisasi Engine & Canvas
 // ================================
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
-
-// ======================================
-// FUNGSI LOGIKA RESET (DIHAPUS DARI GLOBAL, DIMASUKKAN KE DALAM createScene)
-// ======================================
-const resetableObjects = [];
-
-function performFullReset() {
-    console.log("Melakukan Reset Barang...");
-
-    resetableObjects.forEach(item => {
-        const mesh = item.mesh;
-
-        // 1. Reset Posisi
-        // Gunakan set() untuk menyalin nilai dengan aman
-        mesh.position.set(item.position.x, item.position.y, item.position.z);
-
-        // 2. Reset Rotasi
-        if (mesh.rotationQuaternion) {
-            // Jika objek menggunakan Quaternion (lebih disarankan untuk fisika)
-            mesh.rotationQuaternion.set(item.rotation.x, item.rotation.y, item.rotation.z, item.rotation.w);
-        } else {
-            // Jika objek menggunakan Euler Angles
-            mesh.rotation.set(item.rotation.x, item.rotation.y, item.rotation.z);
-        }
-        
-        // 3. Reset Fisika
-        if (mesh.physicsImpostor) {
-            // Hentikan semua gerakan
-            mesh.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
-            mesh.physicsImpostor.setAngularVelocity(BABYLON.Vector3.Zero());
-            
-            // Sinkronkan kembali posisi Impostor ke posisi mesh
-            mesh.physicsImpostor.setDeltaPosition(item.position.subtract(mesh.position));
-            if (mesh.rotationQuaternion) {
-                 mesh.physicsImpostor.setDeltaRotation(mesh.rotationQuaternion);
-            }
-        }
-    });
-}
-//======================================
-// 3D reset posisi
-//======================================
-function animateButtonPress(buttonMesh) {
-    const originalY = buttonMesh.position.y;
-    // Nilai ini menentukan seberapa jauh tombol masuk.
-const pressDistance = -0.04; 
-const originalZ = buttonMesh.position.z; // <-- Simpan posisi Z awal
-
-// 1. Animasi Tekan (Maju)
-BABYLON.Animation.CreateAndStartAnimation(
-    "pressAnim", 
-    buttonMesh, 
-    "position.z", // <-- GANTI DARI "position.y" MENJADI "position.z"
-    30, 
-    5, 
-    originalZ, // <-- Gunakan Z awal
-    originalZ + pressDistance, 
-    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
-    new BABYLON.CubicEase()
-);
-
-// 2. Animasi Kembali 
-setTimeout(() => {
-    BABYLON.Animation.CreateAndStartAnimation(
-        "releaseAnim", 
-        buttonMesh, 
-        "position.z", // <-- GANTI DARI "position.y" MENJADI "position.z"
-        30, 
-        15, 
-        originalZ + pressDistance, 
-        originalZ, // <-- Kembali ke Z awal
-        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
-        new BABYLON.ElasticEase(0.5, 0.8)
-    );
-}, 100);
-};
-
-function createResetButton(scene, resetCallback, animateCallback) {
-    // === 1. BASIS TOMBOL (Bagian statis) ===
-    const buttonBase = BABYLON.MeshBuilder.CreateBox("resetBase", { size: 0.5, depth: 0.1 }, scene);
-    buttonBase.position = new BABYLON.Vector3(-15.5, 2, 28.2); // Contoh lokasi di dekat UI
-    buttonBase.material = new BABYLON.StandardMaterial("baseMat", scene);
-    buttonBase.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
-
-    // === 2. PLUNGER TOMBOL (Bagian yang ditekan) ===
-    const resetButtonPlunger = BABYLON.MeshBuilder.CreateCylinder("resetButtonPlunger", { diameter: 0.4, height: 0.15 }, scene);
-    // Posisikan sedikit di atas basis
-    resetButtonPlunger.position = new BABYLON.Vector3(
-        buttonBase.position.x, 
-        buttonBase.position.y, 
-        buttonBase.position.z + -0.05
-    );
-    resetButtonPlunger.rotation.y = buttonBase.rotation.y;
-
-    resetButtonPlunger.rotation.y = Math.PI / 2; // Rotasi 90 derajat di sumbu Y (horizontal)
-    resetButtonPlunger.rotation.x = 0;           // Rotasi di sumbu X
-    resetButtonPlunger.rotation.z = Math.PI / 2;           // Rotasi di sumbu Z
-    
-    resetButtonPlunger.material = new BABYLON.StandardMaterial("plungerMat", scene);
-    resetButtonPlunger.material.diffuseColor = new BABYLON.Color3(1, 0.1, 0.1); // Merah
-
-    // === 3. INTERAKSI MENGGUNAKAN ACTION MANAGER ===
-    resetButtonPlunger.actionManager = new BABYLON.ActionManager(scene);
-
-    // Tambahkan Aksi: Saat tombol di-klik (pointer pick)
-    resetButtonPlunger.actionManager.registerAction(
-        new BABYLON.ExecuteCodeAction(
-            BABYLON.ActionManager.OnPickTrigger, 
-            function (evt) {
-                // Panggil fungsi reset dan animasi
-                animateCallback(resetButtonPlunger);
-                resetCallback();
-            }
-        )
-    );
-    
-    return { buttonBase, resetButtonPlunger };
-}
-//=====================================
-// Tombol Lobby
-//=====================================
 
 // ================================
 // Fungsi utama: Membuat Scene
@@ -132,14 +19,15 @@ const createScene = async function () {
     const scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.95);
 
+    // --- VARIABEL UNTUK ITEM INTERAKSI (DIALIHKAN KE SCOPE LOKAL) ---
+    // Variabel ini akan menampung referensi ke Wrapper Mesh yang sebenarnya.
+    let thermometerMesh = null;
+    let tensimeterMesh = null;
+
     // Misal pakai CannonJS
     const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
     const physicsPlugin = new BABYLON.CannonJSPlugin();
     scene.enablePhysics(gravityVector, physicsPlugin);
-
-    // Aktifkan sistem fisika dari file physics.js
-    // Catatan: Pastikan file physics.js sudah dimuat di HTML Anda
-    // await enablePhysics(scene); // Dikomentari, asumsikan sudah ada di skrip yang dimuat
 
     // ================================
     // Buat ground (lantai dunia)
@@ -190,7 +78,7 @@ const createScene = async function () {
                 mesh.checkCollisions = true;
             });
         }
-    }).catch((error) => { console.error("Gagal memuat model:", error); });
+    }).catch((error) => { console.error("Gagal memuat model ruangan:", error); });
 
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "Avatar_Virtucare.glb", scene)
         .then((result) => {
@@ -252,7 +140,7 @@ const createScene = async function () {
         console.warn("WebXR tidak aktif");
     }
 
-    const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 0.7, width: 2, depth: 0.7}, scene);
+    const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 0.5, width: 2, depth: 0.7}, scene);
     mejaCollision1.position = new BABYLON.Vector3(-17, 1, 27.5);
     mejaCollision1.isVisible = false;
     mejaCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
@@ -262,18 +150,11 @@ const createScene = async function () {
         scene
     );
 
-    // Hapus deklarasi `initialPositions` yang lama (atau gunakan `resetableObjects` global)
-    // const initialPositions = []; // Dihapus/diganti
-
-    // ================================
-    // Muat GLB dengan physics
-    // ================================
+    // Pasien
     BABYLON.SceneLoader.ImportMesh("", "assets/", "pasien.glb", scene, function (meshes) {
         const rootMesh = meshes[0];
-        // Pastikan objek pasien tidak ikut di-reset jika tidak dimaksudkan untuk bergerak
         rootMesh.position = new BABYLON.Vector3(-14.7, 1.2, 25.5);
         rootMesh.scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
-
         rootMesh.rotation = new BABYLON.Vector3(3 * Math.PI / 2, 0, 3.2);
         rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
             rootMesh,
@@ -283,6 +164,25 @@ const createScene = async function () {
         );
     });
 
+    // --- Pembuatan GUI Tampilan Pengukuran ---
+    const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    const tempText = new BABYLON.GUI.TextBlock("tempText", "");
+    tempText.fontSize = 40;
+    tempText.color = "yellow";
+    tempText.isVisible = false;
+    advancedTexture.addControl(tempText);
+
+    const tensiText = new BABYLON.GUI.TextBlock("tensiText", ""); // Ubah nama id agar unik
+    tensiText.fontSize = 40;
+    tensiText.color = "cyan";
+    tensiText.isVisible = false;
+    advancedTexture.addControl(tensiText);
+
+    // --- Efek Suara ---
+    const beepSound = new BABYLON.Sound("beep", "audio/beep.mp3", scene, null, { loop: false, volume: 0.5 });
+    const heartbeatSound = new BABYLON.Sound("heartbeat", "audio/detak jantung.mp3", scene, null, { loop: true, volume: 0.6 });
+    
     // Invisible interaction points
     const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.3 }, scene);
     chestTarget.position = new BABYLON.Vector3(-14.6, 1.3, 27);
@@ -296,56 +196,96 @@ const createScene = async function () {
     armTarget.position = new BABYLON.Vector3(-14.1, 1.3, 26.7);
     armTarget.isVisible = false;
 
-    // Stethoscope
-    BABYLON.SceneLoader.ImportMesh("", "assets/", "stethoscope.glb", scene, function (meshes) {
-        const rootMesh = meshes[0];
-        rootMesh.position = new BABYLON.Vector3(-17, 1.5, 27.5);
-        rootMesh.scaling = new BABYLON.Vector3(0.0015, 0.0015, 0.0015);
-        // Penting: Objek bergerak (mass > 0) harus memiliki rotationQuaternion
-        rootMesh.rotationQuaternion = rootMesh.rotation.toQuaternion(); 
-        rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
-            rootMesh,
-            BABYLON.PhysicsImpostor.BoxImpostor,
-            { mass: 1, restitution: 0.4 },
-            scene
-        );
-        // Simpan posisi awal ke array global `resetableObjects`
-        resetableObjects.push({ mesh: rootMesh, position: rootMesh.position.clone(), rotation: rootMesh.rotationQuaternion.clone() });
-    });
-    
-    // Tensimeter
-    BABYLON.SceneLoader.ImportMesh("", "assets/", "tensimeter.glb", scene, function (meshes) {
-        const rootMesh = meshes[0];
-        rootMesh.position = new BABYLON.Vector3(-17.5, 1.5, 27.5);
-        rootMesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
-        // Atur rotasi di awal, lalu konversi ke Quaternion
-        rootMesh.rotation = new BABYLON.Vector3(80, 160, 0); 
-        rootMesh.rotationQuaternion = rootMesh.rotation.toQuaternion();
-        rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
-            rootMesh,
-            BABYLON.PhysicsImpostor.BoxImpostor,
-            { mass: 1, restitution: 0.4 },
-            scene
-        );
-        resetableObjects.push({ mesh: rootMesh, position: rootMesh.position.clone(), rotation: rootMesh.rotationQuaternion.clone() });
-    });
+    // Tautkan GUI ke Target
+    tempText.linkWithMesh(headTarget);
+    tempText.linkOffsetY = -100;
+    tensiText.linkWithMesh(armTarget);
+    tensiText.linkOffsetY = -100;
 
-    // Thermometer
-    BABYLON.SceneLoader.ImportMesh("", "assets/", "thermometer.glb", scene, function (meshes) {
-        const rootMesh = meshes[0];
-        rootMesh.position = new BABYLON.Vector3(-16.3, 1.5, 27.5);
-        rootMesh.scaling = new BABYLON.Vector3(0.25, 0.25, 0.25);
-        rootMesh.rotation = new BABYLON.Vector3(80, 160, 0);
-        rootMesh.rotationQuaternion = rootMesh.rotation.toQuaternion();
-        rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
-            rootMesh,
+    // Aktifkan Action Manager untuk semua target
+    headTarget.actionManager = new BABYLON.ActionManager(scene);
+    chestTarget.actionManager = new BABYLON.ActionManager(scene);
+    armTarget.actionManager = new BABYLON.ActionManager(scene);
+
+    let isProcessing = false;
+    let isHeartbeatPlaying = false;
+    
+    // ===================================================
+    // [PERBAIKAN TOTAL] Muat GLB dengan "Wrapper" Fisika
+    // ===================================================
+
+    // Tentukan ukuran box fisika (sesuaikan jika perlu)
+    const itemPhysicsSize = 0.2; // 20cm
+    const itemPhysicsMass = 0.01; // Massa ringan
+    const startY = 2.0; // Ketinggian awal item
+
+    /**
+     * Fungsi Helper untuk memuat item grabbable dengan wrapper fisika
+     * @returns {BABYLON.Mesh} Wrapper Mesh yang berisi PhysicsImpostor
+     */
+    function createGrabbableItem(name, glbFile, position, scaling, rotation) {
+        // 1. Buat Wrapper Box (yang akan kena fisika)
+        const wrapper = BABYLON.MeshBuilder.CreateBox(name + "Wrapper", {
+            size: itemPhysicsSize // Ukuran box fisika
+        }, scene);
+        wrapper.position = position; // Posisi di dunia
+        wrapper.isVisible = false; // Sembunyikan box fisika
+
+        // 2. Tambahkan metadata ke WRAPPER
+        wrapper.metadata = {
+            isGrabbable: true,
+            itemData: { title: name }
+        };
+
+        // 3. Tambahkan fisika ke WRAPPER
+        wrapper.physicsImpostor = new BABYLON.PhysicsImpostor(
+            wrapper,
             BABYLON.PhysicsImpostor.BoxImpostor,
-            { mass: 1, restitution: 0.4 },
+            { mass: itemPhysicsMass, restitution: 0.4 },
             scene
         );
-        resetableObjects.push({ mesh: rootMesh, position: rootMesh.position.clone(), rotation: rootMesh.rotationQuaternion.clone() });
-        rootMesh.applyGravity = true;
-    });
+
+        // 4. Muat model GLB
+        BABYLON.SceneLoader.ImportMesh("", "assets/", glbFile, scene, function (meshes) {
+            const rootMesh = meshes[0];
+            
+            // 5. Parent-kan GLB ke WRAPPER
+            rootMesh.setParent(wrapper);
+            
+            // 6. Atur posisi/skala/rotasi GLB RELATIF ke wrapper
+            rootMesh.position = new BABYLON.Vector3(0, 0, 0); // Selalu (0,0,0) relatif ke parent
+            rootMesh.scaling = scaling;
+            if (rotation) {
+                // Di sini Anda mungkin ingin menggunakan rotationQuaternion jika rotasinya kompleks
+                // Untuk contoh ini, kita asumsikan Vector3 rotation
+                rootMesh.rotation = rotation; 
+            }
+        });
+        
+        return wrapper; // <-- PENTING: Mengembalikan mesh yang benar
+    }
+    
+    // --- Gunakan helper untuk memuat dan menangkap semua item ---
+    
+    createGrabbableItem("stethoscope", "stethoscope.glb", 
+        new BABYLON.Vector3(-17, startY, 27.5), 
+        new BABYLON.Vector3(0.0015, 0.0015, 0.0015)
+    );
+    
+
+    // TANGKAP MESH TERMOMETER YANG BENAR
+    thermometerMesh = createGrabbableItem("thermometer", "thermometer.glb", 
+        new BABYLON.Vector3(-16.3, startY, 27.5), 
+        new BABYLON.Vector3(0.25, 0.25, 0.25),
+        new BABYLON.Vector3(80, 160, 0) // Rotasi
+    );
+
+    // TANGKAP MESH TENSIMETER YANG BENAR
+    tensimeterMesh = createGrabbableItem("tensimeter", "tensimeter.glb", 
+        new BABYLON.Vector3(-17.5, startY, 27.5), 
+        new BABYLON.Vector3(0.3, 0.3, 0.3),
+        new BABYLON.Vector3(-110, 160, 100) // Rotasi
+    );
 
     // Infus (Static, mass 0)
     BABYLON.SceneLoader.ImportMesh("", "assets/", "infus.glb", scene, function (meshes) {
@@ -358,20 +298,95 @@ const createScene = async function () {
             { mass: 0, restitution: 0.4 },
             scene
         );
-        
-        
     });
 
-    // ===========================================
-    // 📢 INTEGRASI TOMBOL RESET 3D DI SINI 📢
-    // ===========================================
-    createResetButton(scene, performFullReset, animateButtonPress);
+    // =====================================
+    // Logic Interaksi (Sudah diperbaiki)
+    // =====================================
+
+    // 1. Termometer ke Kepala (Suhu)
+    headTarget.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            // **MENGGUNAKAN thermometerMesh YANG SUDAH TERDEFINISI**
+            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
+            function () {
+                if (!isProcessing) {
+                    isProcessing = true;
+                    
+                    // Jeda 1 detik (1000 ms)
+                    setTimeout(() => {
+                        beepSound.play();
+                        const temperature = (Math.random() * (37.5 - 36.5) + 36.5).toFixed(1);
+                        tempText.text = `${temperature}°C`;
+                        tempText.isVisible = true;
+
+                        setTimeout(() => {
+                            tempText.isVisible = false;
+                            isProcessing = false;
+                        }, 2000);
+                        
+                    }, 1000);
+                }
+            }
+        )
+    );
     
-    // HAPUS Tombol Reset UI yang lama
-    // document.getElementById("resetButton").addEventListener("click", ...); // Dihapus
+    // 2. Termometer ke Dada (Detak Jantung)
+    chestTarget.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            // **MENGGUNAKAN thermometerMesh YANG SUDAH TERDEFINISI**
+            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
+            function () {
+                if (!isProcessing && !isHeartbeatPlaying) {
+                    isProcessing = true;
+                    
+                    // Jeda 1 detik (1000 ms)
+                    setTimeout(() => {
+                        heartbeatSound.play();
+                        isHeartbeatPlaying = true;
+                        isProcessing = false;
+                        
+                        // Berhenti setelah 3 detik
+                        setTimeout(() => {
+                            heartbeatSound.stop();
+                            isHeartbeatPlaying = false;
+                        }, 3000);
+                        
+                    }, 1000);
+                }
+            }
+        )
+    );
+
+    // 3. Tensimeter ke Lengan Kanan (Tekanan Darah)
+    armTarget.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            // **MENGGUNAKAN tensimeterMesh YANG SUDAH TERDEFINISI**
+            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: tensimeterMesh }, 
+            function () {
+                if (!isProcessing) {
+                    isProcessing = true;
+                    
+                    // Jeda 1 detik (1000 ms)
+                    setTimeout(() => {
+                        const systolic = Math.floor(Math.random() * (130 - 100) + 100);
+                        const diastolic = Math.floor(Math.random() * (85 - 65) + 65);
+                        tensiText.text = `${systolic}/${diastolic} mmHg`;
+                        tensiText.isVisible = true;
+
+                        setTimeout(() => {
+                            tensiText.isVisible = false;
+                            isProcessing = false;
+                        }, 2000);
+
+                    }, 1000);
+                }
+            }
+        )
+    );
 
     // =====================================
-    // UI & TYPEWRITER (Kode yang sama)
+    // UI & TYPEWRITER 
     // =====================================
     let currentState = 1;
     let dialogTitle;
@@ -479,13 +494,12 @@ const createScene = async function () {
     finalButtonsContainer.isVisible = false;
     stackPanel.addControl(finalButtonsContainer);
 
-    const goToLobby = () => (window.location.href = "index.html");
-
     // STATE MACHINE
     function handleLanjutClick() {
         if (isTyping) return;
         currentState++;
 
+        // State Machine logic... (dibiarkan seperti semula)
         if (currentState === 2) {
             dialogTitle.text = "";
             typeWriterEffect(TAHAP_2_BODY, dialogBody, scene, () => {
@@ -527,13 +541,21 @@ const createScene = async function () {
         if (currentState === 8) {
             dialogTitle.text = "";
             typeWriterEffect(TAHAP_8_BODY, dialogBody, scene, () => {
-                
+                lanjutButton.isHitTestVisible = true; // Ditambahkan agar bisa lanjut ke state 9
             });
         }
         if (currentState === 9) {
             dialogTitle.text = "";
             typeWriterEffect(TAHAP_9_BODY, dialogBody, scene, () => {
+                lanjutButton.textBlock.text = "Selesai";
                 lanjutButton.isHitTestVisible = true;
+                lanjutButton.onPointerClickObservable.clear(); // Hapus listener lama
+                lanjutButton.onPointerClickObservable.add(() => {
+                     // Logika setelah selesai
+                     alert("Simulasi Selesai!");
+                     // Lakukan navigasi atau reset di sini
+                     // window.location.href = "index.html";
+                });
             });
         }
     }
@@ -547,7 +569,11 @@ const createScene = async function () {
             lanjutButton.isHitTestVisible = true;
         });
     });
+    
+    // Asumsi fungsi ini ada di file lain atau didefinisikan sebelumnya
+    // setupGrabLogic(scene, xr); 
 
+    setupGrabLogic(scene, xr);
     
     return scene;
 };
@@ -560,3 +586,9 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
+// ======================================
+// Catatan: Jika Anda belum mendefinisikan setupGrabLogic, Anda 
+// akan mendapatkan error. Anda bisa menghapus baris pemanggilan 
+// setupGrabLogic(scene, xr); jika belum siap.
+// ======================================
