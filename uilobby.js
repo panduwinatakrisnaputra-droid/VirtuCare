@@ -108,7 +108,7 @@ const createScene = async function () {
 
     // --- DATA TEKS DIPISAH ---
     const TAHAP_1_JUDUL = "Halo, Calon Dokter!";
-    const TAHAP_1_BODY = "Kenalkan! aku PUKIMAK! Selamat datang di VirtuCare, sebuah dunia virtual yang dirancang untuk membawa lebih dekat dengan pengalaman medis yang sesungguhnya.";
+    const TAHAP_1_BODY = "Kenalkan! aku MEDIBOT! Selamat datang di VirtuCare, sebuah dunia virtual yang dirancang untuk membawa lebih dekat dengan pengalaman medis yang sesungguhnya.";
     const TAHAP_2_BODY = "Saat ini, Anda berada di lobi VirtuCare, titik awal sebelum memulai pelatihan. Setiap interaksi dan setiap langkah yang diambil akan membawa semakin dekat menuju profesionalisme seorang tenaga medis.";
     const TAHAP_3_TEXT_FULL = "Siap melakukan simulasi?";
     const TAHAP_4_BODY = "Baik, karena belum siap melakukan simulasi, akan saya antarkan ke ruang showcase pengenalan alat medis dulu!";
@@ -361,5 +361,6 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
 
