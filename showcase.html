@@ -45,7 +45,6 @@
       ground.position.y = 0.12;
       ground.isVisible = false;
 
-      // Tambahkan Physics Impostor agar terpengaruh fisika
       ground.physicsImpostor = new BABYLON.PhysicsImpostor(
         ground,
         BABYLON.PhysicsImpostor.BoxImpostor,
@@ -138,8 +137,7 @@
       // === MULAI KODE BARU: PEMUATAN ITEM & UI ===
       // ================================================================
 
-      // 1. Database Item (DENGAN 'visualOffset')
-      // ... (Database item Anda tidak berubah) ...
+      // 1. Database Item (Tidak berubah)
       const itemDatabase = [
           {
               id: "meshPerban",
@@ -150,7 +148,7 @@
               scale: new BABYLON.Vector3(0.03, 0.03, 0.03),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.4, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.2, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.2, z: 0 }
           },
           {
               id: "meshOximeter",
@@ -161,7 +159,7 @@
               scale: new BABYLON.Vector3(0.13, 0.13, 0.13),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.3, height: 0.3, depth: 0.5 },
-              visualOffset: { x: 0, y: -0.15, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.15, z: 0 }
           },
           {
               id: "meshGunting",
@@ -172,7 +170,7 @@
               scale: new BABYLON.Vector3(0.015, 0.015, 0.015),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.2, height: 0.1, depth: 0.5 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.05, z: 0 }
           },
           {
               id: "meshReflexHammer",
@@ -183,7 +181,7 @@
               scale: new BABYLON.Vector3(3, 3, 3),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.2, height: 0.1, depth: 0.6 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.05, z: 0 }
           },
           {
               id: "meshStethoscope",
@@ -194,7 +192,7 @@
               scale: new BABYLON.Vector3(0.0015, 0.0015, 0.0015),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.3, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.15, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.15, z: 0 }
           },
           {
               id: "meshKasa",
@@ -205,7 +203,7 @@
               scale: new BABYLON.Vector3(5, 5, 5),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.4, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.2, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.2, z: 0 }
           },
           {
               id: "meshSuntik",
@@ -216,7 +214,7 @@
               scale: new BABYLON.Vector3(0.001, 0.001, 0.001),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.1, height: 0.1, depth: 0.7 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.05, z: 0 }
           },
           {
               id: "meshThermometer",
@@ -228,7 +226,7 @@
               rotation: new BABYLON.Vector3(80, 160, 0),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.1, height: 0.1, depth: 0.5 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.05, z: 0 }
           },
           {
               id: "meshTensimeter",
@@ -240,7 +238,7 @@
               rotation: new BABYLON.Vector3(-75, -35, -80),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.3, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.15, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.15, z: 0 }
           },
           {
               id: "meshTiangInfus",
@@ -251,12 +249,11 @@
               scale: new BABYLON.Vector3(0.04, 0.04, 0.04),
               physics: null, 
               physicsBox: null,
-              visualOffset: { x: 0, y: 0, z: 0 } // Tidak perlu offset
+              visualOffset: { x: 0, y: 0, z: 0 }
           }
       ];
 
-      // 2. Fungsi Helper untuk Memuat Model (PERBAIKAN ROTASI)
-      // ... (Fungsi loadItem Anda tidak berubah) ...
+      // 2. Fungsi Helper untuk Memuat Model (Tidak berubah)
       async function loadItem(itemData) {
         const isGrabbable=itemData.id!=="meshTiangInfus";
           // Jika tidak ada data fisika, muat seperti biasa
@@ -292,21 +289,14 @@
           }
 
           // --- Proses untuk Item DENGAN Fisika ---
-
-          // 1. Buat Kotak Fisika (Wrapper)
           const physicsWrapper = BABYLON.MeshBuilder.CreateBox(`wrapper_${itemData.id}`, {
               width: itemData.physicsBox.width,
               height: itemData.physicsBox.height,
               depth: itemData.physicsBox.depth
           }, scene);
 
-          // 2. Atur posisi Wrapper (TANPA ROTASI)
           physicsWrapper.position = itemData.pos;
-          
-          // Atur 'true' untuk melihat kotak fisika saat debugging
           physicsWrapper.isVisible = false; 
-
-          // 3. Beri nama ID ke Wrapper (untuk UI link)
           physicsWrapper.name = itemData.id;
 
           if (isGrabbable){
@@ -317,7 +307,7 @@
               };
           }
 
-          // 4. Terapkan Fisika ke Wrapper
+          // INI ADALAH OPERASI SINKRON YANG BERAT
           physicsWrapper.physicsImpostor = new BABYLON.PhysicsImpostor(
               physicsWrapper,
               BABYLON.PhysicsImpostor.BoxImpostor, 
@@ -325,25 +315,19 @@
               scene
           );
 
-          // 5. Muat Model GLB
           try {
+              // INI ADALAH OPERASI ASINKRON (NETWORK)
               const result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", itemData.file, scene);
               const rootMesh = result.meshes[0];
 
-              // 6. Jadikan GLB sebagai anak dari Wrapper
               rootMesh.parent = physicsWrapper;
-              
-              // 7. Atur skala GLB
               rootMesh.scaling = itemData.scale;
-              
-              // 8. Atur posisi GLB *RELATIF* terhadap wrapper menggunakan offset manual
               rootMesh.position = new BABYLON.Vector3(
                   itemData.visualOffset.x,
                   itemData.visualOffset.y,
                   itemData.visualOffset.z
               );
 
-              // 9. Terapkan rotasi ke model visual, BUKAN ke wrapper
               if (itemData.rotation) {
                   rootMesh.rotation = new BABYLON.Vector3(
                       BABYLON.Tools.ToRadians(itemData.rotation.x),
@@ -355,158 +339,150 @@
           } catch (e) {
               console.error(`Gagal memuat item (fisika) ${itemData.file}:`, e);
           }
-
-          // 10. Kembalikan Wrapper
           return physicsWrapper;
       }
 
-      // 3. Jalankan Pemuatan (await)
-      console.log("Memulai memuat semua item (asinkron)...");
-      const loadPromises = itemDatabase.map(item => loadItem(item));
+
+      // =======================================================
+      // === 3. JALANKAN PEMUATAN (INI PERUBAHAN UTAMANYA) ===
+      // =======================================================
+      console.log("Memulai memuat semua item (SECARA SEKUENSIAL)...");
       
-      // --- MODIFIKASI DIMULAI: Hapus 'await', ganti dengan '.then()' ---
-      // 'await Promise.all(loadPromises);' <-- GARIS INI DIHAPUS
+      // Hapus kode 'Promise.all' yang paralel
+      // const loadPromises = itemDatabase.map(item => loadItem(item));
+      // await Promise.all(loadPromises); // <-- DIHAPUS, INI PENYEBAB FREEZE
+      // console.log("✅ Semua 10 item berhasil dimuat.");
+
+      // Ganti dengan loop 'for...of' yang sekuensial
+      for (const item of itemDatabase) {
+          console.log(`Memuat item: ${item.file}`);
+          // 'await' di sini akan MENJEDA loop, 
+          // memuat satu item sampai selesai, baru lanjut ke item berikutnya.
+          // Ini mencegah 'freeze' karena tidak membanjiri engine.
+          await loadItem(item);
+      }
+      console.log("✅ Semua 10 item berhasil dimuat (sekuensial).");
+      // =======================================================
+      // === AKHIR DARI PERUBAHAN UTAMA ===
+      // =======================================================
+
+
+      // 4. Buat Kanvas dan Panel UI (Shared)
+      // Kode ini sekarang aman dijalankan KARENA loop di atas sudah selesai
+      const infoPlane = BABYLON.MeshBuilder.CreatePlane("infoPlane", {width: 1, height: 0.6}, scene);
       
-      const allItemsLoadedPromise = Promise.all(loadPromises);
+      infoPlane.position = new BABYLON.Vector3(0, 0, 1.5); 
+      infoPlane.isVisible = false; 
+
+      if (xr) {
+          infoPlane.parent = xr.input.xrCamera;
+      } else {
+          infoPlane.parent = camera;
+      }
       
-      // Jalankan kode UI HANYA SETELAH semua item selesai dimuat
-      allItemsLoadedPromise.then(() => {
-          // KODE DI DALAM BLOK INI BERJALAN SECARA ASINKRON
-          // SETELAH 10 ITEM SELESAI
-          console.log("✅ Semua 10 item berhasil dimuat.");
+      const adtPanel = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(infoPlane);
 
-          // 4. Buat Kanvas dan Panel UI (Shared)
-          // (Kode ini dipindah ke dalam .then())
-          const infoPlane = BABYLON.MeshBuilder.CreatePlane("infoPlane", {width: 1, height: 0.6}, scene);
-          infoPlane.position = new BABYLON.Vector3(0, 0, 1.5); 
-          infoPlane.isVisible = false; 
+      const infoPanel = new BABYLON.GUI.Rectangle("infoPanel");
+      infoPanel.widthInPixels = 1000;
+      infoPanel.heightInPixels = 600;
+      infoPanel.cornerRadius = 50;
+      infoPanel.color = "white";
+      infoPanel.thickness = 10;
+      infoPanel.background = "rgba(0, 0, 0, 0.8)";
+      adtPanel.addControl(infoPanel);
 
-          if (xr) {
-              infoPlane.parent = xr.input.xrCamera;
-          } else {
-              infoPlane.parent = camera;
-          }
-          
-          const adtPanel = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(infoPlane);
+      const infoTitle = new BABYLON.GUI.TextBlock("infoTitle");
+      infoTitle.text = "Judul Benda";
+      infoTitle.color = "white";
+      infoTitle.fontSize = 50; 
+      infoTitle.fontWeight = "bold";
+      infoTitle.paddingTopInPixels = 30;
+      infoTitle.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+      infoPanel.addControl(infoTitle);
 
-          const infoPanel = new BABYLON.GUI.Rectangle("infoPanel");
-          infoPanel.widthInPixels = 1000;
-          infoPanel.heightInPixels = 600;
-          infoPanel.cornerRadius = 50;
-          infoPanel.color = "white";
-          infoPanel.thickness = 10;
-          infoPanel.background = "rgba(0, 0, 0, 0.8)";
-          adtPanel.addControl(infoPanel);
+      const infoDesc = new BABYLON.GUI.TextBlock("infoDesc");
+      infoDesc.text = "Ini adalah deskripsi default...";
+      infoDesc.color = "white";
+      infoDesc.fontSize = 40; 
+      infoDesc.textWrapping = true;
+      infoDesc.paddingTopInPixels = 150;
+      infoDesc.paddingLeftInPixels = 40;
+      infoDesc.paddingRightInPixels = 40;
+      infoDesc.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+      infoPanel.addControl(infoDesc);
 
-          const infoTitle = new BABYLON.GUI.TextBlock("infoTitle");
-          infoTitle.text = "Judul Benda";
-          infoTitle.color = "white";
-          infoTitle.fontSize = 50; 
-          infoTitle.fontWeight = "bold";
-          infoTitle.paddingTopInPixels = 30;
-          infoTitle.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-          infoPanel.addControl(infoTitle);
+      const closeButton = BABYLON.GUI.Button.CreateSimpleButton("closeBtn", "Tutup");
+      closeButton.widthInPixels = 300;
+      closeButton.heightInPixels = 100;
+      closeButton.color = "white";
+      closeButton.background = "grey";
+      closeButton.fontSize = 40;
+      closeButton.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+      closeButton.paddingBottomInPixels = 30;
+      infoPanel.addControl(closeButton);
 
-          const infoDesc = new BABYLON.GUI.TextBlock("infoDesc");
-          infoDesc.text = "Ini adalah deskripsi default...";
-          infoDesc.color = "white";
-          infoDesc.fontSize = 40; 
-          infoDesc.textWrapping = true;
-          infoDesc.paddingTopInPixels = 150;
-          infoDesc.paddingLeftInPixels = 40;
-          infoDesc.paddingRightInPixels = 40;
-          infoDesc.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-          infoPanel.addControl(infoDesc);
-
-          const closeButton = BABYLON.GUI.Button.CreateSimpleButton("closeBtn", "Tutup");
-          closeButton.widthInPixels = 300;
-          closeButton.heightInPixels = 100;
-          closeButton.color = "white";
-          closeButton.background = "grey";
-          closeButton.fontSize = 40;
-          closeButton.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
-          closeButton.paddingBottomInPixels = 30;
-          infoPanel.addControl(closeButton);
-
-          closeButton.onPointerClickObservable.add(() => {
-              infoPlane.isVisible = false;
-          });
-
-          // 5. Fungsi Helper untuk Tampilkan Info
-          // (Dipindah ke dalam .then())
-          function showInfo(itemData) {
-              infoTitle.text = itemData.title;
-              infoDesc.text = itemData.description;
-              infoPlane.isVisible = true;
-          }
-
-          // 6. Loop untuk Membuat Tombol Tautan 3D
-          // (Dipindah ke dalam .then())
-          console.log("Memulai pembuatan UI tombol 3D...");
-
-          itemDatabase.forEach(item => {
-            const targetNode = scene.getNodeByName(item.id); 
-            if (targetNode) {
-              const buttonPlane = BABYLON.MeshBuilder.CreatePlane(`btn_plane_${item.id}`, {size: 0.15}, scene);
-              if (item.id === "meshTiangInfus") {
-                console.log("--- DEBUG BAGIAN 6 ---");
-                console.log("Mencari node dgn nama:", item.id);
-                console.log("Hasil pencarian (targetNode):", targetNode);
-              }
-              buttonPlane.parent = targetNode;
-
-              const boundingBox = targetNode.getHierarchyBoundingVectors(true); 
-              const parentWorldPos = targetNode.getAbsolutePosition();
-
-              const center_X_world = (boundingBox.min.x + boundingBox.max.x) / 2;
-              const center_Z_world = (boundingBox.min.z + boundingBox.max.z) / 2;
-              const top_Y_world = boundingBox.max.y;
-
-              const relative_X = center_X_world - parentWorldPos.x;
-              const relative_Y = top_Y_world - parentWorldPos.y;
-              const relative_Z = center_Z_world - parentWorldPos.z;
-
-              buttonPlane.position = new BABYLON.Vector3(
-                relative_X,
-                relative_Y + 0.3, // 0.3 meter di atas titik tertinggi
-                relative_Z
-              );
-
-              let adtButton = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(buttonPlane);
-              let btn = BABYLON.GUI.Button.CreateSimpleButton(`btn_gui_${item.id}`, "i");
-              btn.widthInPixels = 800;
-              btn.heightInPixels = 800;
-              btn.cornerRadius = 500;
-              btn.color = "white";
-              btn.thickness = 8;
-              btn.background = "blue";
-              btn.fontSize = 400;
-              adtButton.addControl(btn);
-              
-              buttonPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
-
-              btn.onPointerClickObservable.add(() => {
-                showInfo(item);
-              });
-            } else {
-              console.warn(`!!! GAGAL MENEMUKAN NODE UNTUK UI: "${item.id}" !!!`);
-            }
-          });
-
-          // --- MODIFIKASI BARU ---
-          // Sembunyikan layar pemuatan HANYA SETELAH semua UI item dibuat
-          console.log("Semua UI item selesai dibuat, sembunyikan loading.");
-          engine.hideLoadingUI();
-
-      }).catch((err) => {
-          // Tambahkan penanganan error jika pemuatan gagal
-          console.error("Gagal memuat salah satu item:", err);
-          // Sembunyikan juga loading UI jika terjadi error
-          engine.hideLoadingUI();
+      closeButton.onPointerClickObservable.add(() => {
+          infoPlane.isVisible = false;
       });
-      // --- AKHIR DARI BLOK .then() ---
-      // --- MODIFIKASI SELESAI ---
 
+      // 5. Fungsi Helper untuk Tampilkan Info
+      function showInfo(itemData) {
+          infoTitle.text = itemData.title;
+          infoDesc.text = itemData.description;
+          infoPlane.isVisible = true;
+      }
+
+      // 6. Loop untuk Membuat Tombol Tautan 3D
+      console.log("Memulai pembuatan UI tombol 3D...");
+
+      itemDatabase.forEach(item => {
+        const targetNode = scene.getNodeByName(item.id); 
+        if (targetNode) {
+          const buttonPlane = BABYLON.MeshBuilder.CreatePlane(`btn_plane_${item.id}`, {size: 0.15}, scene);
+           if (item.id === "meshTiangInfus") {
+          console.log("--- DEBUG BAGIAN 6 ---");
+          console.log("Mencari node dgn nama:", item.id);
+          console.log("Hasil pencarian (targetNode):", targetNode);
+        }
+          buttonPlane.parent = targetNode;
+
+          const boundingBox = targetNode.getHierarchyBoundingVectors(true); 
+          const parentWorldPos = targetNode.getAbsolutePosition();
+
+          const center_X_world = (boundingBox.min.x + boundingBox.max.x) / 2;
+          const center_Z_world = (boundingBox.min.z + boundingBox.max.z) / 2;
+          const top_Y_world = boundingBox.max.y;
+
+          const relative_X = center_X_world - parentWorldPos.x;
+          const relative_Y = top_Y_world - parentWorldPos.y;
+          const relative_Z = center_Z_world - parentWorldPos.z;
+
+          buttonPlane.position = new BABYLON.Vector3(
+            relative_X,
+            relative_Y + 0.3, // 0.3 meter di atas titik tertinggi
+            relative_Z
+          );
+
+          let adtButton = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(buttonPlane);
+          let btn = BABYLON.GUI.Button.CreateSimpleButton(`btn_gui_${item.id}`, "i");
+          btn.widthInPixels = 800;
+          btn.heightInPixels = 800;
+          btn.cornerRadius = 500;
+          btn.color = "white";
+          btn.thickness = 8;
+          btn.background = "blue";
+          btn.fontSize = 400;
+          adtButton.addControl(btn);
+          
+          buttonPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+
+          btn.onPointerClickObservable.add(() => {
+            showInfo(item);
+          });
+        } else {
+          console.warn(`!!! GAGAL MENEMUKAN NODE UNTUK UI: "${item.id}" !!!`);
+        }
+      });
 
       // ================================================================
       // === AKHIR KODE BARU ===
@@ -514,7 +490,6 @@
 
 
       // === KODE COLLISION BOX ASLI ANDA (TETAP DISIMPAN) ===
-      // Kode ini sekarang berjalan TANPA menunggu 10 item
       const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 1.6, width: 0.7, depth: 10}, scene);
       mejaCollision1.position = new BABYLON.Vector3(-17, 0.5, 12);
       mejaCollision1.isVisible = false;
@@ -539,12 +514,11 @@
       infuscollision.checkCollisions = true;
 
       setupVRInput(xr, scene);
-      
-      // Memuat maskot dan UI dialognya (ini juga berjalan tanpa menunggu 10 item)
       const maskotPivot = await initMaskotAI(scene);
       console.log("Maskot pivot berhasil dimuat:", maskotPivot);
 
 
+    // ... (Sisa kode UI dialog maskot Anda tidak berubah) ...
     let currentState=1;
     let dialogTitle; // Judul terpisah (Halo, Calon Dokter!)
     let dialogBody; // Teks isi
@@ -565,150 +539,149 @@
     const TAHAP_5_BODY = "Baik, karena kamu sudah siap untuk melakukan simulasi, akan saya antarkan ke ruang pemeriksaan!";
     
     // --- FUNGSI TYPEWRITER EFFECT (TETAP SAMA) ---
-    function typeWriterEffect(targetText, textBlock, scene, onComplete = () => {}) {
-        // ... (Tidak ada perubahan di sini, sama seperti kode Anda)
-        if (isTyping) {
-            if (typeObserver) {
-                scene.onBeforeRenderObservable.remove(typeObserver);
-            }
+function typeWriterEffect(targetText, textBlock, scene, onComplete = () => {}) {
+    if (isTyping) {
+        if (typeObserver) {
+            scene.onBeforeRenderObservable.remove(typeObserver);
         }
-        isTyping = true;
-        charIndex = 0;
-        currentTextTarget = targetText;
-        textBlock.text = ""; 
-        if (lanjutButton) {
-            lanjutButton.isHitTestVisible = false;
-        }
-        typeObserver = scene.onBeforeRenderObservable.add(() => {
-            if (isTyping && charIndex <= currentTextTarget.length) {
-                if (scene.getEngine().frameId % TYPING_SPEED === 0) { 
-                    textBlock.text = currentTextTarget.substring(0, charIndex);
-                    charIndex++;
-                }
-            } else if (isTyping) {
-                textBlock.text = currentTextTarget;
-                isTyping = false;
-                scene.onBeforeRenderObservable.remove(typeObserver);
-                typeObserver = null;
-                onComplete(); 
-            }
-        });
     }
+    isTyping = true;
+    charIndex = 0;
+    currentTextTarget = targetText;
+    textBlock.text = ""; 
+    if (lanjutButton) {
+        lanjutButton.isHitTestVisible = false;
+    }
+    typeObserver = scene.onBeforeRenderObservable.add(() => {
+        if (isTyping && charIndex <= currentTextTarget.length) {
+            if (scene.getEngine().frameId % TYPING_SPEED === 0) { 
+                textBlock.text = currentTextTarget.substring(0, charIndex);
+                charIndex++;
+            }
+        } else if (isTyping) {
+            textBlock.text = currentTextTarget;
+            isTyping = false;
+            scene.onBeforeRenderObservable.remove(typeObserver);
+            typeObserver = null;
+            onComplete(); 
+        }
+    });
+}
 
-    // --- PEMBUATAN UI ---
-    // ... (Semua kode UI Dialog Maskot Anda tidak berubah) ...
-    const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
-    uiPlane.parent = maskotPivot;
-    uiPlane.position = new BABYLON.Vector3(0, 2.2, 0); 
-    uiPlane.rotation.x = -.5;
-    uiPlane.rotation.y = -3.2;
-    uiPlane.scaling.scaleInPlace(3);
-    uiPlane.isVisible = true; 
+// --- PEMBUATAN UI ---
+    
+const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
+uiPlane.parent = maskotPivot;
+uiPlane.position = new BABYLON.Vector3(0, 2.2, 0); // Posisi asli Anda
+uiPlane.rotation.x = -.5;
+uiPlane.rotation.y = -3.2;
+uiPlane.scaling.scaleInPlace(3);
+uiPlane.isVisible = true; // Panel utama terlihat di awal
 
-    const adt = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(uiPlane, 3000, 3000);
-            
-    const mainPanel = new BABYLON.GUI.Rectangle("mainPanel");
-    mainPanel.widthInPixels = 2000;
-    mainPanel.heightInPixels = 1300;
-    mainPanel.background = "rgba(20, 50, 130, 0.5)";
-    mainPanel.cornerRadius = 50;
-    mainPanel.thickness = 10;
-    mainPanel.color = "white";
-    adt.addControl(mainPanel);
-
-    const stackPanel = new BABYLON.GUI.StackPanel("buttonStack");
-    stackPanel.widthInPixels = 1800;
-    stackPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-    mainPanel.addControl(stackPanel);
-
-    dialogTitle = new BABYLON.GUI.TextBlock("dialogTitle", "");
-    dialogTitle.color = "#FFD700"; 
-    dialogTitle.heightInPixels = 150;
-    dialogTitle.fontSizeInPixels = 90;
-    dialogTitle.fontStyle = "bold"; 
-    dialogTitle.textWrapping = true;
-    dialogTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-    dialogTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-    stackPanel.addControl(dialogTitle);
-
-    dialogBody = new BABYLON.GUI.TextBlock("dialogBody", "");
-    dialogBody.color = "white";
-    dialogBody.heightInPixels = 500; 
-    dialogBody.fontSizeInPixels = 70;
-    dialogBody.paddingBottomInPixels = 10;
-    dialogBody.textWrapping = true;
-    dialogBody.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-    dialogBody.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    stackPanel.addControl(dialogBody); 
+const adt = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(uiPlane, 3000, 3000);
         
-    lanjutButton = BABYLON.GUI.Button.CreateSimpleButton("lanjut", "Lanjut");
-    lanjutButton.widthInPixels = 500;
-    lanjutButton.heightInPixels = 150;
-    lanjutButton.background = "#5CB85C";
-    lanjutButton.color = "white";
-    lanjutButton.fontSizeInPixels = 50;
-    lanjutButton.cornerRadius = 20;
-    lanjutButton.paddingTopInPixels = 20;
-    lanjutButton.thickness = 3;
-    lanjutButton.onPointerClickObservable.add(handleLanjutClick);
-    stackPanel.addControl(lanjutButton);
+const mainPanel = new BABYLON.GUI.Rectangle("mainPanel");
+mainPanel.widthInPixels = 2000;
+mainPanel.heightInPixels = 1300;
+mainPanel.background = "rgba(20, 50, 130, 0.5)";
+mainPanel.cornerRadius = 50;
+mainPanel.thickness = 10;
+mainPanel.color = "white";
+adt.addControl(mainPanel);
 
-    const uiPlaneConfirmation = BABYLON.MeshBuilder.CreatePlane("uiPlaneConfirmation", scene);
-    uiPlaneConfirmation.position = new BABYLON.Vector3(-15, 2, 17.7); 
-    uiPlaneConfirmation.scaling.scaleInPlace(3);
-    uiPlaneConfirmation.isVisible = false; 
+const stackPanel = new BABYLON.GUI.StackPanel("buttonStack");
+stackPanel.widthInPixels = 1800;
+stackPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+mainPanel.addControl(stackPanel);
 
-    const adtConfirmation = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(uiPlaneConfirmation, 3000, 3000);
+dialogTitle = new BABYLON.GUI.TextBlock("dialogTitle", "");
+dialogTitle.color = "#FFD700"; 
+dialogTitle.heightInPixels = 150;
+dialogTitle.fontSizeInPixels = 90;
+dialogTitle.fontStyle = "bold"; 
+dialogTitle.textWrapping = true;
+dialogTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+dialogTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+stackPanel.addControl(dialogTitle);
 
-    const confirmationPanel = new BABYLON.GUI.Rectangle("confirmationPanel");
-    confirmationPanel.widthInPixels = 1800; 
-    confirmationPanel.heightInPixels = 700; 
-    confirmationPanel.background = "rgba(50, 20, 130, 0.6)"; 
-    confirmationPanel.cornerRadius = 50;
-    confirmationPanel.thickness = 10;
-    confirmationPanel.color = "white";
-    adtConfirmation.addControl(confirmationPanel);
+dialogBody = new BABYLON.GUI.TextBlock("dialogBody", "");
+dialogBody.color = "white";
+dialogBody.heightInPixels = 500; 
+dialogBody.fontSizeInPixels = 70;
+dialogBody.paddingBottomInPixels = 10;
+dialogBody.textWrapping = true;
+dialogBody.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+dialogBody.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+stackPanel.addControl(dialogBody); 
+    
+lanjutButton = BABYLON.GUI.Button.CreateSimpleButton("lanjut", "Lanjut");
+lanjutButton.widthInPixels = 500;
+lanjutButton.heightInPixels = 150;
+lanjutButton.background = "#5CB85C";
+lanjutButton.color = "white";
+lanjutButton.fontSizeInPixels = 50;
+lanjutButton.cornerRadius = 20;
+lanjutButton.paddingTopInPixels = 20;
+lanjutButton.thickness = 3;
+lanjutButton.onPointerClickObservable.add(handleLanjutClick);
+stackPanel.addControl(lanjutButton);
 
-    const confirmationStack = new BABYLON.GUI.StackPanel("confirmationStack");
-    confirmationStack.widthInPixels = 1600;
-    confirmationStack.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-    confirmationPanel.addControl(confirmationStack);
+const uiPlaneConfirmation = BABYLON.MeshBuilder.CreatePlane("uiPlaneConfirmation", scene);
+uiPlaneConfirmation.position = new BABYLON.Vector3(-15, 2, 17.7); 
+uiPlaneConfirmation.scaling.scaleInPlace(3);
+uiPlaneConfirmation.isVisible = false; 
 
-    const confirmationTitle = new BABYLON.GUI.TextBlock("confirmationTitle", "");
-    confirmationTitle.color = "white";
-    confirmationTitle.heightInPixels = 300;
-    confirmationTitle.fontSizeInPixels = 90;
-    confirmationTitle.paddingBottomInPixels = 50;
-    confirmationTitle.textWrapping = true;
-    confirmationTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-    confirmationTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-    confirmationStack.addControl(confirmationTitle);
+const adtConfirmation = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(uiPlaneConfirmation, 3000, 3000);
 
-    finalButtonsContainer = new BABYLON.GUI.StackPanel("finalButtonsContainer");
-    finalButtonsContainer.isVertical = false;
-    finalButtonsContainer.heightInPixels = 150;
-    finalButtonsContainer.isVisible = true; 
-    finalButtonsContainer.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-    finalButtonsContainer.spacing = 50;
-    confirmationStack.addControl(finalButtonsContainer);
+const confirmationPanel = new BABYLON.GUI.Rectangle("confirmationPanel");
+confirmationPanel.widthInPixels = 1800; 
+confirmationPanel.heightInPixels = 700; 
+confirmationPanel.background = "rgba(50, 20, 130, 0.6)"; 
+confirmationPanel.cornerRadius = 50;
+confirmationPanel.thickness = 10;
+confirmationPanel.color = "white";
+adtConfirmation.addControl(confirmationPanel);
 
-    const createFinalButton = (name, text, color, onClickHandler) => {
-        const button = BABYLON.GUI.Button.CreateSimpleButton(name, text);
-        button.widthInPixels = 500;
-        button.heightInPixels = 100;
-        button.background = color;
-        button.color = "white";
-        button.fontSizeInPixels = 40;
-        button.cornerRadius = 20;
-        button.thickness = 3;
-        button.onPointerClickObservable.add(onClickHandler);
-        return button;
-    };
-    const goToSimulasi = () => {
-        window.location.href = "simulasi.html";
-    };
+const confirmationStack = new BABYLON.GUI.StackPanel("confirmationStack");
+confirmationStack.widthInPixels = 1600;
+confirmationStack.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+confirmationPanel.addControl(confirmationStack);
 
-    const onSiapClick = () => { 
+const confirmationTitle = new BABYLON.GUI.TextBlock("confirmationTitle", "");
+confirmationTitle.color = "white";
+confirmationTitle.heightInPixels = 300;
+confirmationTitle.fontSizeInPixels = 90;
+confirmationTitle.paddingBottomInPixels = 50;
+confirmationTitle.textWrapping = true;
+confirmationTitle.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+confirmationTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+confirmationStack.addControl(confirmationTitle);
+
+finalButtonsContainer = new BABYLON.GUI.StackPanel("finalButtonsContainer");
+finalButtonsContainer.isVertical = false;
+finalButtonsContainer.heightInPixels = 150;
+finalButtonsContainer.isVisible = true; 
+finalButtonsContainer.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+finalButtonsContainer.spacing = 50;
+confirmationStack.addControl(finalButtonsContainer);
+
+const createFinalButton = (name, text, color, onClickHandler) => {
+    const button = BABYLON.GUI.Button.CreateSimpleButton(name, text);
+    button.widthInPixels = 500;
+    button.heightInPixels = 100;
+    button.background = color;
+    button.color = "white";
+    button.fontSizeInPixels = 40;
+    button.cornerRadius = 20;
+    button.thickness = 3;
+    button.onPointerClickObservable.add(onClickHandler);
+    return button;
+};
+const goToSimulasi = () => {
+    window.location.href = "simulasi.html";
+};
+
+const onSiapClick = () => { 
         console.log("Memulai Simulasi..."); 
         currentState = 5;
         finalButtonsContainer.isVisible = false; 
@@ -733,13 +706,15 @@
         confirmationTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         
         typeWriterEffect(TAHAP_4_BODY, confirmationTitle, scene, () => {
+            
             setTimeout(() => {
+                
                 confirmationTitle.heightInPixels = 300;
                 confirmationTitle.fontSizeInPixels = 90;
                 confirmationTitle.paddingBottomInPixels = 50; 
-                confirmationTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
 
                 typeWriterEffect(TAHAP_3_TEXT_FULL, confirmationTitle, scene, () => {
+                    
                     currentState = 3; 
                     finalButtonsContainer.isVisible = true; 
                 });
@@ -755,50 +730,59 @@
         }
     };
 
-    const startButton = createFinalButton("start", "Siap!!", "#5CB85C", onSiapClick);
-    const toolsButton = createFinalButton("tools", "Belum siap", "#428BCA", onBelumSiapClick);
-    const exitButton = createFinalButton("exit", "Keluar", "#D9534F", onKeluarClick);
-    finalButtonsContainer.addControl(startButton);
-    finalButtonsContainer.addControl(toolsButton);
-    finalButtonsContainer.addControl(exitButton);
+const startButton = createFinalButton("start", "Siap!!", "#5CB85C", onSiapClick);
+const toolsButton = createFinalButton("tools", "Belum siap", "#428BCA", onBelumSiapClick);
+const exitButton = createFinalButton("exit", "Keluar", "#D9534F", onKeluarClick);
+finalButtonsContainer.addControl(startButton);
+finalButtonsContainer.addControl(toolsButton);
+finalButtonsContainer.addControl(exitButton);
 
-    function handleLanjutClick() {
-        if (isTyping) return;
-        currentState++;
+function handleLanjutClick() {
+    if (isTyping) return;
+    currentState++;
+    
+    if (currentState === 2) {
+        dialogTitle.text = ""; 
+        dialogBody.heightInPixels = 700;
+        dialogBody.fontSizeInPixels = 70;
         
-        if (currentState === 2) {
-            dialogTitle.text = ""; 
-            dialogBody.heightInPixels = 700;
-            dialogBody.fontSizeInPixels = 70;
-            
-            typeWriterEffect(TAHAP_2_BODY, dialogBody, scene, () => {
-                lanjutButton.isHitTestVisible = true; 
-            });
-
-        } else if (currentState === 3) {
-            uiPlane.isVisible = false;
-            uiPlaneConfirmation.isVisible = true;
-            typeWriterEffect(TAHAP_3_TEXT_FULL, confirmationTitle, scene, () => {
-                // Selesai
-            });
-        }
-    }
-        
-    const grabBehavior = new BABYLON.PointerDragBehavior();
-    grabBehavior.allowMultiPointer = false;
-    uiPlane.addBehavior(grabBehavior);
-
-    const grabBehavior2 = new BABYLON.SixDofDragBehavior();
-    grabBehavior2.allowMultiPointer = true;
-    uiPlaneConfirmation.addBehavior(grabBehavior2);
-
-    typeWriterEffect(TAHAP_1_JUDUL, dialogTitle, scene, () => {
-        typeWriterEffect(TAHAP_1_BODY, dialogBody, scene, () => {
-            lanjutButton.isHitTestVisible = true;
+        typeWriterEffect(TAHAP_2_BODY, dialogBody, scene, () => {
+            lanjutButton.isHitTestVisible = true; 
         });
-    });      
+
+    } else if (currentState === 3) {
+        uiPlane.isVisible = false;
+        uiPlaneConfirmation.isVisible = true;
+        typeWriterEffect(TAHAP_3_TEXT_FULL, confirmationTitle, scene, () => {
+            // Selesai
+        });
+    }
+}
+    
+const grabBehavior = new BABYLON.PointerDragBehavior();
+grabBehavior.allowMultiPointer = false;
+uiPlane.addBehavior(grabBehavior);
+
+const grabBehavior2 = new BABYLON.SixDofDragBehavior();
+grabBehavior2.allowMultiPointer = true;
+uiPlaneConfirmation.addBehavior(grabBehavior2);
+
+    
+typeWriterEffect(TAHAP_1_JUDUL, dialogTitle, scene, () => {
+    typeWriterEffect(TAHAP_1_BODY, dialogBody, scene, () => {
+        lanjutButton.isHitTestVisible = true;
+    });
+});      
       
-      // Kembalikan scene SEGERA agar render loop bisa dimulai
+      // =======================================================
+      // === MODIFIKASI TERAKHIR ===
+      // =======================================================
+      // Sembunyikan loading UI SETELAH semua UI dialog dibuat
+      // (Ini akan terjadi SANGAT CEPAT, sebelum item selesai dimuat)
+      // TAPI layar pemuatan akan tetap ada dari pemanggilan di bawah
+      // (engine.hideLoadingUI();) <-- KITA HAPUS INI DARI SINI
+      
+      console.log("createScene selesai, mengembalikan scene.");
       return scene;
       
     }; // <-- Akhir dari createScene
@@ -807,19 +791,28 @@
     // Jalankan Scene
     // ================================
     
-    // --- MODIFIKASI DISINI ---
     // 1. Tampilkan loading UI SEKARANG
     engine.displayLoadingUI();
     
     createScene().then(scene => {
       // 2. Jalankan render loop. Ini akan langsung berjalan
-      //    menampilkan loading UI (atau scene kosong) selagi
-      //    item-item dimuat di latar belakang.
+      //    menampilkan loading UI
       engine.runRenderLoop(() => {
           if (scene && scene.activeCamera) { // Cek keamanan
               scene.render()
           }
       });
+      
+      // 3. SETELAH SEMUA SELESAI DI createScene (termasuk loop 10 item),
+      //    BARU sembunyikan loading UI.
+      //    Kita pindahkan 'hideLoadingUI' ke sini, di luar 'createScene'.
+      console.log("Scene siap, sembunyikan loading UI.");
+      engine.hideLoadingUI();
+      
+    }).catch(err => {
+        // Jika ada error saat createScene, sembunyikan juga
+        console.error("Gagal membuat scene:", err);
+        engine.hideLoadingUI();
     });
 
     // Resize otomatis saat jendela berubah
