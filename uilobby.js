@@ -239,8 +239,8 @@ const createScene = async function () {
     const goToShowcase = () => {
         window.location.href = "showcase.html";
     };
-    const goToPemeriksaan = () => {
-        window.location.href = "pemeriksaan.html";
+    const goToSimulasi = () => {
+        window.location.href = "simulasi.html";
     };
     // Handler untuk tombol di Tahap 3
     const onSiapClick = () => { 
@@ -258,7 +258,7 @@ const createScene = async function () {
     typeWriterEffect(TAHAP_5_BODY, dialogBody, scene, () => {
         // Callback: Setelah TAHAP 4 selesai diketik, baru navigasi.
         setTimeout(() => {
-            goToPemeriksaan();
+            goToSimulasi();
         },1000)
         
     }); 
@@ -499,4 +499,5 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
