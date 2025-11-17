@@ -112,8 +112,7 @@ const createScene = async function () {
     const TAHAP_1_BODY = "Kenalkan! aku MEDIBOT! Selamat datang di VirtuCare, sebuah dunia virtual yang dirancang untuk membawa lebih dekat dengan pengalaman medis yang sesungguhnya.";
     const TAHAP_2_BODY = "Saat ini, Anda berada di lobi VirtuCare, titik awal sebelum memulai pelatihan. Setiap interaksi dan setiap langkah yang diambil akan membawa semakin dekat menuju profesionalisme seorang tenaga medis.";
     const TAHAP_3_TEXT_FULL = "Siap melakukan simulasi?";
-    const TAHAP_4_BODY = "Baik, karena belum siap melakukan simulasi, akan saya antarkan ke ruang showcase pengenalan alat medis dulu!";
-    const TAHAP_5_BODY = "Baik, karena kamu sudah siap untuk melakukan simulasi, akan saya antarkan ke ruang pemeriksaan!";
+    const TAHAP_4_BODY = "Baik, Sebelum kita melakukan simulasi, Anda akan diarahkan ke Ruang Showcase Alat Medis. Di ruangan ini, Anda dapat melihat dan mempelajari berbagai peralatan medis yang akan digunakan selama praktik. Setiap alat akan disertai penjelasan singkat agar Anda memahami fungsi dan cara kerjanya dengan lebih jelas sebelum memulai simulasi";
     
     // --- FUNGSI TYPEWRITER EFFECT DENGAN CALLBACK ---
     function typeWriterEffect(targetText, textBlock, scene, onComplete = () => {}) {
@@ -237,10 +236,7 @@ const createScene = async function () {
         return button;
     };
     const goToShowcase = () => {
-        location.replace("showcase.html");
-    };
-    const goToSimulasi = () => {
-        window.location.href = "simulasi.html";
+        window.location.href = "showcase.html";
     };
     // Handler untuk tombol di Tahap 3
     const onSiapClick = () => { 
@@ -255,32 +251,10 @@ const createScene = async function () {
         dialogBody.fontSizeInPixels = 70;
     
     // **BARU:** Animasi teks baru, lalu navigasi setelah selesai
-    typeWriterEffect(TAHAP_5_BODY, dialogBody, scene, () => {
-        // Callback: Setelah TAHAP 4 selesai diketik, baru navigasi.
-        setTimeout(() => {
-            goToSimulasi();
-        },1000)
-        
-    }); 
-    };
-    const onBelumSiapClick = () => { 
-        console.log("Belum siap diklik!"); 
-        currentState = 4;
-    
-    // **BARU:** Sembunyikan container tombol akhir
-    finalButtonsContainer.isVisible = false; 
-    
-    // **BARU:** Kembalikan pengaturan TextBlock ke ukuran default untuk teks panjang
-    dialogTitle.text = ""; // Kosongkan Judul
-    dialogTitle.heightInPixels = 0; // Sembunyikan Judul
-    dialogBody.heightInPixels = 700;
-    dialogBody.fontSizeInPixels = 70;
-    
-    // **BARU:** Animasi teks baru, lalu navigasi setelah selesai
     typeWriterEffect(TAHAP_4_BODY, dialogBody, scene, () => {
         // Callback: Setelah TAHAP 4 selesai diketik, baru navigasi.
         setTimeout(() => {
-            goToShowcase();
+            goToSimulasi();
         },1000)
         
     }); 
@@ -294,11 +268,9 @@ const createScene = async function () {
 
     // Buat dan tambahkan tombol akhir ke container
     const startButton = createFinalButton("start", "Siap!!", "#5CB85C", onSiapClick);
-    const toolsButton = createFinalButton("tools", "Belum siap", "#428BCA", onBelumSiapClick);
     const exitButton = createFinalButton("exit", "Keluar", "#D9534F", onKeluarClick);
 
     finalButtonsContainer.addControl(startButton);
-    finalButtonsContainer.addControl(toolsButton);
     finalButtonsContainer.addControl(exitButton);
 
 
@@ -500,6 +472,7 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
 
 
