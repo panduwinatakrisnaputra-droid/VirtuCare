@@ -573,8 +573,8 @@ function resetItem(mesh, initialPosition, initialRotation) {
     const TAHAP_4_BODY = "Langkah 1: Periksa detak jantung dan paru pasien menggunakan stetoskop";
     const TAHAP_5_BODY = "Langkah 2: Lanjutkan pemeriksaan tekanan darah menggunakan tensimeter digital.";
     const TAHAP_6_BODY = "Langkah 3: Pastikan pasien tidak mengalami infeksi dengan memeriksa suhu tubuh menggunakan termometer digital.";
-    const TAHAP_7_BODY = "Diagnosis awal hipotensi ringan akibat kelelahan dan kurangnya asupan makanan. Tindakan yang diberikan adalah pemasangan infus cairan elektrolit untuk membantu menstabilkan tekanan darah pasien.";
-    const TAHAP_8_BODY = "Simulasi selesai. Anda telah berhasil menangani pasien dengan kondisi hipotensi ringan.";
+    const TAHAP_7_BODY = "Baik, setelah anda melakukan pemeriksaan terhadap pasien, dapat disimpulkan bahwa diagnosis awal dari pasien adalah pasien kemungkinan mengalami hipotensi ringan akibat dari kelelahan dan kurangnya asupan gizi. Maka tindakan yang dapat dilakukan adalah memberikan cairan infus elektrolit guna membantu menstabilkan tekanan darah pasien.";
+    const TAHAP_8_BODY = "Simulasi telah selesai! Selamat, anda telah berhasil melakukan pemeriksaan terhadap pasien dengan menggunakan alat medis dasar.";
 
     // TYPEWRITER
     function typeWriterEffect(targetText, textBlock, scene, onComplete = () => {}) {
