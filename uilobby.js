@@ -237,7 +237,7 @@ const createScene = async function () {
         return button;
     };
     const goToShowcase = () => {
-        window.location.href = "showcase.html";
+        location.replace("showcase.html");
     };
     const goToSimulasi = () => {
         window.location.href = "simulasi.html";
@@ -500,6 +500,7 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
 
 
