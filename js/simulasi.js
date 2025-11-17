@@ -1,9 +1,32 @@
-
 // ================================
 // Inisialisasi Engine & Canvas
+// (TETAP SAMA)
 // ================================
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
+
+// ================================
+// Definisikan Posisi Awal Item & Rotasi Awal (FULL FIX)
+// ================================
+const START_Y = 2.0; // Ketinggian awal item
+const DEG_TO_RAD = Math.PI / 180; // Konversi Derajat ke Radian
+
+const ITEM_POSITIONS = {
+    stethoscope: {
+        pos: new BABYLON.Vector3(-17, START_Y, 27.5),
+        rot: new BABYLON.Vector3(0, 0, 0) // Rotasi awal Stethoscope (0 derajat)
+    },
+    thermometer: {
+        pos: new BABYLON.Vector3(-16.3, START_Y, 27.5),
+        // Konversi dari (80, 160, 0) derajat ke radian
+        rot: new BABYLON.Vector3(80 * DEG_TO_RAD, 160 * DEG_TO_RAD, 0 * DEG_TO_RAD)
+    },
+    tensimeter: {
+        pos: new BABYLON.Vector3(-17.5, START_Y, 27.5),
+        // Konversi dari (-110, 160, 100) derajat ke radian
+        rot: new BABYLON.Vector3(-110 * DEG_TO_RAD, 160 * DEG_TO_RAD, 100 * DEG_TO_RAD)
+    }
+};
 
 // ================================
 // Fungsi utama: Membuat Scene
@@ -12,13 +35,14 @@ const createScene = async function () {
     const scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.95);
 
-    // --- VARIABEL UNTUK ITEM INTERAKSI (DIALIHKAN KE SCOPE LOKAL) ---
+    // --- VARIABEL UNTUK ITEM INTERAKSI ---
     let thermometerMesh = null;
     let tensimeterMesh = null;
     let stethoscopeMesh = null;
 
-    // Misal pakai CannonJS
+    // Aktifkan Fisika (CannonJS)
     const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
+    // Pastikan library CannonJS sudah dimuat di HTML
     const physicsPlugin = new BABYLON.CannonJSPlugin();
     scene.enablePhysics(gravityVector, physicsPlugin);
 
@@ -35,19 +59,12 @@ const createScene = async function () {
         { mass: 0, restitution: 0.9 },
         scene
     );
-
-    // ================================
-    // Cahaya dan Arah
-    // ================================
+    
+    // (PENAMBAHAN CAHAYA DAN KAMERA)
     const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 0.7;
-
     const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
     dirLight.intensity = 1;
-
-    // ================================
-    // Kamera sebagai "Player"
-    // ================================
     const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(-15, 2, 20), scene);
     camera.attachControl(canvas, true);
     camera.applyGravity = true;
@@ -58,37 +75,22 @@ const createScene = async function () {
     camera.keysLeft.push(65); camera.keysRight.push(68);
 
     let xr = null;
-
-    // ================================
-// Tampilkan 3 Gambar PNG sebagai Billboard
-// ================================
-
-function createPngBillboard(name, filename, position, size, scene) {
-    // 1. Buat bidang 3D (Plane)
-    const plane = BABYLON.MeshBuilder.CreatePlane(name, { width: size, height: size * 0.75 }, scene);
-    plane.position = position;
-    // plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL; // Opsional: membuat bidang selalu menghadap kamera
-
-    // 2. Buat Material Baru
-    const material = new BABYLON.StandardMaterial(name + "Mat", scene);
     
-    // 3. Muat Tekstur dari file PNG
-    const texture = new BABYLON.Texture("assets/" + filename, scene);
-    material.diffuseTexture = texture;
-    material.diffuseTexture.hasAlpha = true; // Penting jika gambar Anda memiliki transparansi
-    material.backFaceCulling = false; // Agar gambar terlihat dari kedua sisi
-
-    // Membuat gambar memancarkan cahaya sendiri agar terlihat terang
-    material.emissiveColor = new BABYLON.Color3(1, 1, 1); // Warna putih penuh untuk kecerahan maksimal
-
-    // 4. Aplikasikan Material ke Plane
-    plane.material = material;
-    return plane;
-}
-
-    // ================================
-    // Tambahkan Model + Collision
-    // ================================
+    // ... (FUNGSI createPngBillboard TETAP SAMA) ...
+    function createPngBillboard(name, filename, position, size, scene) {
+        const plane = BABYLON.MeshBuilder.CreatePlane(name, { width: size, height: size * 0.75 }, scene);
+        plane.position = position;
+        const material = new BABYLON.StandardMaterial(name + "Mat", scene);
+        const texture = new BABYLON.Texture("assets/" + filename, scene);
+        material.diffuseTexture = texture;
+        material.diffuseTexture.hasAlpha = true;
+        material.backFaceCulling = false;
+        material.emissiveColor = new BABYLON.Color3(1, 1, 1);
+        plane.material = material;
+        return plane;
+    }
+    
+    // ... (IMPORT MODEL RUANGAN, AVATAR, XR TETAP SAMA) ...
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene
     ).then((result) => {
         if (result.meshes.length > 0) {
@@ -109,10 +111,8 @@ function createPngBillboard(name, filename, position, size, scene) {
             root.getChildMeshes().forEach((m) => { m.checkCollisions = true; });
         })
         .catch((e) => console.error("Gagal load Avatar:", e));
-
-    // ================================
+    
     // Aktifkan VR / XR Mode
-    // ================================
     try {
         xr = await scene.createDefaultXRExperienceAsync({
             floorMeshes: [ground],
@@ -173,14 +173,13 @@ function createPngBillboard(name, filename, position, size, scene) {
         rootMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
             rootMesh,
             BABYLON.PhysicsImpostor.BoxImpostor,
-            { mass: 0, restitution: 0.4 }, // Mass 0 berarti statis
+            { mass: 0, restitution: 0.4 },
             scene
         );
     });
-
-    // --- Pembuatan GUI Tampilan Pengukuran ---
+    
+    // ... (GUI, SOUND, TARGET TETAP SAMA) ...
     const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-
     const tempText = new BABYLON.GUI.TextBlock("tempText", "");
     tempText.fontSize = 40;
     tempText.color = "yellow";
@@ -198,9 +197,9 @@ function createPngBillboard(name, filename, position, size, scene) {
     tensiText.color = "cyan";
     tensiText.isVisible = false;
     advancedTexture.addControl(tensiText);
-
+    
     // --- Efek Suara ---
-    // Pastikan path audio/ sudah benar
+    // Pastikan file audio/beep.mp3 dan audio/detak jantung.mp3 ada
     const beepSound = new BABYLON.Sound("beep", "audio/beep.mp3", scene, null, { loop: false, volume: 1 }); 
     const heartbeatSound = new BABYLON.Sound("heartbeat", "audio/detak jantung.mp3", scene, null, { loop: true, volume: 1 });
     
@@ -229,7 +228,7 @@ function createPngBillboard(name, filename, position, size, scene) {
     headTarget.actionManager = new BABYLON.ActionManager(scene);
     chestTarget.actionManager = new BABYLON.ActionManager(scene);
     armTarget.actionManager = new BABYLON.ActionManager(scene);
-
+    
     let isProcessing = false;
     let isHeartbeatPlaying = false;
     
@@ -239,18 +238,27 @@ function createPngBillboard(name, filename, position, size, scene) {
 
     const itemPhysicsSize = 0.2; // 20cm
     const itemPhysicsMass = 0.01; // Massa ringan
-    const startY = 2.0; // Ketinggian awal item
 
     /**
      * Fungsi Helper untuk memuat item grabbable dengan wrapper fisika
+     * @param {string} name Nama item
+     * @param {string} glbFile Nama file GLB
+     * @param {BABYLON.Vector3} position Posisi awal wrapper
+     * @param {BABYLON.Vector3} scaling Skala GLB relatif terhadap wrapper
+     * @param {BABYLON.Vector3} wrapperRotation Rotasi awal wrapper
      */
-    function createGrabbableItem(name, glbFile, position, scaling, rotation) {
+    function createGrabbableItem(name, glbFile, position, scaling, wrapperRotation) {
         // 1. Buat Wrapper Box (yang akan kena fisika)
         const wrapper = BABYLON.MeshBuilder.CreateBox(name + "Wrapper", {
             size: itemPhysicsSize 
         }, scene);
         wrapper.position = position; 
         wrapper.isVisible = false; // Sembunyikan box fisika
+        
+        // **FIX: Terapkan Rotasi Awal ke Wrapper**
+        if (wrapperRotation) {
+            wrapper.rotation = wrapperRotation;
+        }
 
         // 2. Tambahkan metadata ke WRAPPER
         wrapper.metadata = {
@@ -276,9 +284,9 @@ function createPngBillboard(name, filename, position, size, scene) {
             // 6. Atur posisi/skala/rotasi GLB RELATIF ke wrapper
             rootMesh.position = new BABYLON.Vector3(0, 0, 0); 
             rootMesh.scaling = scaling;
-            if (rotation) {
-                rootMesh.rotation = rotation; 
-            }
+            // Catatan: Rotasi GLB relatif di sini diatur agar item tampil lurus di dalam wrapper. 
+            // Rotasi global dikendalikan oleh wrapperRotation.
+            // Contoh rotasi GLB yang telah Anda hapus: new BABYLON.Vector3(80, 160, 0)
         });
         
         return wrapper; 
@@ -286,23 +294,23 @@ function createPngBillboard(name, filename, position, size, scene) {
     
     
     // --- Gunakan helper untuk memuat dan menangkap semua item ---
-    
     stethoscopeMesh = createGrabbableItem("stethoscope", "stethoscope.glb", 
-        new BABYLON.Vector3(-17, startY, 27.5), 
-        new BABYLON.Vector3(0.0015, 0.0015, 0.0015)
+        ITEM_POSITIONS.stethoscope.pos, 
+        new BABYLON.Vector3(0.0015, 0.0015, 0.0015),
+        ITEM_POSITIONS.stethoscope.rot
     );
     
 
     thermometerMesh = createGrabbableItem("thermometer", "thermometer.glb", 
-        new BABYLON.Vector3(-16.3, startY, 27.5), 
+        ITEM_POSITIONS.thermometer.pos, 
         new BABYLON.Vector3(0.25, 0.25, 0.25),
-        new BABYLON.Vector3(80, 160, 0)
+        ITEM_POSITIONS.thermometer.rot
     );
 
     tensimeterMesh = createGrabbableItem("tensimeter", "tensimeter.glb", 
-        new BABYLON.Vector3(-17.5, startY, 27.5), 
+        ITEM_POSITIONS.tensimeter.pos, 
         new BABYLON.Vector3(0.3, 0.3, 0.3),
-        new BABYLON.Vector3(-110, 160, 100)
+        ITEM_POSITIONS.tensimeter.rot
     );
 
     // Infus (Static, mass 0)
@@ -317,11 +325,134 @@ function createPngBillboard(name, filename, position, size, scene) {
             scene
         );
     });
-
+    
     // =====================================
-    // Logic Interaksi 
-    // =====================================
+// Fungsi Reset Item (FIX ULTIMATE)
+// =====================================
+function resetItem(mesh, initialPosition, initialRotation) {
+    if (mesh && mesh.physicsImpostor) {
+        // 1. Ambil impostor saat ini
+        const impostor = mesh.physicsImpostor;
 
+        // 2. Hapus impostor sementara (memaksa engine fisika melepaskan kontrol)
+        mesh.physicsImpostor.dispose();
+        mesh.physicsImpostor = null; 
+        
+        // 3. Atur ulang posisi dan rotasi mesh secara manual
+        mesh.position.copyFrom(initialPosition);
+        mesh.rotation.copyFrom(initialRotation); 
+        
+        // 4. Buat ulang impostor dengan properti yang sama
+        // Ambil properti impostor yang sudah disimpan sebelumnya (mass, restitution)
+        const mass = 0.01; // Sesuai itemPhysicsMass di kode Anda
+        const restitution = 0.4; // Sesuai di kode Anda
+        
+        mesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+            mesh,
+            BABYLON.PhysicsImpostor.BoxImpostor,
+            { mass: mass, restitution: restitution },
+            mesh.getScene()
+        );
+        
+        console.log(`[RESET] Item ${mesh.name} berhasil diatur ulang.`);
+
+    } else if (mesh) {
+        // Jika mesh ada tetapi tidak memiliki impostor, atur saja posisi dan rotasinya
+        mesh.position.copyFrom(initialPosition);
+        mesh.rotation.copyFrom(initialRotation); 
+    }
+}
+    
+    function resetAllItems() {
+        // Termometer
+        resetItem(thermometerMesh, ITEM_POSITIONS.thermometer.pos, ITEM_POSITIONS.thermometer.rot);
+        // Stetoskop
+        resetItem(stethoscopeMesh, ITEM_POSITIONS.stethoscope.pos, ITEM_POSITIONS.stethoscope.rot);
+        // Tensimeter
+        resetItem(tensimeterMesh, ITEM_POSITIONS.tensimeter.pos, ITEM_POSITIONS.tensimeter.rot);
+        
+        // Sembunyikan semua teks hasil pemeriksaan
+        tempText.isVisible = false;
+        StethoText.isVisible = false;
+        tensiText.isVisible = false;
+        
+        // Hapus billboard/gambar hasil pemeriksaan (jika ada)
+        const image1 = scene.getMeshByName("image1");
+        const image2 = scene.getMeshByName("image2");
+        const image3 = scene.getMeshByName("image3");
+        if (image1) image1.dispose();
+        if (image2) image2.dispose();
+        if (image3) image3.dispose();
+
+        console.log("Semua item telah di-reset ke posisi awal.");
+    }
+    
+    // =====================================
+    // Buat Tombol Reset 3D
+    // =====================================
+    // 1. Buat Material Merah Solid
+    const solidRedMat = new BABYLON.StandardMaterial("solidRedMat", scene);
+    solidRedMat.diffuseColor = new BABYLON.Color3(0.8, 0.2, 0.2); // Merah Tua
+    solidRedMat.emissiveColor = new BABYLON.Color3(0.4, 0.1, 0.1); // Memastikan warna terlihat cerah
+    solidRedMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1); 
+    solidRedMat.backFaceCulling = false; 
+
+    // 2. Buat Mesh Tombol Utama (Kotak Merah Solid)
+    const resetButton = BABYLON.MeshBuilder.CreateBox("resetButton", { height: 0.3, width: 0.3, depth: 0.1 }, scene);
+    
+    // Atur Posisi & Rotasi Tombol
+    resetButton.position = new BABYLON.Vector3(-15.5, 1.8, 28.2); 
+    
+    
+    // Terapkan Material Merah Solid
+    resetButton.material = solidRedMat; 
+    resetButton.checkCollisions = false; 
+    
+    // Jadikan tombol statis (mass 0)
+    resetButton.physicsImpostor = new BABYLON.PhysicsImpostor(
+        resetButton,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.0 },
+        scene
+    );
+    
+    // 3. Buat Mesh Plane Terpisah untuk Menampilkan Teks
+    const textPlane = BABYLON.MeshBuilder.CreatePlane("resetTextPlane", { width: 0.3, height: 0.3 }, scene);
+    
+    // Posisikan Plane Teks sedikit di depan tombol agar tidak terjadi Z-fighting
+    // Perhitungan: (0.1/2) + 0.001 = 0.051 (Setengah kedalaman tombol + offset)
+    textPlane.position = new BABYLON.Vector3(0, 0.3, -0.06); 
+    textPlane.parent = resetButton; // Jadikan textPlane anak dari resetButton
+    textPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE; // Biarkan orientasi mengikuti parent
+
+    // 4. Buat ADT dan Terapkan ke Plane Teks
+    const adtReset = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(
+        textPlane, 
+        800, 
+        300, 
+        false // Tidak perlu billboard
+    ); 
+    
+    // Tambahkan Label Teks
+    const label = new BABYLON.GUI.TextBlock();
+    label.text = "RESET ITEM";
+    label.color = "white"; 
+    label.fontSize = 100; // Ukuran font yang sudah disesuaikan
+    adtReset.addControl(label);
+
+    // 5. Tambahkan Logika Klik ke Tombol Utama (Kotak Merah)
+    resetButton.actionManager = new BABYLON.ActionManager(scene);
+    resetButton.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function () {
+            console.log("Tombol Reset Ditekan!");
+            resetAllItems(); // Panggil fungsi reset
+        })
+    );
+    
+    // =====================================
+    // Logic Interaksi (TETAP SAMA)
+    // =====================================
+    
     // 1. Termometer ke Kepala (Beep Suhu)
     headTarget.actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(
@@ -420,7 +551,7 @@ function createPngBillboard(name, filename, position, size, scene) {
     
     
     // =====================================
-    // UI & TYPEWRITER 
+    // UI & TYPEWRITER (TETAP SAMA)
     // =====================================
     let currentState = 1;
     let dialogTitle;
@@ -583,7 +714,7 @@ function createPngBillboard(name, filename, position, size, scene) {
         if (currentState === 8) {
             dialogTitle.text = "";
             typeWriterEffect(TAHAP_8_BODY, dialogBody, scene, () => {
-                 lanjutButton.textBlock.text = "Selesai";
+                   lanjutButton.textBlock.text = "Selesai";
                 lanjutButton.isHitTestVisible = true;
                 lanjutButton.onPointerClickObservable.clear(); // Hapus listener lama
                 lanjutButton.onPointerClickObservable.add(() => {
@@ -605,7 +736,9 @@ function createPngBillboard(name, filename, position, size, scene) {
     
     
     // Pemanggilan fungsi grabLogic (didefinisikan di grabLogic.js)
-    setupGrabLogic(scene, xr);
+    if (typeof setupGrabLogic !== 'undefined') {
+        setupGrabLogic(scene, xr);
+    }
 
     return scene;
 };
