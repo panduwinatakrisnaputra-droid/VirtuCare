@@ -631,7 +631,7 @@ async function createShowcaseScene(scene, engine, xr) {
     
     // 3. Buat tombol "Lanjut" (jika ada Q&A) -> ke ADT 3 (Aksi)
     if (itemData.qa && itemData.qa.length > 0) {
-      const lanjutButton = createInfoButton("btnLanjut", "Lanjut", "#5CB85C", () => {
+      const lanjutButton = createInfoButton("btnLanjut", "Tanya", "#5CB85C", () => {
         buildState_Questions(itemData); // Pindah ke State 2
       });
       actionButtonContainer.addControl(lanjutButton);
