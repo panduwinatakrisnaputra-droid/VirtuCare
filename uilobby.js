@@ -254,7 +254,7 @@ const createScene = async function () {
     typeWriterEffect(TAHAP_4_BODY, dialogBody, scene, () => {
         // Callback: Setelah TAHAP 4 selesai diketik, baru navigasi.
         setTimeout(() => {
-            goToSimulasi();
+            goToShowcase();
         },1000)
         
     }); 
@@ -472,6 +472,7 @@ createScene().then((scene) => {
 window.addEventListener("resize", function () {
     engine.resize();
 });
+
 
 
 
