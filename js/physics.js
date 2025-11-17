@@ -23,14 +23,6 @@ async function enablePhysics(scene) {
   console.log("✅ Physics berhasil diaktifkan dengan Ammo.js!");
 
   // Tambahkan contoh collision: buat box jatuh ke ground
-  const box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, scene);
-  box.position.y = 5;
-  box.physicsImpostor = new BABYLON.PhysicsImpostor(
-    box,
-    BABYLON.PhysicsImpostor.BoxImpostor,
-    { mass: 1, restitution: 0.3 },
-    scene
-  );
 
   const ground = scene.getMeshByName("ground");
   if (ground) {
@@ -47,3 +39,4 @@ async function enablePhysics(scene) {
   // - Kamu bisa ubah "mass" agar benda ringan/berat
   // - Kamu bisa tambahkan "friction" untuk permukaan licin/kesat
 }
+
