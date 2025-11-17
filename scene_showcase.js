@@ -87,219 +87,393 @@ async function createShowcaseScene(scene, engine, xr) {
               id: "meshPerban",
               file: "perban.glb",
               title: "Perban",
-              description: "Digunakan untuk membalut luka agar tetap bersih.",
-              pos: new BABYLON.Vector3(0, 2, 7.8),
+              description: "Perban adalah bahan kain atau elastis yang digunakan untuk membalut dan menahan pembalut luka, memberikan dukungan, atau memberikan tekanan pada area tubuh. Cara pakainya adalah dengan melilitkannya secara rapi di sekitar area yang membutuhkan perlindungan atau penahanan setelah luka dibersihkan dan ditutup. Perban membantu melindungi luka dari infeksi dan mempercepat proses penyembuhan.",
+              pos: new BABYLON.Vector3(-1.5, 2, 7.8),
               scale: new BABYLON.Vector3(0.03, 0.03, 0.03),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.4, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.2, z: 0 } // y = -height / 2 (Sesuaikan!)
-          },
+              visualOffset: { x: 0, y: -0.2, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Mengapa perban harus dililit dengan tekanan yang pas, tidak terlalu kuat atau lemah?", 
+                      a: "Tekanan yang pas menjaga luka agar tetap tertutup dan stabil. Jika terlalu kuat bisa menghambat aliran darah, sedangkan terlalu lemah tidak memberikan perlindungan yang cukup." 
+                  },
+                  { 
+                      q: "Bagaimana perban bisa membantu mengurangi pembengkakan pada bagian tubuh tertentu?", 
+                      a: "Perban yang dililit dengan tekanan ringan dapat membantu mengontrol aliran darah dan cairan di area cedera. Supaya dapat membantu mengurangi pembengkakan sehingga rasa nyeri berangsur membaik." 
+                  },
+                  { 
+                      q: "Kenapa arah lilitan perban dapat memengaruhi stabilitas dan kenyamanan pada area yang cedera?", 
+                      a: "Arah lilitan menentukan bagaimana tekanan dan dukungan diberikan pada bagian tubuh yang terluka. Dengan arah lilitan yang benar, tenaga medis bisa menjaga perban tetap stabil tanpa membatasi gerakan seseorang atau menekan area yang sensitif." 
+                  }
+            ]
+            },
           {
               id: "meshOximeter",
               file: "oximeter.glb",
               title: "Pulse Oximeter",
-              description: "Alat untuk mengukur saturasi oksigen dalam darah (SpO2).",
-              pos: new BABYLON.Vector3(-17, 2, 9.7),
+              description: "Oximeter digunakan untuk mengukur saturasi oksigen dalam darah (SpO2) dan denyut nadi. Alat ini dipakai dengan menjepitkan sensor kecil pada ujung jari pasien, di mana sensor akan memancarkan cahaya melalui kulit dan mengukur persentase hemoglobin yang membawa oksigen. Pengukuran SpO2 memberikan informasi penting tentang fungsi pernapasan dan sirkulasi pasien.",
+              pos: new BABYLON.Vector3(-1.5, 2, 9.7),
               scale: new BABYLON.Vector3(0.13, 0.13, 0.13),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.3, height: 0.3, depth: 0.5 },
-              visualOffset: { x: 0, y: -0.15, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.15, z: 0 }, // y = -height / 2 (Sesuaikan!)
+              qa:[
+                { 
+                      q: "Kenapa oximeter sering digunakan untuk memastikan apakah tubuh mendapat cukup oksigen?", 
+                      a: "Karena oximeter membantu tenaga medis melihat seberapa baik oksigen yang  dihirup dan benar-benar tersalurkan ke dalam darah. Angka saturasi yang terlihat di layar memberi gambaran cepat apakah tubuh pasien bekerja optimal atau membutuhkan perhatian lebih." 
+                  },
+                  { 
+                      q: "Mengapa hasil oximeter bisa berubah ketika pasien bergerak atau gelisah?", 
+                      a: "Pergerakan membuat cahaya sensor sulit membaca aliran darah dengan stabil. Itulah sebabnya Dokter biasanya meminta pasien untuk diam supaya hasil yang didapatkan benar-benar akurat dan tidak terganggu oleh gerakan." 
+                  },
+                  { 
+                      q: "Apa pentingnya memeriksa saturasi oksigen secara berkala pada pasien yang sedang sakit?", 
+                      a: "Pemantauan berkala membuat dokter dapat mengetahui lebih cepat jika kadar oksigen mulai turun. Kadang tubuh tidak langsung menunjukkan gejala, jadi angka dari oximeter membantu saya memastikan Anda tetap berada dalam kondisi aman" 
+                  }
+            ]
           },
           {
               id: "meshGunting",
               file: "gunting medis.glb",
               title: "Gunting Medis",
-              description: "Gunting steril untuk keperluan medis.",
-              pos: new BABYLON.Vector3(-17, 2, 11.7),
+              description: "Gunting medis berfungsi khusus untuk memotong perban, kasa, pakaian pasien, atau bahan medis lainnya dengan aman tanpa melukai pasien. Gunting ini sering memiliki ujung tumpul pada salah satu bilahnya untuk mempermudah memotong dekat kulit. Alat ini memastikan bahan penutup luka dapat disesuaikan dengan ukuran yang tepat.",
+              pos: new BABYLON.Vector3(-1.5, 2, 11.7),
               scale: new BABYLON.Vector3(0.015, 0.015, 0.015),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.2, height: 0.1, depth: 0.5 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
+              visualOffset: { x: 0, y: -0.05, z: 0 }, // y = -height / 2 (Sesuaikan!)
+              qa:[
+                { 
+                      q: "Mengapa gunting medis memiliki ujung tumpul, bukan tajam?", 
+                      a: "Ujung tumpul dirancang agar saya dapat menyelipkannya di antara perban atau pakaian tanpa melukai kulit. Bentuk ini memberi perlindungan tambahan, terutama saat area luka sensitif atau sulit terlihat." 
+                  },
+                  { 
+                      q: "Mengapa gunting medis harus memiliki material khusus agar tetap aman digunakan pada pasien?", 
+                      a: "Gunting medis dibuat dari material antikarat dan mudah disterilkan. Dengan bahan seperti ini, tenaga medis dapat memastikan alat tetap bersih, kuat, dan tidak membawa kuman yang bisa menginfeksi luka pasien selama tindakan." 
+                  },
+                  { 
+                      q: "Bagaimana cara gunting medis membantu tenaga kesehatan bekerja lebih cepat saat keadaan darurat?", 
+                      a: "Desain gunting medis memungkinkan saya memotong perban, pakaian, atau penghalang lain dengan cepat tanpa risiko mencederai kulit. Kecepatan ini sangat penting agar penanganan darurat dapat dilakukan segera tanpa hambatan." 
+                  }
+            ]
           },
           {
               id: "meshReflexHammer",
               file: "reflex hammer.glb",
               title: "Reflex Hammer",
               description: "Palu untuk menguji refleks tendon.",
-              pos: new BABYLON.Vector3(-17, 2, 13.8),
+              pos: new BABYLON.Vector3(-1.5, 2, 13.8),
               scale: new BABYLON.Vector3(3, 3, 3),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.2, height: 0.1, depth: 0.6 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
-          },
+              visualOffset: { x: 0, y: -0.05, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Apa fungsi utamanya?", 
+                      a: "Fungsi utamanya adalah untuk menutup luka, menghentikan pendarahan ringan, dan mencegah kontaminasi bakteri dari lingkungan luar." 
+                  },
+                  { 
+                      q: "Kapan harus diganti?", 
+                      a: "Perban harus diganti setidaknya sekali sehari, atau segera jika menjadi basah atau kotor, untuk menjaga kebersihan luka." 
+                  },
+                  { 
+                      q: "Bagaimana cara memakainya?", 
+                      a: "Bersihkan luka terlebih dahulu, keringkan area sekitar, lalu balut dengan perban. Pastikan tidak terlalu kencang agar sirkulasi darah tetap lancar." 
+                  }
+            ]
+            },
           {
               id: "meshStethoscope",
               file: "stethoscope.glb",
               title: "Stetoskop",
-              description: "Alat untuk mendengarkan suara internal tubuh.",
-              pos: new BABYLON.Vector3(-17, 2, 15.6),
+              description: "Stetoskop berfungsi untuk mendengarkan suara di dalam tubuh, seperti detak jantung, pernapasan, dan suara perut (bising usus). Cara pakainya adalah menempelkan diafragma atau bel stetoskop pada kulit pasien di area yang ingin diperiksa, sementara petugas medis mendengarkan melalui earpiece. Alat ini sangat penting untuk pemeriksaan fisik rutin dan diagnosis awal berbagai kondisi.",
+              pos: new BABYLON.Vector3(-1.5, 2, 15.6),
               scale: new BABYLON.Vector3(0.0015, 0.0015, 0.0015),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.3, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.15, z: 0 } // y = -height / 2 (Sesuaikan!)
-          },
+              visualOffset: { x: 0, y: -0.15, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Bagaimana tenaga medis bisa mengenali kondisi jantung hanya dari suara detak yang terdengar saat diperiksa?", 
+                      a: "Saat tenaga medis mendengarkan detak jantung seorang pasien, mereka memperhatikan kekuatan, ritme, dan keteraturannya. Bunyi yang kuat dan teratur biasanya menandakan aliran darah yang baik. Namun, jika terdengar lemah atau tidak beraturan, itu bisa menjadi petunjuk bahwa tubuh pasien sedang mengalami gangguan seperti kelelahan, dehidrasi, atau penurunan tekanan darah." 
+                  },
+                  { 
+                      q: "Kenapa posisi stetoskop di dada sangat mempengaruhi hasil yang terdengar?", 
+                      a: "Karena setiap posisi di dada mengarah ke bagian jantung dan paru yang berbeda. Dengan menempatkan stetoskop di lokasi yang tepat, tenaga medis dapat mendengar bunyi yang lebih jelas dan spesifik. Hal ini membantu mereka  menilai kondisi jantung dan pernapasan Anda secara lebih akurat" 
+                  },
+                  { 
+                      q: "Kenapa detak jantung bisa terdengar lebih cepat atau lebih lambat saat diperiksa?", 
+                      a: "Karena jantung itu mengikuti kondisi tubuh, kalau orang cemas, baru berdiri, atau kelelahan, detaknya bisa jadi lebih cepat. Tapi kalau tubuh sedang lemas atau kekurangan cairan, detaknya bisa melambat. Jadi perubahan bunyi detak itu membantu membaca apa yang sedang dialami pasien." 
+                  }
+            ]
+            },
           {
               id: "meshKasa",
               file: "kasa.glb",
               title: "Kain Kasa",
-              description: "Kain steril untuk membersihkan atau menutup luka.",
-              pos: new BABYLON.Vector3(-13, 2, 7.8),
+              description: "Kasa adalah kain tipis steril yang digunakan untuk membersihkan luka, menyerap cairan, atau sebagai lapisan kontak langsung pada luka sebelum dipasang perban. Kasa umumnya digunakan dengan cairan antiseptik untuk membersihkan luka atau dilipat untuk menutup luka terbuka. Sifatnya yang menyerap menjadikannya esensial dalam perawatan dan penutupan luka.",
+              pos: new BABYLON.Vector3(2.5, 2, 7.8),
               scale: new BABYLON.Vector3(5, 5, 5),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.4, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.2, z: 0 } // y = -height / 2 (Sesuaikan!)
-          },
+              visualOffset: { x: 0, y: -0.2, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Mengapa kasa sangat baik untuk membersihkan atau menutup luka?",
+                      a: "Kasa memiliki struktur berpori yang mampu menyerap darah atau cairan luka dengan efektif. Saat  digunakan untuk membersihkan atau menutup luka, bahannya yang lembut membantu melindungi jaringan yang sensitif tanpa menempel terlalu kuat, sehingga proses pergantian balutan tetap nyaman dan aman." 
+                  },
+                  { 
+                      q: "Kenapa beberapa luka harus tetap “kering”, sementara yang lain perlu lembap?", 
+                      a: "Setiap luka memiliki karakteristik penyembuhan yang berbeda. Ada luka yang membaik lebih cepat saat dijaga tetap kering untuk mencegah pertumbuhan bakteri, namun ada juga luka yang membutuhkan sedikit kelembapan agar kulit baru dapat tumbuh dengan lebih optimal. Jadi, tenaga medis umumnya menyesuaikan perawatannya agar kondisi luka pasien didukung proses penyembuhan yang paling efektif" 
+                  },
+                  { 
+                      q: "Bagaimana cara kerja kasa dalam mencegah kotoran atau bakteri masuk ke luka?", 
+                      a: "Kasa memiliki lapisan berpori yang cukup rapat untuk menahan debu, kotoran, dan bakteri dari lingkungan luar. Dengan menutup luka menggunakan kasa, dapat membantu menjaga area tetap bersih sehingga bakteri tidak mudah masuk dan mengganggu proses penyembuhan luka." 
+                  }
+            ]
+            },
           {
               id: "meshSuntik",
               file: "suntik.glb",
               title: "Alat Suntik (Syringe)",
-              description: "Digunakan untuk menyuntikkan cairan ke dalam tubuh.",
-              pos: new BABYLON.Vector3(-13, 2, 9.9),
+              description: "Suntik atau spuit adalah alat yang terdiri dari tabung dan pendorong, digunakan untuk menyuntikkan cairan (obat atau vaksin) ke dalam tubuh atau mengambil sampel cairan. Jarum steril dipasang pada ujungnya, kemudian cairan ditarik atau didorong dengan pendorong ke tempat yang dituju. Alat ini krusial untuk pemberian obat secara efektif dan tindakan diagnostik invasif minimal.",
+              pos: new BABYLON.Vector3(2.5, 2, 9.9),
               scale: new BABYLON.Vector3(0.001, 0.001, 0.001),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.1, height: 0.1, depth: 0.7 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
-          },
+              visualOffset: { x: 0, y: -0.05, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Mengapa penyuntikan harus dilakukan di area tertentu, bukan sembarang tempat??", 
+                      a: "Karena setiap area memiliki jaringan otot, pembuluh, dan saraf yang berbeda. Dengan memilih lokasi yang tepat, dokter dapat memastikan obat bekerja optimal tanpa menimbulkan cedera atau rasa nyeri berlebih." 
+                  },
+                  { 
+                      q: "Apa pengaruh ukuran jarum terhadap rasa nyeri saat disuntik?", 
+                      a: "Jarum yang lebih kecil menimbulkan sensasi tusukan yang lebih ringan. Namun ukuran jarum dipilih berdasarkan jenis cairan dan kedalaman jaringan yang harus dicapai agar obat dapat terserap dengan benar." 
+                  },
+                  { 
+                      q: "Kenapa udara di dalam suntikan harus dibuang sebelum digunakan?", 
+                      a: "Gelembung udara bisa masuk ke aliran darah dan mengganggu sirkulasi. Dengan mengeluarkan udara terlebih dahulu, sehingga tenaga medis dapat memastikan cairan masuk secara aman dan konsisten." 
+                  }
+            ]
+            },
           {
               id: "meshThermometer",
               file: "thermometer.glb",
-              title: "Termometer",
-              description: "Alat pengukur suhu tubuh.",
-              pos: new BABYLON.Vector3(-13, 2, 11.7),
+              title: "Termometer Digital",
+              description: "Termometer digital berfungsi untuk mengukur suhu tubuh, yang penting untuk mendeteksi demam atau hipotermia. Untuk menggunakannya, arahkan sensor kearah dahi pasien, dan alat akan menampilkan pembacaan suhu dalam hitungan detik. Ini adalah cara yang cepat dan higienis untuk memonitor suhu tubuh pasien.",
+              pos: new BABYLON.Vector3(2.5, 2, 11.7),
               scale: new BABYLON.Vector3(0.25, 0.25, 0.25),
               rotation: new BABYLON.Vector3(80, 160, 0),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.1, height: 0.1, depth: 0.5 },
-              visualOffset: { x: 0, y: -0.05, z: 0 } // y = -height / 2 (Sesuaikan!)
-          },
+              visualOffset: { x: 0, y: -0.05, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Mengapa kita perlu mengukur suhu tubuh saat merasa tidak enak badan?", 
+                      a: "Suhu tubuh memberi tenaga medis gambaran awal tentang bagaimana kondisi tubuh seseorang. Ketika tubuh melawan infeksi atau mengalami peradangan, suhu dapat meningkat. Dengan mengukur suhu, tenaga medis dapat membantu menentukan apakah keluhan pasien disebabkan oleh demam atau oleh faktor lain yang tidak berkaitan dengan suhu." 
+                  },
+                  { 
+                      q: "Apa yang membuat hasil pengukuran suhu bisa berbeda dari waktu ke waktu?", 
+                      a: "Suhu tubuh orang-orang berubah secara alami sepanjang hari. Aktivitas fisik, emosi, makanan, minuman, bahkan lingkungan sekitar dapat memengaruhi hasil pengukuran. Itulah sebabnya penggunaan termometer dilakukan di kondisi yang tenang dan konsisten agar hasilnya lebih akurat." 
+                  },
+                  { 
+                      q: "Mengapa suhu tubuh normal tidak selalu menandakan bahwa tubuh benar-benar sehat?", 
+                      a: "Tidak semua masalah kesehatan menyebabkan kenaikan suhu. Kondisi seperti kelelahan, stres, dehidrasi ringan, atau tekanan darah rendah tidak selalu mempengaruhi suhu tubuh. Karena itu, suhu normal tidak menjamin tubuh sedang dalam kondisi prima, tetap perlu melihat gejala lain." 
+                  }
+            ]
+            },
           {
               id: "meshTensimeter",
               file: "tensimeter.glb",
-              title: "Tensimeter",
-              description: "Alat pengukur tekanan darah.",
-              pos: new BABYLON.Vector3(-13, 2, 13.8),
+              title: "Tensimeter Digital",
+              description: "Tensimeter digital digunakan untuk mengukur tekanan darah, yang merupakan indikator vital kesehatan kardiovaskular. Alat ini bekerja dengan melingkarkan manset pada lengan atas pasien, kemudian manset dipompa dan tekanan darah sistolik dan diastolik akan ditampilkan secara otomatis pada layar digital. Penggunaannya mudah dan cepat, memudahkan proses pemeriksaan.",
+              pos: new BABYLON.Vector3(2.5, 2, 13.8),
               scale: new BABYLON.Vector3(0.3, 0.3, 0.3),
               rotation: new BABYLON.Vector3(-75, -35, -80),
               physics: { mass: 1, restitution: 0.4 },
               physicsBox: { width: 0.4, height: 0.3, depth: 0.4 },
-              visualOffset: { x: 0, y: -0.15, z: 0 } // y = -height / 2 (Sesuaikan!)
-          },
+              visualOffset: { x: 0, y: -0.15, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Mengapa tekanan darah bisa berubah hanya karena kita berdiri atau duduk?", 
+                      a: "Tekanan darah berubah karena posisi tubuh memengaruhi bagaimana darah mengalir. Saat Anda berdiri, gravitasi menarik darah ke bawah sehingga jantung perlu menyesuaikan kerja pompanya. Ketika Anda duduk atau berbaring, aliran darah lebih stabil sehingga tekanannya cenderung lebih teratur." 
+                  },
+                  { 
+                      q: "Mengapa tekanan darah perlu diperiksa secara berkala, bahkan saat kita merasa sehat?", 
+                      a: "Karena tekanan darah dapat berubah tanpa menimbulkan gejala apa pun. Banyak orang memiliki tekanan darah tinggi atau rendah tanpa disadari. Pemeriksaan berkala membantu tenaga medis memastikan bahwa tubuh pasien tetap berada dalam kondisi aman sebelum muncul keluhan yang lebih serius." 
+                  },
+                  { 
+                      q: "Kenapa pengukuran tekanan darah sering dilakukan dua kali untuk memastikan hasil?", 
+                      a: "Satu kali pengukuran bisa dipengaruhi banyak hal, misalnya sedang tegang, sedikit bergerak, atau posisi lengan kurang tepat. Dengan melakukan pemeriksaan dua kali, tenaga medis memastikan hasilnya stabil dan benar-benar menggambarkan kondisi tekanan darah pasien yang sebenarnya." 
+                  }
+            ]
+            },
           {
               id: "meshTiangInfus",
-              file: "TIANG INFUS.glb",
+              file: "tiang_infus.glb",
               title: "Tiang Infus",
               description: "Tiang untuk menggantung kantung infus.",
-              pos: new BABYLON.Vector3(-11, 0.1, 5.4),
+              pos: new BABYLON.Vector3(2.5, 0.1, 5.4),
               scale: new BABYLON.Vector3(0.04, 0.04, 0.04),
               physics: null, 
               physicsBox: null,
-              visualOffset: { x: 0, y: 0, z: 0 } // Tidak perlu offset
-          }
+              visualOffset: { x: 0, y: 0, z: 0 }, // Tidak perlu offset
+            },
+          {
+              id: "meshInfus",
+              file: "cairan_infus1.glb",
+              title: "Kantung Infus",
+              description: "Set infus digunakan untuk memberikan cairan, obat-obatan, atau nutrisi langsung ke dalam aliran darah pasien secara perlahan melalui pembuluh vena. Alat ini terdiri dari kantong cairan, selang, dan jarum (kateter) yang dimasukkan ke vena pasien. Infus penting untuk rehidrasi, koreksi elektrolit, dan pemberian obat jangka panjang",
+              pos: new BABYLON.Vector3(2.5, 2, 15.6),
+              scale: new BABYLON.Vector3(.05, .05, .05),
+              rotation: new BABYLON.Vector3(90, 0, -10),
+              physics: { mass: 1, restitution: 0.4 },
+              physicsBox: { width: 0.4, height: 0.3, depth: 0.4 },
+              visualOffset: { x: 0, y: -0.15, z: 0 }, // y = -height / 2 (Sesuaikan!)
+            qa:[
+                { 
+                      q: "Mengapa cairan infus bisa membantu pasien yang lemas atau dehidrasi?", 
+                      a: "Cairan infus langsung menggantikan air dan elektrolit yang hilang. Ini membuat volume darah meningkat kembali sehingga energi, kesadaran, dan tekanan darah pasien membaik." 
+                  },
+                  { 
+                      q: "Kenapa beberapa jenis cairan infus tidak boleh diberikan terlalu cepat?", 
+                      a: "Pemberian yang terlalu cepat bisa membuat jantung dan ginjal bekerja terlalu keras, atau mengganggu keseimbangan garam tubuh yang penting untuk fungsi saraf dan otot." 
+                  },
+                  { 
+                      q: "Mengapa aliran infus harus diatur kecepatannya?", 
+                      a: "Setiap pasien membutuhkan jumlah cairan yang berbeda. Mengatur aliran memastikan tubuh menerima cairan dengan ritme yang tepat sesuai kondisi klinisnya." 
+                  }
+            ]
+            }
       ];
 
     // 2. Fungsi Helper untuk Memuat Model (Tidak berubah)
-    async function loadItem(itemData) {
-        const isGrabbable=itemData.id!=="meshTiangInfus";
-          // Jika tidak ada data fisika, muat seperti biasa
-          if (!itemData.physics || !itemData.physicsBox) {
-              try {
-                  const result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", itemData.file, scene);
-                  const rootMesh = result.meshes[0];
-                  rootMesh.name = itemData.id;
-                  if (itemData.id === "meshTiangInfus") {
-           console.log("--- DEBUG LOAD ITEM ---");
-           console.log("Nama disetel ke:", rootMesh.name);
-           console.log("Tipe Class:", rootMesh.getClassName());
-           console.log("result.meshes[0]:", result.meshes[0]);
-         }
-                  if (isGrabbable){
-                      rootMesh.isPickable=true;
-                      rootMesh.metadata = { isGrabbable: true, itemData: itemData };
-                  }
-                  rootMesh.position = itemData.pos;
-                  rootMesh.scaling = itemData.scale;
-                  if (itemData.rotation) {
-                      rootMesh.rotation = new BABYLON.Vector3(
-                          BABYLON.Tools.ToRadians(itemData.rotation.x),
-                          BABYLON.Tools.ToRadians(itemData.rotation.y),
-                          BABYLON.Tools.ToRadians(itemData.rotation.z)
-                      );
-                  }
-                  return rootMesh;
-              } catch (e) {
-                  console.error(`Gagal memuat item (non-fisika) ${itemData.file}:`, e);
-                  return null;
-              }
-          }
+    // 2. Fungsi Helper untuk Memuat Model (Versi Perbaikan)
+  async function loadItem(itemData) {
+    const isGrabbable = itemData.id !== "meshTiangInfus";
 
-          // --- Proses untuk Item DENGAN Fisika ---
+    // --- Logika untuk Item NON-FISIKA (seperti Tiang Infus) ---
+    if (!itemData.physics || !itemData.physicsBox) {
+      
+      // 1. Buat Wrapper (TransformNode) dengan skala 1.0
+      const wrapper = new BABYLON.Mesh(itemData.id, scene);
+      wrapper.position = itemData.pos;
+      wrapper.name = itemData.id; // Nama ID ditaruh di Wrapper
 
-          // 1. Buat Kotak Fisika (Wrapper)
-          const physicsWrapper = BABYLON.MeshBuilder.CreateBox(`wrapper_${itemData.id}`, {
-              width: itemData.physicsBox.width,
-              height: itemData.physicsBox.height,
-              depth: itemData.physicsBox.depth
-          }, scene);
+      try {
+        // 2. Muat model GLB
+        const result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", itemData.file, scene);
+        const rootMesh = result.meshes[0]; // Deklarasikan model visual
+  
+        // 3. Tautkan model visual ke wrapper
+        rootMesh.parent = wrapper;
 
-          // 2. Atur posisi Wrapper (TANPA ROTASI)
-          physicsWrapper.position = itemData.pos;
-          
-          // Atur 'true' untuk melihat kotak fisika saat debugging
-          physicsWrapper.isVisible = false; 
+        // 4. Atur skala HANYA pada model visual
+        rootMesh.scaling = itemData.scale; 
 
-          // 3. Beri nama ID ke Wrapper (untuk UI link)
-          physicsWrapper.name = itemData.id;
-
-          if (isGrabbable){
-              physicsWrapper.isPickable=true;
-              physicsWrapper.metadata={
-                isGrabbable:true,
-                itemData:itemData
-              };
-          }
-
-          // 4. Terapkan Fisika ke Wrapper
-          physicsWrapper.physicsImpostor = new BABYLON.PhysicsImpostor(
-              physicsWrapper,
-              BABYLON.PhysicsImpostor.BoxImpostor, 
-              itemData.physics, 
-              scene
+        // 5. Atur posisi visual RELATIF ke wrapper (offset)
+        rootMesh.position = new BABYLON.Vector3(
+          itemData.visualOffset.x,
+          itemData.visualOffset.y,
+          itemData.visualOffset.z
+        );
+  
+        // 6. Atur 'grabbable' pada WRAPPER (jika perlu)
+        if (isGrabbable){
+          wrapper.isPickable = true; 
+          wrapper.metadata = { isGrabbable: true, itemData: itemData };
+        }
+  
+        // 7. Atur rotasi HANYA pada model visual
+        if (itemData.rotation) {
+          rootMesh.rotation = new BABYLON.Vector3(
+            BABYLON.Tools.ToRadians(itemData.rotation.x),
+            BABYLON.Tools.ToRadians(itemData.rotation.y),
+            BABYLON.Tools.ToRadians(itemData.rotation.z)
           );
+        }
+        
+        // 8. Kembalikan WRAPPER
+        return wrapper;
 
-          // 5. Muat Model GLB
-          try {
-              const result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", itemData.file, scene);
-              const rootMesh = result.meshes[0];
-
-              // 6. Jadikan GLB sebagai anak dari Wrapper
-              rootMesh.parent = physicsWrapper;
-              
-              // 7. Atur skala GLB
-              rootMesh.scaling = itemData.scale;
-              
-              // 8. Atur posisi GLB *RELATIF* terhadap wrapper menggunakan offset manual
-              rootMesh.position = new BABYLON.Vector3(
-                  itemData.visualOffset.x,
-                  itemData.visualOffset.y,
-                  itemData.visualOffset.z
-              );
-
-              // 9. Terapkan rotasi ke model visual, BUKAN ke wrapper
-              if (itemData.rotation) {
-                  rootMesh.rotation = new BABYLON.Vector3(
-                      BABYLON.Tools.ToRadians(itemData.rotation.x),
-                      BABYLON.Tools.ToRadians(itemData.rotation.y),
-                      BABYLON.Tools.ToRadians(itemData.rotation.z)
-                  );
-              }
-              
-          } catch (e) {
-              console.error(`Gagal memuat item (fisika) ${itemData.file}:`, e);
-          }
-
-          // 10. Kembalikan Wrapper
-          return physicsWrapper;
+      } catch (e) {
+        console.error(`Gagal memuat item (non-fisika) ${itemData.file}:`, e);
+        
+        return null;
       }
+    }
+
+    // --- Proses untuk Item DENGAN Fisika (Tidak Berubah) ---
+
+    // 1. Buat Kotak Fisika (Wrapper)
+    const physicsWrapper = BABYLON.MeshBuilder.CreateBox(`wrapper_${itemData.id}`, {
+      width: itemData.physicsBox.width,
+      height: itemData.physicsBox.height,
+      depth: itemData.physicsBox.depth
+    }, scene);
+
+    // 2. Atur posisi Wrapper (TANPA ROTASI)
+    physicsWrapper.position = itemData.pos;
+    
+    // Atur 'true' untuk melihat kotak fisika saat debugging
+    physicsWrapper.isVisible = false; 
+
+    // 3. Beri nama ID ke Wrapper (untuk UI link)
+    physicsWrapper.name = itemData.id;
+
+    if (isGrabbable){
+      physicsWrapper.isPickable=true;
+      physicsWrapper.metadata={
+       isGrabbable:true,
+       itemData:itemData
+      };
+    }
+
+    // 4. Terapkan Fisika ke Wrapper
+    physicsWrapper.physicsImpostor = new BABYLON.PhysicsImpostor(
+      physicsWrapper,
+      BABYLON.PhysicsImpostor.BoxImpostor, 
+      itemData.physics, 
+      scene
+    );
+
+    // 5. Muat Model GLB
+    try {
+      const result = await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", itemData.file, scene);
+      const rootMesh = result.meshes[0]; // Deklarasikan model visual
+
+      // 6. Jadikan GLB sebagai anak dari Wrapper
+      rootMesh.parent = physicsWrapper;
+      
+      // 7. Atur skala GLB
+      rootMesh.scaling = itemData.scale;
+      
+      // 8. Atur posisi GLB *RELATIF* terhadap wrapper menggunakan offset manual
+      rootMesh.position = new BABYLON.Vector3(
+        itemData.visualOffset.x,
+        itemData.visualOffset.y,
+        itemData.visualOffset.z
+      );
+
+      // 9. Terapkan rotasi ke model visual, BUKAN ke wrapper
+      if (itemData.rotation) {
+        rootMesh.rotation = new BABYLON.Vector3(
+          BABYLON.Tools.ToRadians(itemData.rotation.x),
+          BABYLON.Tools.ToRadians(itemData.rotation.y),
+          BABYLON.Tools.ToRadians(itemData.rotation.z)
+        );
+      }
+      
+    } catch (e) {
+      console.error(`Gagal memuat item (fisika) ${itemData.file}:`, e);
+      // Tidak perlu dispose wrapper, biarkan kotak fisika kosong saja
+    }
+
+    // 10. Kembalikan Wrapper
+    return physicsWrapper;
+  }
 
     // 3. Jalankan Pemuatan (await)
     console.log("Memulai memuat semua item...");
@@ -312,68 +486,245 @@ async function createShowcaseScene(scene, engine, xr) {
     await Promise.all(loadPromises);
     console.log("✅ Semua 10 item berhasil dimuat.");
     
-    // 4. Buat Kanvas dan Panel UI (Shared)
-    const infoPlane = BABYLON.MeshBuilder.CreatePlane("infoPlane", {width: 1, height: 0.6}, scene);
-    infoPlane.position = new BABYLON.Vector3(0, 0, 1.5); 
-    infoPlane.isVisible = false; 
-    assets.push(infoPlane); // Lacak
+    const infoPlane = BABYLON.MeshBuilder.CreatePlane("infoPlane", {width: 1, height: 1}, scene);
+  infoPlane.position = new BABYLON.Vector3(0, 0, 1.5); // ATAS
+  infoPlane.isVisible = false; 
+  assets.push(infoPlane);
 
-    // Tautkan panel ke kamera
-    if (xr && xr.baseExperience.state === BABYLON.WebXRState.IN_XR) {
-        infoPlane.parent = xr.input.xrCamera;
-    } else {
-        infoPlane.parent = scene.activeCamera; // Tautkan ke kamera aktif
-    }
-    
-    // ... (Sisa kode pembuatan infoPanel, infoTitle, infoDesc, closeButton)
-    const adtPanel = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(infoPlane);
-    const infoPanel = new BABYLON.GUI.Rectangle("infoPanel");
-    infoPanel.widthInPixels = 1000;
-      infoPanel.heightInPixels = 600;
-      infoPanel.cornerRadius = 50;
-      infoPanel.color = "white";
-      infoPanel.thickness = 10;
-      infoPanel.background = "rgba(0, 0, 0, 0.8)";
-    adtPanel.addControl(infoPanel);
-    const infoTitle = new BABYLON.GUI.TextBlock("infoTitle");
-    infoTitle.text = "Judul Benda";
-      infoTitle.color = "white";
-      infoTitle.fontSize = 50; // Font lebih besar untuk VR
-      infoTitle.fontWeight = "bold";
-      infoTitle.paddingTopInPixels = 30;
-      infoTitle.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    infoPanel.addControl(infoTitle);
-    const infoDesc = new BABYLON.GUI.TextBlock("infoDesc");
-    infoDesc.text = "Ini adalah deskripsi default...";
-      infoDesc.color = "white";
-      infoDesc.fontSize = 40; // Font lebih besar
-      infoDesc.textWrapping = true;
-      infoDesc.paddingTopInPixels = 150;
-      infoDesc.paddingLeftInPixels = 40;
-      infoDesc.paddingRightInPixels = 40;
-      infoDesc.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-    infoPanel.addControl(infoDesc);
-    const closeButton = BABYLON.GUI.Button.CreateSimpleButton("closeBtn", "Tutup");
-    closeButton.widthInPixels = 300;
-      closeButton.heightInPixels = 100;
-      closeButton.color = "white";
-      closeButton.background = "grey";
-      closeButton.fontSize = 40;
-      closeButton.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
-      closeButton.paddingBottomInPixels = 30;
-    infoPanel.addControl(closeButton);
-    
-    closeButton.onPointerClickObservable.add(() => {
-        infoPlane.isVisible = false;
+  // Plane 2: Tombol Q&A (Pertanyaan)
+  const qaPlane = BABYLON.MeshBuilder.CreatePlane("qaPlane", {width: 1, height: 0.4}, scene);
+  qaPlane.position = new BABYLON.Vector3(0, 0, 1.45); // TENGAH
+  qaPlane.isVisible = false; 
+  assets.push(qaPlane);
+
+  // Plane 3: Tombol Aksi (Lanjut, Tanya Lagi, Tutup)
+  const actionPlane = BABYLON.MeshBuilder.CreatePlane("actionPlane", {width: 1, height: 0.25}, scene);
+  actionPlane.position = new BABYLON.Vector3(0, -0.28, 1.45); // BAWAH
+  actionPlane.isVisible = false; 
+  assets.push(actionPlane);
+  
+  // Variabel global untuk UI
+  let infoTitle;
+  let infoDesc;
+  let qaButtonContainer; // (Container untuk ADT 2)
+  let actionButtonContainer; // (Container untuk ADT 3)
+  
+  // Tautkan KETIGA panel ke kamera
+  if (xr && xr.baseExperience.state === BABYLON.WebXRState.IN_XR) {
+    infoPlane.parent = xr.input.xrCamera;
+    qaPlane.parent = xr.input.xrCamera; // <-- BARU
+    actionPlane.parent = xr.input.xrCamera; // <-- BARU
+  } else {
+    infoPlane.parent = scene.activeCamera;
+    qaPlane.parent = scene.activeCamera; // <-- BARU
+    actionPlane.parent = scene.activeCamera; // <-- BARU
+  }
+  
+  // --- KODE TATA LETAK (Panel 1: Info / ADT 1) ---
+  // ... (Tidak ada perubahan di sini: adtPanel, infoPanel, contentStack, infoTitle, infoDesc) ...
+  const adtPanel = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(infoPlane);
+  const infoPanel = new BABYLON.GUI.Rectangle("infoPanel");
+  infoPanel.widthInPixels = 1000;
+  infoPanel.heightInPixels = 800; 
+  infoPanel.cornerRadius = 50;
+  infoPanel.color = "white";
+  infoPanel.thickness = 10;
+  infoPanel.background = "rgba(0, 0, 0, 0.8)";
+  adtPanel.addControl(infoPanel);
+
+  const contentStack = new BABYLON.GUI.StackPanel("contentStack");
+  contentStack.width = "100%";
+  contentStack.paddingLeftInPixels = 40;
+  contentStack.paddingRightInPixels = 40;
+  contentStack.paddingTopInPixels =0;
+  contentStack.paddingBottomInPixels = 300;
+  contentStack.spacing = 15;
+  infoPanel.addControl(contentStack);
+
+  infoTitle = new BABYLON.GUI.TextBlock("infoTitle", "Judul Benda");
+  infoTitle.color = "white";
+  infoTitle.fontSize = 50;
+  infoTitle.fontWeight = "bold";
+  infoTitle.heightInPixels = 70;
+  infoTitle.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+  contentStack.addControl(infoTitle);
+
+  infoDesc = new BABYLON.GUI.TextBlock("infoDesc", "Deskripsi...");
+  infoDesc.color = "white";
+  infoDesc.fontSize = 36; 
+  infoDesc.textWrapping = true;
+  infoDesc.heightInPixels = 350; 
+  infoDesc.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+  infoDesc.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+  contentStack.addControl(infoDesc);
+
+
+  // --- KODE TATA LETAK (Panel 2: Tombol Q&A / ADT 2) ---
+  const adtQaButtons = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(qaPlane, 1000, 400);
+  
+  // Container ini diisi oleh State 2
+  qaButtonContainer = new BABYLON.GUI.StackPanel("qaButtonContainer");
+  qaButtonContainer.width = "100%";
+  qaButtonContainer.widthInPixels = 850; 
+  qaButtonContainer.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+  qaButtonContainer.isVertical = true;
+  qaButtonContainer.spacing = 10;
+  adtQaButtons.addControl(qaButtonContainer);
+
+  // --- KODE TATA LETAK (Panel 3: Tombol Aksi / ADT 3) ---
+  const adtActionButtons = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(actionPlane, 1000, 250);
+
+  // Container ini diisi oleh semua state
+  actionButtonContainer = new BABYLON.GUI.StackPanel("actionButtonContainer");
+  actionButtonContainer.width = "40%";
+  actionButtonContainer.widthInPixels = 850; 
+  actionButtonContainer.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+  actionButtonContainer.isVertical = true;
+  actionButtonContainer.spacing = 10;
+  adtActionButtons.addControl(actionButtonContainer);
+
+  // --- AKHIR TATA LETAK PANEL BARU ---
+
+  // 5. Fungsi Helper untuk Tampilkan Info (VERSI STATE MACHINE)
+
+  // Fungsi untuk membuat tombol standar (Tidak berubah)
+  function createInfoButton(id, text, color, onClick, heightInPixels = 45, wrapText = false,widthInPixels = 850) {
+    const button = BABYLON.GUI.Button.CreateSimpleButton(id, text);
+    button.width = "100%";
+    button.heightInPixels = heightInPixels;
+    button.fontSize = 30;
+    button.color = "white";
+    button.background = color;
+    button.cornerRadius = 10;
+    if (wrapText && button.textBlock) {
+    button.textBlock.textWrapping = true;
+    // (Opsional: beri padding internal agar teks tidak mepet tepi)
+    button.textBlock.paddingTopInPixels = 5;
+    button.textBlock.paddingBottomInPixels = 5;
+    button.textBlock.paddingLeftInPixels = 10;
+    button.textBlock.paddingRightInPixels = 10;
+  }
+    button.widthInPixels = widthInPixels;
+    button.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    button.onPointerClickObservable.addOnce(() => {
+      onClick();
     });
+    return button;
+  }
 
-    // 5. Fungsi Helper untuk Tampilkan Info (Tidak berubah)
-    function showInfo(itemData) {
-        // ... (Salin fungsi showInfo)
-        infoTitle.text = itemData.title;
-        infoDesc.text = itemData.description;
-        infoPlane.isVisible = true;
+  // Fungsi untuk menutup panel
+  function closeInfoPanel() {
+    infoPlane.isVisible = false;
+    qaPlane.isVisible = false; // <-- MODIFIKASI
+    actionPlane.isVisible = false; // <-- MODIFIKASI
+  }
+
+  // STATE 1: Menampilkan Deskripsi Awal
+  function buildState_Description(itemData) {
+    // 1. Bersihkan kedua container tombol
+    qaButtonContainer.clearControls();
+    actionButtonContainer.clearControls();
+    
+    // 2. Set teks deskripsi
+    infoDesc.text = itemData.description;
+    infoDesc.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    
+    // 3. Buat tombol "Lanjut" (jika ada Q&A) -> ke ADT 3 (Aksi)
+    if (itemData.qa && itemData.qa.length > 0) {
+      const lanjutButton = createInfoButton("btnLanjut", "Lanjut", "#5CB85C", () => {
+        buildState_Questions(itemData); // Pindah ke State 2
+      });
+      actionButtonContainer.addControl(lanjutButton);
     }
+
+    // 4. Buat tombol "Tutup" -> ke ADT 3 (Aksi)
+    const tutupButton = createInfoButton("btnTutup", "Tutup", "grey", () => {
+      closeInfoPanel();
+    });
+    actionButtonContainer.addControl(tutupButton);
+    
+    // 5. Pastikan ADT 2 (Q&A) tidak terlihat
+    qaPlane.isVisible = false;
+  }
+
+  // STATE 2: Menampilkan 3 Pertanyaan
+  function buildState_Questions(itemData) {
+    // 1. Bersihkan kedua container tombol
+    qaButtonContainer.clearControls();
+    actionButtonContainer.clearControls();
+    
+    // 2. Set teks prompt
+    infoDesc.text = "Silakan pilih pertanyaan di bawah ini:";
+
+    // 3. Loop data 'qa' dan buat tombol pertanyaan -> ke ADT 2 (Q&A)
+    itemData.qa.forEach((qaPair) => {
+      const qButton = createInfoButton(`btnQ_${qaPair.q}`, qaPair.q, "#428BCA", () => {
+      buildState_Answer(itemData, qaPair); // Pindah ke State 3
+    }, 90, true);
+      qaButtonContainer.addControl(qButton);
+    });
+    
+    // 4. Buat tombol "Tutup" -> ke ADT 3 (Aksi)
+    const tutupButton = createInfoButton("btnTutup", "Tutup", "grey", () => {
+      closeInfoPanel();
+    });
+    actionButtonContainer.addControl(tutupButton);
+    
+    // 5. Pastikan ADT 2 (Q&A) SEKARANG terlihat
+    qaPlane.isVisible = true;
+  }
+
+  // STATE 3: Menampilkan Jawaban dan Opsi
+  function buildState_Answer(itemData, qaPair) {
+    // 1. Bersihkan kedua container tombol
+    qaButtonContainer.clearControls();
+    actionButtonContainer.clearControls();
+    
+    // 2. Set teks jawaban
+    infoDesc.text = qaPair.a; // Tampilkan jawaban
+
+    // 3. Buat tombol "Tanya Lagi"
+    const tanyaLagiButton = createInfoButton("btnTanyaLagi", "Tanya Lagi", "#428BCA", () => {
+   buildState_Questions(itemData); // Kembali ke State 2
+  }, 45, false, 415); // (Tinggi=45, Wrap=false, Lebar=415)
+
+  // 4. Buat tombol "Tutup" (dengan lebar 415)
+  const tutupButton = createInfoButton("btnTutup", "Tutup", "grey", () => {
+   closeInfoPanel();
+  }, 45, false, 415)
+
+    // 5. Kontainer horizontal (agar "Tanya Lagi" dan "Tutup" berdampingan)
+   const horizontalContainer = new BABYLON.GUI.StackPanel("hContainer");
+    horizontalContainer.isVertical = false;
+    horizontalContainer.spacing = 20;
+    horizontalContainer.heightInPixels = 80;
+
+    horizontalContainer.addControl(tanyaLagiButton);
+    horizontalContainer.addControl(tutupButton);
+    
+    // 6. Tambahkan container horizontal ini -> ke ADT 3 (Aksi)
+    actionButtonContainer.addControl(horizontalContainer);
+    
+    // 7. Pastikan ADT 2 (Q&A) tidak terlihat
+    qaPlane.isVisible = false;
+  }
+
+
+  // FUNGSI UTAMA YANG DIPANGGIL SAAT TOMBOL 'i' DIKLIK
+  function showInfo(itemData) {
+    // 1. Set judul
+    infoTitle.text = itemData.title;
+    
+    // 2. Masuk ke state awal (Deskripsi)
+    // (buildState_Description akan mengatur visibilitas plane tombol)
+    buildState_Description(itemData);
+    
+    // 3. Tampilkan KETIGA panel
+    // (Visibilitas plane Q&A diatur oleh state, tapi plane Aksi dan Info selalu nyala)
+    infoPlane.isVisible = true;
+    // qaPlane.isVisible = false; (Diaturoleh state 1)
+    actionPlane.isVisible = true; 
+  }
 
     // 6. Loop untuk Membuat Tombol Tautan 3D
     console.log("Memulai pembuatan UI tombol 3D...");
@@ -438,19 +789,19 @@ async function createShowcaseScene(scene, engine, xr) {
 
     // === KODE COLLISION BOX ASLI ===
     const mejaCollision1 = BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 1.6, width: 0.7, depth: 10}, scene);
-    mejaCollision1.position = new BABYLON.Vector3(-17, 0.5, 12);
+    mejaCollision1.position = new BABYLON.Vector3(-1.5, 0.47, 12);
     mejaCollision1.isVisible = false;
     mejaCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(mejaCollision1, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.2 }, scene);
     assets.push(mejaCollision1); // Lacak
 
     const mejaCollision2 = BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 1.6, width: 0.7, depth: 10}, scene);
-    mejaCollision2.position = new BABYLON.Vector3(-13, 0.5, 12);
+    mejaCollision2.position = new BABYLON.Vector3(2.5, 0.47, 12);
     mejaCollision2.isVisible = false;
     mejaCollision2.physicsImpostor = new BABYLON.PhysicsImpostor(mejaCollision2, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.2 }, scene);
     assets.push(mejaCollision2); // Lacak
 
     const infuscollision = BABYLON.MeshBuilder.CreateBox("infuscollision", {height: 5, width: 1.4, depth: 1}, scene);
-    infuscollision.position = new BABYLON.Vector3(-13.1, 0, 5.5);
+    infuscollision.position = new BABYLON.Vector3(2.6, 0, 5.5);
     infuscollision.isVisible = false;
     infuscollision.checkCollisions = true;
     assets.push(infuscollision); // Lacak
@@ -480,7 +831,7 @@ async function createShowcaseScene(scene, engine, xr) {
     const TAHAP_1_BODY = "Di sepanjang perjalanan, Anda akan menemukan berbagai alat medis yang menampilkan informasi dari setiap alat. Gunakan kesempatan ini untuk mengamati dan mengenali setiap alat yang dipamerkan.";
     const TAHAP_2_BODY = "Setelah kamu mengenal alat-alat ini, bersiaplah untuk memasuki simulasi praktik.Di sana, kamu akan diuji untuk menerapkan apa yang telah kamu pelajari dalam situasi yang menyerupai dunia nyata. Jika ada yang ditanyakan, jangan ragu untuk bertanya kepada aku ya!!";
     const TAHAP_3_TEXT_FULL = "Siap melakukan simulasi?";
-    const TAHAP_4_BODY = "Baik, karena belum siap melakukan simulasi, silahkan menunggu sampai kamu siap untuk melakukan simulasi.";
+    const TAHAP_4_BODY = "Baik, karena anda belum siap melakukan simulasi, maka anda belum bisa berpindah dan melanjutkan ke ruang berikutnya. Silakan anda berkeliling kembali di Showcase Room guna membantu anda untuk lebih siap melakukan simulasi!";
     const TAHAP_5_BODY = "Baik, karena kamu sudah siap untuk melakukan simulasi, akan saya antarkan ke ruang pemeriksaan!";
     
     // --- FUNGSI TYPEWRITER EFFECT (TETAP SAMA) ---
@@ -579,7 +930,7 @@ stackPanel.addControl(lanjutButton);
     // --- MEMBUAT PLANE DAN ADT KEDUA UNTUK KONFIRMASI ---
     const uiPlaneConfirmation = BABYLON.MeshBuilder.CreatePlane("uiPlaneConfirmation", scene);
     // ... (properti uiPlaneConfirmation)
-    uiPlaneConfirmation.position = new BABYLON.Vector3(0, 2, 11); 
+    uiPlaneConfirmation.position = new BABYLON.Vector3(.5, 2, 17.8); 
     uiPlaneConfirmation.scaling.scaleInPlace(3);
     uiPlaneConfirmation.isVisible = false; 
     assets.push(uiPlaneConfirmation); // Lacak

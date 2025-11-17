@@ -53,7 +53,7 @@ async function createMenuScene(scene, engine, xr, onStartCallback) {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene 
     ).then((result) => {
         if (result.meshes.length > 0) {
-            result.meshes[0].position = new BABYLON.Vector3(-2, 0, 7.9);
+            result.meshes[0].position = new BABYLON.Vector3(-2, 0, 7.5);
             result.meshes[0].scaling = new BABYLON.Vector3(-0.43, 0.43, 0.43);
             result.meshes[0].getChildMeshes().forEach(mesh => { 
                 mesh.checkCollisions = true;
@@ -65,7 +65,7 @@ async function createMenuScene(scene, engine, xr, onStartCallback) {
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "Avatar_Virtucare.glb", scene 
     ).then((result) => {
         if (result.meshes.length > 0) {
-            result.meshes[0].position = new BABYLON.Vector3(0, .7, 2.7);
+            result.meshes[0].position = new BABYLON.Vector3(0, .7, 2.4);
             result.meshes[0].scaling = new BABYLON.Vector3(.3, .3, .3);
             result.meshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
             result.meshes[0].getChildMeshes().forEach(mesh => { 
@@ -96,7 +96,7 @@ async function createMenuScene(scene, engine, xr, onStartCallback) {
     // --- DATA TEKS DIPISAH ---
     const TAHAP_1_JUDUL = "Halo, Calon Dokter!";
     const TAHAP_1_BODY = "Kenalkan! aku MEDIBOT! Selamat datang di VirtuCare, sebuah dunia virtual yang dirancang untuk membawa lebih dekat dengan pengalaman medis yang sesungguhnya.";
-    const TAHAP_2_BODY = "Saat ini, Anda berada di lobi VirtuCare, titik awal sebelum memulai pelatihan. Setiap interaksi dan setiap langkah yang diambil akan membawa semakin dekat menuju profesionalisme seorang tenaga medis.";
+    const TAHAP_2_BODY = "Saat ini, Anda berada di lobi VirtuCare, titik awal sebelum memulai pelatihan. Setiap interaksi dan setiap langkah yang diambil akan membawa anda semakin dekat menuju profesionalisme seorang tenaga medis.";
     const TAHAP_3_TEXT_FULL = "Siap melakukan simulasi?";
     const TAHAP_4_BODY = "Baik, Sebelum kita melakukan simulasi, Anda akan diarahkan ke Ruang Showcase Alat Medis. Di ruangan ini, Anda dapat melihat dan mempelajari berbagai peralatan medis yang akan digunakan selama praktik. Setiap alat akan disertai penjelasan singkat agar Anda memahami fungsi dan cara kerjanya dengan lebih jelas sebelum memulai simulasi";
     
