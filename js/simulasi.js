@@ -1,10 +1,3 @@
-// ======================================
-// PENTING: Anda harus memastikan file ini dimuat setelah babylon.js, 
-// babylonjs.loaders.js, babylonjs.gui.js, babylonjs.materials.js, 
-// dan cannon.js di HTML Anda.
-// Anda juga perlu mendefinisikan fungsi setupGrabLogic di file lain atau di sini.
-// Karena setupGrabLogic tidak ada, saya asumsikan ia berada di file lain.
-// ======================================
 
 // ================================
 // Inisialisasi Engine & Canvas
@@ -20,9 +13,9 @@ const createScene = async function () {
     scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.95);
 
     // --- VARIABEL UNTUK ITEM INTERAKSI (DIALIHKAN KE SCOPE LOKAL) ---
-    // Variabel ini akan menampung referensi ke Wrapper Mesh yang sebenarnya.
     let thermometerMesh = null;
     let tensimeterMesh = null;
+    let stethoscopeMesh = null;
 
     // Misal pakai CannonJS
     const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
@@ -65,6 +58,33 @@ const createScene = async function () {
     camera.keysLeft.push(65); camera.keysRight.push(68);
 
     let xr = null;
+
+    // ================================
+// Tampilkan 3 Gambar PNG sebagai Billboard
+// ================================
+
+function createPngBillboard(name, filename, position, size, scene) {
+    // 1. Buat bidang 3D (Plane)
+    const plane = BABYLON.MeshBuilder.CreatePlane(name, { width: size, height: size * 0.75 }, scene);
+    plane.position = position;
+    // plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL; // Opsional: membuat bidang selalu menghadap kamera
+
+    // 2. Buat Material Baru
+    const material = new BABYLON.StandardMaterial(name + "Mat", scene);
+    
+    // 3. Muat Tekstur dari file PNG
+    const texture = new BABYLON.Texture("assets/" + filename, scene);
+    material.diffuseTexture = texture;
+    material.diffuseTexture.hasAlpha = true; // Penting jika gambar Anda memiliki transparansi
+    material.backFaceCulling = false; // Agar gambar terlihat dari kedua sisi
+
+    // Membuat gambar memancarkan cahaya sendiri agar terlihat terang
+    material.emissiveColor = new BABYLON.Color3(1, 1, 1); // Warna putih penuh untuk kecerahan maksimal
+
+    // 4. Aplikasikan Material ke Plane
+    plane.material = material;
+    return plane;
+}
 
     // ================================
     // Tambahkan Model + Collision
@@ -134,12 +154,6 @@ const createScene = async function () {
         camera.checkCollisions = true;
     }
 
-    if (xr && xr.baseExperience) {
-        console.log("WebXR state:", xr.baseExperience.state);
-    } else {
-        console.warn("WebXR tidak aktif");
-    }
-
     const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 0.5, width: 2, depth: 0.7}, scene);
     mejaCollision1.position = new BABYLON.Vector3(-17, 1, 27.5);
     mejaCollision1.isVisible = false;
@@ -173,15 +187,22 @@ const createScene = async function () {
     tempText.isVisible = false;
     advancedTexture.addControl(tempText);
 
-    const tensiText = new BABYLON.GUI.TextBlock("tensiText", ""); // Ubah nama id agar unik
+    const StethoText = new BABYLON.GUI.TextBlock("StethoText", ""); 
+    StethoText.fontSize = 40;
+    StethoText.color = "maroon";
+    StethoText.isVisible = false;
+    advancedTexture.addControl(StethoText);
+
+    const tensiText = new BABYLON.GUI.TextBlock("tensiText", ""); 
     tensiText.fontSize = 40;
     tensiText.color = "cyan";
     tensiText.isVisible = false;
     advancedTexture.addControl(tensiText);
 
     // --- Efek Suara ---
-    const beepSound = new BABYLON.Sound("beep", "audio/beep.mp3", scene, null, { loop: false, volume: 0.5 });
-    const heartbeatSound = new BABYLON.Sound("heartbeat", "audio/detak jantung.mp3", scene, null, { loop: true, volume: 0.6 });
+    // Pastikan path audio/ sudah benar
+    const beepSound = new BABYLON.Sound("beep", "audio/beep.mp3", scene, null, { loop: false, volume: 1 }); 
+    const heartbeatSound = new BABYLON.Sound("heartbeat", "audio/detak jantung.mp3", scene, null, { loop: true, volume: 1 });
     
     // Invisible interaction points
     const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.2 }, scene);
@@ -201,6 +222,8 @@ const createScene = async function () {
     tempText.linkOffsetY = -100;
     tensiText.linkWithMesh(armTarget);
     tensiText.linkOffsetY = -100;
+    StethoText.linkWithMesh(chestTarget);
+    StethoText.linkOffsetY = -100;
 
     // Aktifkan Action Manager untuk semua target
     headTarget.actionManager = new BABYLON.ActionManager(scene);
@@ -211,24 +234,22 @@ const createScene = async function () {
     let isHeartbeatPlaying = false;
     
     // ===================================================
-    // [PERBAIKAN TOTAL] Muat GLB dengan "Wrapper" Fisika
+    // Muat GLB dengan "Wrapper" Fisika
     // ===================================================
 
-    // Tentukan ukuran box fisika (sesuaikan jika perlu)
     const itemPhysicsSize = 0.2; // 20cm
     const itemPhysicsMass = 0.01; // Massa ringan
     const startY = 2.0; // Ketinggian awal item
 
     /**
      * Fungsi Helper untuk memuat item grabbable dengan wrapper fisika
-     * @returns {BABYLON.Mesh} Wrapper Mesh yang berisi PhysicsImpostor
      */
     function createGrabbableItem(name, glbFile, position, scaling, rotation) {
         // 1. Buat Wrapper Box (yang akan kena fisika)
         const wrapper = BABYLON.MeshBuilder.CreateBox(name + "Wrapper", {
-            size: itemPhysicsSize // Ukuran box fisika
+            size: itemPhysicsSize 
         }, scene);
-        wrapper.position = position; // Posisi di dunia
+        wrapper.position = position; 
         wrapper.isVisible = false; // Sembunyikan box fisika
 
         // 2. Tambahkan metadata ke WRAPPER
@@ -253,38 +274,35 @@ const createScene = async function () {
             rootMesh.setParent(wrapper);
             
             // 6. Atur posisi/skala/rotasi GLB RELATIF ke wrapper
-            rootMesh.position = new BABYLON.Vector3(0, 0, 0); // Selalu (0,0,0) relatif ke parent
+            rootMesh.position = new BABYLON.Vector3(0, 0, 0); 
             rootMesh.scaling = scaling;
             if (rotation) {
-                // Di sini Anda mungkin ingin menggunakan rotationQuaternion jika rotasinya kompleks
-                // Untuk contoh ini, kita asumsikan Vector3 rotation
                 rootMesh.rotation = rotation; 
             }
         });
         
-        return wrapper; // <-- PENTING: Mengembalikan mesh yang benar
+        return wrapper; 
     }
+    
     
     // --- Gunakan helper untuk memuat dan menangkap semua item ---
     
-    createGrabbableItem("stethoscope", "stethoscope.glb", 
+    stethoscopeMesh = createGrabbableItem("stethoscope", "stethoscope.glb", 
         new BABYLON.Vector3(-17, startY, 27.5), 
         new BABYLON.Vector3(0.0015, 0.0015, 0.0015)
     );
     
 
-    // TANGKAP MESH TERMOMETER YANG BENAR
     thermometerMesh = createGrabbableItem("thermometer", "thermometer.glb", 
         new BABYLON.Vector3(-16.3, startY, 27.5), 
         new BABYLON.Vector3(0.25, 0.25, 0.25),
-        new BABYLON.Vector3(80, 160, 0) // Rotasi
+        new BABYLON.Vector3(80, 160, 0)
     );
 
-    // TANGKAP MESH TENSIMETER YANG BENAR
     tensimeterMesh = createGrabbableItem("tensimeter", "tensimeter.glb", 
         new BABYLON.Vector3(-17.5, startY, 27.5), 
         new BABYLON.Vector3(0.3, 0.3, 0.3),
-        new BABYLON.Vector3(-110, 160, 100) // Rotasi
+        new BABYLON.Vector3(-110, 160, 100)
     );
 
     // Infus (Static, mass 0)
@@ -301,25 +319,30 @@ const createScene = async function () {
     });
 
     // =====================================
-    // Logic Interaksi (Sudah diperbaiki)
+    // Logic Interaksi 
     // =====================================
 
-    // 1. Termometer ke Kepala (Suhu)
+    // 1. Termometer ke Kepala (Beep Suhu)
     headTarget.actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(
-            // **MENGGUNAKAN thermometerMesh YANG SUDAH TERDEFINISI**
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
             function () {
                 if (!isProcessing) {
                     isProcessing = true;
-                    
-                    // Jeda 1 detik (1000 ms)
+                    // Jeda 1 detik sebelum beep dan menampilkan hasil
                     setTimeout(() => {
-                        beepSound.play();
-                        const temperature = (Math.random() * (37.5 - 36.5) + 36.5).toFixed(1);
+                        beepSound.play(); // 🔊 SUARA BEEP
+                        const temperature = (36.4).toFixed(1);
                         tempText.text = `${temperature}°C`;
                         tempText.isVisible = true;
-
+                        // Tambahkan gambar 1
+                        createPngBillboard(
+                            "image1", 
+                            "SuhuTubuh.png", 
+                            new BABYLON.Vector3(-17.5, 2.5, 28.15), // Posisi di samping meja
+                            1, // Ukuran lebar bidang
+                            scene
+                        );
                         setTimeout(() => {
                             tempText.isVisible = false;
                             isProcessing = false;
@@ -331,27 +354,32 @@ const createScene = async function () {
         )
     );
     
-    // 2. Termometer ke Dada (Detak Jantung)
+    // 2. Stetoskop ke Dada (Heartbeat Sound)
     chestTarget.actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(
-            // **MENGGUNAKAN thermometerMesh YANG SUDAH TERDEFINISI**
-            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
+            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: stethoscopeMesh }, 
             function () {
                 if (!isProcessing && !isHeartbeatPlaying) {
                     isProcessing = true;
                     
-                    // Jeda 1 detik (1000 ms)
+                    // Jeda 1 detik sebelum suara dimulai
                     setTimeout(() => {
-                        heartbeatSound.play();
-                        isHeartbeatPlaying = true;
-                        isProcessing = false;
-                        
-                        // Berhenti setelah 3 detik
+                        const BPM = (50).toFixed(1);
+                        StethoText.text = `${BPM} BPM`;
+                        StethoText.isVisible = true;
+                        // Tambahkan gambar 2
+                        createPngBillboard(
+                            "image2", 
+                            "DetakJantung.png", 
+                            new BABYLON.Vector3(-17, 2, 28.15), 
+                            1, 
+                            scene
+                        );
+
                         setTimeout(() => {
-                            heartbeatSound.stop();
-                            isHeartbeatPlaying = false;
-                        }, 3000);
-                        
+                            StethoText.isVisible = false;
+                            isProcessing = false;
+                        }, 2000);
                     }, 1000);
                 }
             }
@@ -361,30 +389,36 @@ const createScene = async function () {
     // 3. Tensimeter ke Lengan Kanan (Tekanan Darah)
     armTarget.actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(
-            // **MENGGUNAKAN tensimeterMesh YANG SUDAH TERDEFINISI**
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: tensimeterMesh }, 
             function () {
                 if (!isProcessing) {
                     isProcessing = true;
-                    
-                    // Jeda 1 detik (1000 ms)
                     setTimeout(() => {
-                        const systolic = Math.floor(Math.random() * (130 - 100) + 100);
-                        const diastolic = Math.floor(Math.random() * (85 - 65) + 65);
+                        const systolic = Math.floor(90);
+                        const diastolic = Math.floor(60);
                         tensiText.text = `${systolic}/${diastolic} mmHg`;
                         tensiText.isVisible = true;
+                        // Tambahkan gambar 3
+                        createPngBillboard(
+                            "image3", 
+                            "TekananDarah.png", 
+                            new BABYLON.Vector3(-16.5, 2.5, 28.15), 
+                            1, 
+                            scene
+                        );
 
                         setTimeout(() => {
                             tensiText.isVisible = false;
                             isProcessing = false;
                         }, 2000);
-
                     }, 1000);
                 }
             }
         )
     );
-
+    
+    
+    
     // =====================================
     // UI & TYPEWRITER 
     // =====================================
@@ -496,15 +530,24 @@ const createScene = async function () {
     // STATE MACHINE
     function handleLanjutClick() {
         if (isTyping) return;
+        
+        // **PERBAIKAN SUARA:** Buka kunci Audio Context pada klik pertama
+        if (currentState === 1) { 
+            if (engine.audioEngine && !engine.audioEngine.isUnlocked) {
+                engine.audioEngine.unlock();
+                console.log("Audio Context unlocked on first click.");
+            }
+        }
+
         currentState++;
 
-        // State Machine logic... (dibiarkan seperti semula)
         if (currentState === 2) {
             dialogTitle.text = "";
             typeWriterEffect(TAHAP_2_BODY, dialogBody, scene, () => {
                 lanjutButton.isHitTestVisible = true;
             });
         }
+    
         if (currentState === 3) {
             dialogTitle.text = "";
             typeWriterEffect(TAHAP_3_JUDUL, dialogTitle, scene, () => {
@@ -544,10 +587,7 @@ const createScene = async function () {
                 lanjutButton.isHitTestVisible = true;
                 lanjutButton.onPointerClickObservable.clear(); // Hapus listener lama
                 lanjutButton.onPointerClickObservable.add(() => {
-                     // Logika setelah selesai
-                     window.location.href = "index.html";
-                     // Lakukan navigasi atau reset di sini
-                     // window.location.href = "index.html";
+                     window.location.href = "index.html"; // Navigasi kembali
                 });
             });
         }
@@ -563,9 +603,8 @@ const createScene = async function () {
         });
     });
     
-    // Asumsi fungsi ini ada di file lain atau didefinisikan sebelumnya
-    // setupGrabLogic(scene, xr); 
-
+    
+    // Pemanggilan fungsi grabLogic (didefinisikan di grabLogic.js)
     setupGrabLogic(scene, xr);
 
     return scene;
@@ -579,10 +618,3 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
-// ======================================
-// Catatan: Jika Anda belum mendefinisikan setupGrabLogic, Anda 
-// akan mendapatkan error. Anda bisa menghapus baris pemanggilan 
-// setupGrabLogic(scene, xr); jika belum siap.
-// ======================================
-
