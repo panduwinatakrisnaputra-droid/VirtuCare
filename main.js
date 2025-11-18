@@ -64,7 +64,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         scene.activeCamera.checkCollisions = true;
     }
 
-    // --- 3. DEKLARASI FUNGSI (DIPINDAH KE ATAS) ---
+    // --- 3. DEKLARASI SEMUA FUNGSI DI ATAS (URUTAN YANG BENAR) ---
 
     /**
      * Membersihkan semua aset dari scene saat ini (mesh, light, UI, dll)
@@ -107,31 +107,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * Memuat Scene Menu
-     */
-    async function loadMenuScene() {
-        clearCurrentScene();
-        console.log("Memuat Menu Scene...");
-        
-        // Tampilkan loading screen
-        engine.displayLoadingUI();
-        
-        // Panggil fungsi dari 'scene_menu.js'
-        // Fungsi ini akan mengembalikan array berisi semua aset yang dibuatnya
-        // Kita juga memberinya 'callback' (fungsi) untuk dipanggil saat tombol "Siap" ditekan
-        currentAssets = await createMenuScene(scene, engine, xr, () => {
-            // Ini adalah fungsi yang akan dieksekusi
-            // saat 'onStartCallback' dipanggil dari dalam scene_menu.js
-            console.log("Callback 'Mulai Showcase' diterima!");
-            loadShowcaseScene(); // Memuat scene showcase
-        });
-        
-        // Sembunyikan loading screen
-        engine.hideLoadingUI();
-        console.log("Menu Scene berhasil dimuat.");
-    }
-
-    /**
      * Memuat Scene Showcase
      */
     async function loadShowcaseScene() {
@@ -155,6 +130,31 @@ window.addEventListener('DOMContentLoaded', async () => {
         // Sembunyikan loading screen
         engine.hideLoadingUI();
         console.log("Showcase Scene berhasil dimuat.");
+    }
+
+    /**
+     * Memuat Scene Menu
+     */
+    async function loadMenuScene() {
+        clearCurrentScene();
+        console.log("Memuat Menu Scene...");
+        
+        // Tampilkan loading screen
+        engine.displayLoadingUI();
+        
+        // Panggil fungsi dari 'scene_menu.js'
+        // Fungsi ini akan mengembalikan array berisi semua aset yang dibuatnya
+        // Kita juga memberinya 'callback' (fungsi) untuk dipanggil saat tombol "Siap" ditekan
+        currentAssets = await createMenuScene(scene, engine, xr, () => {
+            // Ini adalah fungsi yang akan dieksekusi
+            // saat 'onStartCallback' dipanggil dari dalam scene_menu.js
+            console.log("Callback 'Mulai Showcase' diterima!");
+            loadShowcaseScene(); // Memuat scene showcase
+        });
+        
+        // Sembunyikan loading screen
+        engine.hideLoadingUI();
+        console.log("Menu Scene berhasil dimuat.");
     }
 
     // --- 4. Render Loop Utama (Hanya Sekali) ---
