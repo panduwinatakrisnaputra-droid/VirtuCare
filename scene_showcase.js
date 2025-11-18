@@ -537,7 +537,7 @@ async function createShowcaseScene(scene, engine, xr) {
   contentStack.paddingLeftInPixels = 40;
   contentStack.paddingRightInPixels = 40;
   contentStack.paddingTopInPixels =0;
-  contentStack.paddingBottomInPixels = 300;
+  contentStack.paddingBottomInPixels = 260;
   contentStack.spacing = 15;
   infoPanel.addControl(contentStack);
 
@@ -553,7 +553,7 @@ async function createShowcaseScene(scene, engine, xr) {
   infoDesc.color = "white";
   infoDesc.fontSize = 36; 
   infoDesc.textWrapping = true;
-  infoDesc.heightInPixels = 350; 
+  infoDesc.heightInPixels = 380; 
   infoDesc.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
   infoDesc.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
   contentStack.addControl(infoDesc);
