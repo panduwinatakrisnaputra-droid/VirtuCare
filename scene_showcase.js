@@ -1,7 +1,7 @@
 // scene_showcase.js
 
 // 1. Bungkus semua dalam fungsi ini
-async function createShowcaseScene(scene, engine, xr) {
+async function createShowcaseScene(scene, engine, xr,onExitToMenuCallback) {
     
     // 5. Buat array aset
     const assets = [];
@@ -1059,9 +1059,12 @@ confirmationStack.addControl(finalButtonsContainer);
         
     const onKeluarClick = () => { 
         console.log("Keluar diklik!");
-        if (typeof xr !== 'undefined' && xr && xr.baseExperience.state === BABYLON.WebXRState.IN_XR) {
-            xr.baseExperience.exitXRAsync(); 
-        }
+        if (onExitToMenuCallback) {
+        // Panggil callback untuk kembali ke menu
+        onExitToMenuCallback();
+    } else {
+        console.error("onExitToMenuCallback tidak terdefinisi! Tidak bisa kembali ke menu.");
+    }
     };
 
     // ... (Kode pembuatan startButton, toolsButton, exitButton)
