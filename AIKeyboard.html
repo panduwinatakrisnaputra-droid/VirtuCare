@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js - Ruang Periksa Fix</title>
+    <style>
+        /* CSS yang sudah ada */
+        body { margin: 0; overflow: hidden; }
+        #renderCanvas {
+            width: 100vw;
+            height: 100vh;
+            touch-action: none;
+        }
+        /* Custom styles dari user query */
+        body, html {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none; /* Menonaktifkan scroll saat interaksi 3D */
+            outline: none;
+        }
+        /* Styling untuk Input Panel Chat di bawah (Akan disembunyikan oleh JS) */
+        #chatContainer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 300px;
+            pointer-events: none; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 20px;
+            z-index: 10;
+        }
+        #inputPanel {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+            pointer-events: all; /* Aktifkan interaksi di panel ini */
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 -10px 20px rgba(0, 255, 255, 0.2);
+            border-top: 3px solid #00ffff;
+            animation: fadeIn 1s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #chatInput {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #00ffff;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #00ffff;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #chatInput::placeholder {
+            color: #00aaff;
+        }
+        /* Styling untuk indikator loading */
+        #loadingIndicator {
+            color: #00ffff;
+            font-family: sans-serif;
+            margin-bottom: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px 15px;
+            border-radius: 10px;
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
+    </style>
+    <!-- Babylon.js Library -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <!-- Babylon.js Loaders (untuk GLB) -->
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <!-- Physics Engine (Cannon.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/cannon@0.6.2/build/cannon.min.js"></script>
+    <!-- Babylon.js Physics Plugin -->
+    <script src="https://cdn.babylonjs.com/Oimo.js"></script>
+    <script src="https://cdn.babylonjs.com/recast.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+    <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+    <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.min.js"></script>
+</head>
+<body>
+    <!-- 2D Chat UI - Disembunyikan, digantikan oleh 3D UI -->
+    <div id="chatContainer">
+        <div id="loadingIndicator">MEDIBOT sedang berpikir...</div>
+        <div id="inputPanel">
+            <input type="text" id="chatInput" placeholder="Ketik pesan Anda di sini dan tekan Enter..." autofocus>
+        </div>
+    </div>
+    
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        // ================================
+        // Inisialisasi Engine & Canvas
+        // ================================
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        // ================================
+        // VARIABEL GLOBAL CHAT & API (MENGGUNAKAN OLLAMA)
+        // ================================
+        const ollamaApiUrl = "http://localhost:11434/api/generate"; 
+        const ollamaModel = "qwen2:1.5b";
+
+        let robot; 
+        let textPlane; 
+        let advancedTexture; 
+        let textBlock; 
+        
+        // VARIABEL BARU UNTUK 3D INPUT
+        let inputPlane3D;
+        let inputText3D;
+        let virtualKeyboard;
+
+        const chatHistory = []; 
+        // Ambil elemen HTML (hanya untuk referensi loading/display)
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // ================================
+        // FUNGSI UTILITY CHAT/TEXT (3D Hologram Response Panel)
+        // ================================
+
+        function createHologramTextPanel(scene, targetMesh) {
+            // Panel 3D yang akan menahan GUI
+            const plane = BABYLON.MeshBuilder.CreatePlane("TextPlane", { width: 8, height: 5 }, scene);
+            plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+            
+            // Posisikan 4.0 unit secara lokal di atas target mesh (robot)
+            if (targetMesh) {
+                 plane.position = new BABYLON.Vector3(0, 7.0, 0); 
+                 plane.parent = targetMesh; 
+            } else {
+                 plane.position = new BABYLON.Vector3(0, 5, 0); 
+            }
+
+            // Buat Advanced Dynamic Texture
+            advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(plane);
+            
+            // Container utama (kotak bicara)
+            const panel = new BABYLON.GUI.StackPanel();
+            panel.width = "100%";
+            panel.height = "100%";
+            panel.paddingTop = "10px";
+            panel.paddingBottom = "10px";
+            advancedTexture.addControl(panel);
+
+            // Background untuk tampilan 'hologram'
+            const background = new BABYLON.GUI.Rectangle("textBackground");
+            background.background = "rgba(0, 50, 50, 0.7)";
+            background.color = "#00ffff"; // Warna border
+            background.thickness = 2;
+            background.cornerRadius = 15;
+            background.paddingLeft = "20px";
+            background.paddingRight = "20px";
+            panel.addControl(background);
+
+            // Text Block untuk menampilkan teks
+            textBlock = new BABYLON.GUI.TextBlock();
+            textBlock.text = "";
+            textBlock.color = "#00ffff";
+            textBlock.fontSize = 72;
+            textBlock.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+            background.addControl(textBlock);
+
+            return plane;
+        }
+
+        function updateTextDisplay(text) {
+            if (textBlock) {
+                textBlock.text = text;
+            }
+        }
+        
+        // ================================
+        // FUNGSI BARU: 3D INPUT PANEL & KEYBOARD
+        // ================================
+
+        function create3DInputPanel(scene, camera) {
+            // Sembunyikan 2D HTML input
+            document.getElementById('chatContainer').style.display = 'none';
+
+            // 1. Panel Mesh 3D untuk Input
+            // Dibuat lebih kecil dan diposisikan di depan kamera
+            inputPlane3D = BABYLON.MeshBuilder.CreatePlane("InputPlane3D", { width: 4, height: 0.5 }, scene);
+            
+            // Attach ke kamera (local space) agar selalu mengikuti pandangan user
+            inputPlane3D.parent = camera;
+            // Posisi: 3 unit di depan, 0.5 unit di bawah pusat (agar mudah dijangkau)
+            inputPlane3D.position = new BABYLON.Vector3(0, -0.5, 3); 
+            inputPlane3D.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+            inputPlane3D.isPickable = true; 
+
+            // Material transparan untuk mesh
+            const inputMat = new BABYLON.StandardMaterial("inputMat", scene);
+            inputMat.alpha = 0; // Buat mesh benar-benar transparan
+            inputPlane3D.material = inputMat;
+
+            // Buat Advanced Dynamic Texture
+            const inputTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(inputPlane3D);
+
+            // 2. Input Control (di atas texture)
+            inputText3D = new BABYLON.GUI.InputText("InputText3D");
+            inputText3D.width = 0.95;
+            inputText3D.height = "100px";
+            inputText3D.color = "#00ffff";
+            inputText3D.background = "rgba(0, 0, 0, 0.8)";
+            inputText3D.focusedBackground = "rgba(0, 50, 50, 0.9)";
+            inputText3D.thickness = 2;
+            inputText3D.fontSize = 80;
+            inputText3D.placeholderText = "Ketik pesan Anda di sini (3D)...";
+            inputTexture.addControl(inputText3D);
+            
+            // 3. Virtual Keyboard setup
+            virtualKeyboard = new BABYLON.GUI.VirtualKeyboard("VirtualKeyboard");
+            // Baris virtualKeyboard.scale(1.0); dihapus karena menyebabkan error
+            virtualKeyboard.isVisible = false;
+            
+            // Gunakan z-index untuk menempatkan keyboard di lapisan atas (jika menggunakan ADT.CreateFullscreen)
+            // Karena kita menggunakan ADT.CreateForMesh, kita perlu memposisikannya secara manual di scene.
+
+            // 4. Input logic
+            inputText3D.onFocusObservable.add(() => {
+                // Tampilkan keyboard saat input difokuskan
+                if (robot) {
+                    virtualKeyboard.isVisible = true;
+                    // Posisikan keyboard secara terpisah di scene
+                    if (!virtualKeyboard.parent) {
+                        const keyboardPlane = BABYLON.MeshBuilder.CreatePlane("KeyboardPlane", { width: 10, height: 2.5 }, scene);
+                        keyboardPlane.parent = camera;
+                        keyboardPlane.position = new BABYLON.Vector3(0, -1.5, 6); // Agak jauh di depan
+                        keyboardPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+                        const keyboardTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(keyboardPlane, 1024, 512, false);
+                        keyboardTexture.addControl(virtualKeyboard);
+                        // Sembunyikan mesh plane keyboard jika keyboard tidak terlihat
+                        virtualKeyboard.onVisibleStateChangedObservable.add((isVisible) => {
+                            keyboardPlane.isVisible = isVisible;
+                        });
+                        keyboardPlane.isVisible = false; // Mulai tersembunyi
+                    }
+                }
+            });
+
+            // 5. Connect InputText to Keyboard
+            virtualKeyboard.connect(inputText3D);
+            
+            // 6. Handle 'Enter' key on the virtual keyboard
+            virtualKeyboard.onKeyPressObservable.add((key) => {
+                if (key === "Enter") {
+                    const query = inputText3D.text.trim();
+                    if (query) {
+                        inputText3D.text = ''; // Kosongkan input field
+                        inputText3D.focused = false; // Otomatis trigger onBlur
+                        sendChat(query);
+                    }
+                }
+            });
+
+            return inputPlane3D;
+        }
+
+        // ================================
+        // FUNGSI API OLLAMA (dengan Retry)
+        // ================================
+
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        throw error;
+                    }
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        async function sendChat(userQuery) {
+            // Gunakan inputText3D untuk status disabled (karena inputText3D dibuat sebelum dipanggil)
+            if (inputText3D) inputText3D.isEnabled = false; 
+            loadingIndicator.style.display = 'block';
+            updateTextDisplay("MEDIBOT sedang berpikir...");
+
+            chatHistory.push({ role: "user", text: userQuery });
+
+            const systemPrompt = "Anda adalah MEDIBOT, seorang asisten medis virtual di ruang konsultasi 3D. Jawablah pertanyaan medis dengan bahasa Indonesia yang ramah, informatif, dan ringkas. Batasi jawaban Anda maksimal 3 kalimat.";
+
+            let promptString = `SYSTEM: ${systemPrompt}\n\n`;
+
+            chatHistory.forEach(msg => {
+                const role = msg.role === 'user' ? 'USER' : 'ASSISTANT';
+                promptString += `${role}: ${msg.text}\n`;
+            });
+            promptString += "ASSISTANT:"; 
+
+            const payload = {
+                model: ollamaModel,
+                prompt: promptString,
+                stream: false 
+            };
+
+            try {
+                const response = await fetchWithRetry(ollamaApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const text = result.response?.trim() || "Maaf, saya tidak dapat memproses permintaan Anda saat ini.";
+                
+                chatHistory.push({ role: "model", text: text });
+
+                updateTextDisplay(text);
+                
+            } catch (error) {
+                console.error("Ollama API Error:", error);
+                updateTextDisplay("Error koneksi: Tidak dapat menghubungi server Ollama. Pastikan Ollama berjalan di localhost:11434.");
+                chatHistory.pop(); 
+            } finally {
+                loadingIndicator.style.display = 'none';
+                if (inputText3D) inputText3D.isEnabled = true;
+            }
+        }
+
+        // ================================
+        // Fungsi utama: Membuat Scene (ASYNC karena ada XR)
+        // ================================
+        const createScene = async function () {
+            const scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.95);
+            
+            // Inisialisasi Physics Engine
+            try {
+                scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.CannonJSPlugin());
+            } catch (e) {
+                console.warn("Gagal inisialisasi Cannon.js. Physics mungkin dinonaktifkan.", e);
+            }
+
+            // ================================
+            // Buat ground (lantai dunia)
+            // ================================
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
+            ground.checkCollisions = true;
+            ground.position.y = 0;
+
+            ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+                ground,
+                BABYLON.PhysicsImpostor.BoxImpostor,
+                { mass: 0, restitution: 0.9 },
+                scene
+            );
+            
+            // (PENAMBAHAN CAHAYA DAN KAMERA)
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.7;
+            const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+            dirLight.intensity = 1;
+            
+            // UniversalCamera untuk Desktop/Mobile
+            const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(-20.5, 2, 23), scene);
+            camera.attachControl(canvas, true);
+            camera.applyGravity = true;
+            camera.ellipsoid = new BABYLON.Vector3(0.5, 1, 0.5);
+            camera.checkCollisions = true;
+            camera.speed = 0.2;
+            camera.keysUp.push(87); camera.keysDown.push(83); // W, S
+            camera.keysLeft.push(65); camera.keysRight.push(68); // A, D
+
+            let xr = null;
+            
+            // ... (FUNGSI createPngBillboard) ...
+            function createPngBillboard(name, filename, position, size, scene) {
+                const plane = BABYLON.MeshBuilder.CreatePlane(name, { width: size, height: size * 0.75 }, scene);
+                plane.position = position;
+                
+                const material = new BABYLON.StandardMaterial(name + "Mat", scene);
+                
+                // Menggunakan Placeholder Texture
+                const placeholderTextureUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABGAQMAAADlYgWCAAAAA1BMVEX/mTMzzraYAAAAEElEQVQYlWNgGAWjYBSMGgAAeQABG7fHMAAAAABJRU5ErkJggg==";
+                const texture = new BABYLON.Texture(placeholderTextureUrl, scene);
+                
+                material.diffuseTexture = texture;
+                material.diffuseTexture.hasAlpha = true;
+                material.backFaceCulling = false;
+                material.emissiveColor = new BABYLON.Color3(1, 1, 1);
+                plane.material = material;
+                plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL; // Tambahkan billboard mode
+                return plane;
+            }
+            
+            // Contoh penggunaan placeholder billboard
+            createPngBillboard("MyBillboard", "placeholder.png", new BABYLON.Vector3(0, 5, 0), 5, scene);
+
+            // ... (IMPORT MODEL RUANGAN) ...
+            console.log("Memuat model ruangan dan avatar. Ini mungkin gagal jika file GLB tidak ada di folder 'assets/'.");
+            BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "ruang_periksa.glb", scene
+            ).then((result) => {
+                if (result.meshes.length > 0) {
+                    result.meshes[0].position = new BABYLON.Vector3(-22.5, 0, 8);
+                    result.meshes[0].scaling = new BABYLON.Vector3(-0.5, 0.5, 0.5);
+                    result.meshes[0].getChildMeshes().forEach(mesh => {
+                        mesh.checkCollisions = true;
+                    });
+                    console.log("✅ Model Ruangan dimuat.");
+                }
+            }).catch((error) => { console.warn("⚠️ Gagal memuat model ruangan:", error.message); });
+
+            // --- IMPORT MODEL AVATAR & SETUP CHAT PANEL ---
+            await BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "Avatar_Virtucare.glb", scene)
+                .then((result) => {
+                    const root = result.meshes[0];
+                    robot = root; 
+                    
+                    root.position = new BABYLON.Vector3(-20.5, 1, 27);
+                    root.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+                    root.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+                    root.getChildMeshes().forEach((m) => { m.checkCollisions = true; });
+                    console.log("✅ Model Avatar dimuat.");
+
+                    // Inisialisasi Panel Teks di sini setelah robot dimuat
+                    textPlane = createHologramTextPanel(scene, robot);
+                    updateTextDisplay("Halo! Saya MEDIBOT, asisten kesehatan Anda.");
+                })
+                .catch((e) => console.warn("⚠️ Gagal load Avatar:", e.message));
+            
+            // --- INI ADALAH PENAMBAHAN KEYBOARD VIRTUAL 3D ---
+            create3DInputPanel(scene, camera);
+
+            // Aktifkan VR / XR Mode
+            try {
+                xr = await scene.createDefaultXRExperienceAsync({
+                    floorMeshes: [ground],
+                    disableTeleportation: true,
+                    cameraOptions:{
+                        checkCollisions: true,
+                        applyGravity: true,
+                        ellipsoid: new BABYLON.Vector3(0.5, 2, 0.5)
+                    }
+                });
+                console.log("✅ WebXR aktif");
+
+                const xrCamera = xr.baseExperience.camera;
+                xrCamera.position.y = 4;
+                xrCamera.applyGravity = true;
+                xrCamera.checkCollisions = true;
+
+                xr.baseExperience.featuresManager.enableFeature(
+                    BABYLON.WebXRFeatureName.MOVEMENT,
+                    "latest",
+                    {
+                        xrInput: xr.input,
+                        movementSpeed: 0.1,
+                        rotationSpeed: 0.2,
+                        movementControls: ["left-xr-standard-thumbstick"],
+                        rotationControls: ["right-xr-standard-thumbstick"],
+                        useThumbstickForMovement: true,
+                        disableTeleportOnThumbstick: true,
+                        checkCollisions: true,
+                        applyGravity: true,
+                        ellipsoid: new BABYLON.Vector3(0.5, 2, 0.5)
+                    }
+                );
+            } catch (e) {
+                console.warn("⚠️ WebXR tidak didukung (atau gagal inisialisasi):", e.message);
+                xr = null;
+                scene.activeCamera = camera;
+                camera.applyGravity = true;
+                camera.checkCollisions = true;
+            }
+
+            return scene; // Mengembalikan objek scene yang sudah dibuat
+        };
+
+        // ================================
+        // Loop Render Utama & Listener
+        // ================================
+        window.onload = async function() {
+            const scene = await createScene();
+
+            engine.runRenderLoop(function () {
+                scene.render();
+            });
+
+            // Handle resize
+            window.addEventListener("resize", function () {
+                engine.resize();
+            });
+
+            // Catatan: Event listener 2D HTML dihapus karena digantikan oleh input 3D.
+        };
+    </script>
+</body>
+</html>
