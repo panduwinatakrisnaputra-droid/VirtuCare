@@ -364,7 +364,29 @@ async function createMenuScene(scene, engine, xr, onStartCallback) {
     creditsContent.text = `
     Project Manager
     ULFATUN NADA
-    ... (teks kredit lainnya) ...
+
+    Concept Developer
+    ULFATUN NADA
+    NAYLA RISMA HARUMI
+
+    Report Writer
+    PUTRI SYNTIA NARLITA RACHMADANI
+    
+    Programmer
+    PANDU WINATA KRISNA PUTRA
+    MUHAMMAD SURURI ARDAN
+
+    3D Artist
+    MUHAMMAD HAIDAR ALLAMSYAH
+
+    Assets
+    - Model Ruang Periksa oleh MUHAMMAD HAIDAR ALLAMSYAH
+    - Model Avatar oleh NATHAN YUDHISTIRA SIAHAAN
+
+    Special Thanks
+    - Tim Babylon.js
+    - Dosen Pembimbing Bapak Sritrusta Sukaridhoto ST, Ph.D
+    
     VirtuCare © 2025
     `;
     creditsContent.widthInPixels = 1750; 
