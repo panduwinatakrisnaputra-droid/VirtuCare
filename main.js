@@ -64,8 +64,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         scene.activeCamera.checkCollisions = true;
     }
 
-
-    // --- 3. Fungsi Manajemen Scene ---
+    // --- 3. DEKLARASI FUNGSI (DIPINDAH KE ATAS) ---
 
     /**
      * Membersihkan semua aset dari scene saat ini (mesh, light, UI, dll)
@@ -94,6 +93,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
+     * Memuat Scene Simulasi (Placeholder)
+     */
+    async function loadSimulasiScene() {
+        console.warn("FUNGSI loadSimulasiScene() BELUM DIBUAT!");
+        // Nanti di sini Anda akan memanggil scene simulasi
+        // clearCurrentScene();
+        // currentAssets = await createSimulasiScene(scene, engine, xr, ...);
+
+        // Untuk sekarang, kita kembali ke menu saja sebagai contoh
+        alert("Scene Simulasi belum ada, kembali ke Menu.");
+        loadMenuScene();
+    }
+
+    /**
      * Memuat Scene Menu
      */
     async function loadMenuScene() {
@@ -102,8 +115,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         
         // Tampilkan loading screen
         engine.displayLoadingUI();
-        
-        // !!! DEFINISI 'loadSimulasiScene' DIHAPUS DARI SINI !!!
         
         // Panggil fungsi dari 'scene_menu.js'
         // Fungsi ini akan mengembalikan array berisi semua aset yang dibuatnya
@@ -145,22 +156,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         engine.hideLoadingUI();
         console.log("Showcase Scene berhasil dimuat.");
     }
-
-    // !!! DEFINISI 'loadSimulasiScene' DIPINDAH KE SINI !!!
-    /**
-     * Memuat Scene Simulasi (Placeholder)
-     */
-    async function loadSimulasiScene() {
-        console.warn("FUNGSI loadSimulasiScene() BELUM DIBUAT!");
-        // Nanti di sini Anda akan memanggil scene simulasi
-        // clearCurrentScene();
-        // currentAssets = await createSimulasiScene(scene, engine, xr, ...);
-
-        // Untuk sekarang, kita kembali ke menu saja sebagai contoh
-        alert("Scene Simulasi belum ada, kembali ke Menu.");
-        loadMenuScene();
-    }
-
 
     // --- 4. Render Loop Utama (Hanya Sekali) ---
     engine.runRenderLoop(function () {
