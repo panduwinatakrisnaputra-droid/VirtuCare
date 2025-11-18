@@ -296,7 +296,7 @@ const createScene = async function () {
     // --- Gunakan helper untuk memuat dan menangkap semua item ---
     stethoscopeMesh = createGrabbableItem("stethoscope", "stethoscope.glb", 
         ITEM_POSITIONS.stethoscope.pos, 
-        new BABYLON.Vector3(0.0015, 0.0015, 0.0015),
+        new BABYLON.Vector3(0.0013, 0.0013, 0.0013),
         ITEM_POSITIONS.stethoscope.rot
     );
     
@@ -604,7 +604,7 @@ function resetItem(mesh, initialPosition, initialRotation) {
 
     // UI PLANE
     const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
-    uiPlane.position = new BABYLON.Vector3(-19, 3, 27);
+    uiPlane.position = new BABYLON.Vector3(-19, 3, 28);
     uiPlane.rotation.x = -0.2;
     uiPlane.scaling.scaleInPlace(4);
 
@@ -639,7 +639,7 @@ function resetItem(mesh, initialPosition, initialRotation) {
     dialogBody = new BABYLON.GUI.TextBlock();
     dialogBody.color = "white";
     dialogBody.fontSizeInPixels = 70;
-    dialogBody.heightInPixels = 650;
+    dialogBody.heightInPixels = 500;
     dialogBody.textWrapping = true;
     stackPanel.addControl(dialogBody);
 
@@ -751,9 +751,3 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
-
-
-
-
-
