@@ -102,7 +102,16 @@ window.addEventListener('DOMContentLoaded', async () => {
         
         // Tampilkan loading screen
         engine.displayLoadingUI();
-        
+        const loadSimulasiScene = () => {
+        console.warn("FUNGSI loadSimulasiScene() BELUM DIBUAT!");
+        // Nanti di sini Anda akan memanggil scene simulasi
+        // clearCurrentScene();
+        // currentAssets = await createSimulasiScene(scene, engine, xr, ...);
+
+        // Untuk sekarang, kita kembali ke menu saja sebagai contoh
+        alert("Scene Simulasi belum ada, kembali ke Menu.");
+        loadMenuScene();
+    };
         // Panggil fungsi dari 'scene_menu.js'
         // Fungsi ini akan mengembalikan array berisi semua aset yang dibuatnya
         // Kita juga memberinya 'callback' (fungsi) untuk dipanggil saat tombol "Siap" ditekan
@@ -130,7 +139,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         
         // Panggil fungsi dari 'scene_showcase.js'
         // Fungsi ini juga mengembalikan array aset yang dibuatnya
-        currentAssets = await createShowcaseScene(scene, engine, xr);
+        currentAssets = await createShowcaseScene(
+        scene, 
+        engine, 
+        xr,
+        loadSimulasiScene, // <- Diberikan ke onStartSimulationCallback
+        loadMenuScene      // <- Diberikan ke onExitToMenuCallback
+    );
         
         // Sembunyikan loading screen
         engine.hideLoadingUI();
@@ -152,5 +167,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     // --- 5. Mulai Aplikasi ---
     // Muat scene menu sebagai scene pertama
     loadMenuScene();
+
 
 });
