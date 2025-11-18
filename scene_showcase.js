@@ -1,7 +1,7 @@
 // scene_showcase.js
 
 // 1. Bungkus semua dalam fungsi ini
-async function createShowcaseScene(scene, engine, xr,onExitToMenuCallback) {
+async function createShowcaseScene(scene, engine, xr,onStartSimulationCallback,onExitToMenuCallback) {
     
     // 5. Buat array aset
     const assets = [];
