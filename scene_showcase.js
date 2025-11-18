@@ -12,9 +12,22 @@ async function createShowcaseScene(scene, engine, xr,onStartSimulationCallback,o
     // (scene, engine, xr sekarang adalah parameter)
     
     scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.95);
+    try {
+        await enablePhysics(scene); // Pastikan fungsi ini mengembalikan promise
+        console.log("✅ Physics engine berhasil diinisialisasi");
+    } catch (error) {
+        console.error("❌ Gagal menginisialisasi physics engine:", error);
+        // Fallback: Coba inisialisasi physics manual
+        try {
+            const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
+            const physicsPlugin = new BABYLON.CannonJSPlugin();
+            scene.enablePhysics(gravityVector, physicsPlugin);
+            console.log("✅ Physics engine diinisialisasi manual");
+        } catch (fallbackError) {
+            console.warn("⚠️ Physics engine tidak tersedia, melanjutkan tanpa physics");
+        }
+    }
 
-    // Aktifkan sistem fisika dari file physics.js
-    await enablePhysics(scene); // Ini akan mengaktifkan fisika pada 'scene'
     scene.gravity = new BABYLON.Vector3(0, -9.81, 0); // Pastikan gravitasi di-set jika enablePhysics tidak melakukannya
 
     // ================================
@@ -26,12 +39,15 @@ async function createShowcaseScene(scene, engine, xr,onStartSimulationCallback,o
     ground.isVisible = false;
     assets.push(ground); // Lacak
 
-    ground.physicsImpostor = new BABYLON.PhysicsImpostor(
-        ground,
-        BABYLON.PhysicsImpostor.BoxImpostor,
-        { mass: 0, restitution: 0.9 },
-        scene
-    );
+    if (scene.getPhysicsEngine()) {
+        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+            ground,
+            BABYLON.PhysicsImpostor.BoxImpostor,
+            { mass: 0, restitution: 0.9 },
+            scene
+        );
+        console.log("✅ Physics impostor ground dibuat");
+    }
 
     // ================================
     // Cahaya dan Arah
