@@ -161,8 +161,8 @@ async function createShowcaseScene(scene, engine, xr) {
           {
               id: "meshReflexHammer",
               file: "reflex hammer.glb",
-              title: "Reflex Hammer",
-              description: "Palu untuk menguji refleks tendon.",
+              title: "Palu Refleks (Reflex Hammer)",
+              description: "Alat medis yang digunakan untuk memeriksa refleks saraf pada pasien. Dengan mengetuk area tertentu seperti lutut atau pergelangan, alat ini membantu tenaga kesehatan menilai fungsi sistem saraf, mendeteksi gangguan neurologis, serta memastikan jalur saraf bekerja sebagaimana mestinya. Bentuknya yang ringan dan ujungnya yang empuk memungkinkan pemeriksaan dilakukan dengan aman dan presisi tanpa menimbulkan cedera.",
               pos: new BABYLON.Vector3(-1.5, 2, 13.8),
               scale: new BABYLON.Vector3(3, 3, 3),
               physics: { mass: 1, restitution: 0.4 },
@@ -170,16 +170,16 @@ async function createShowcaseScene(scene, engine, xr) {
               visualOffset: { x: 0, y: -0.05, z: 0 }, // y = -height / 2 (Sesuaikan!)
             qa:[
                 { 
-                      q: "Apa fungsi utamanya?", 
-                      a: "Fungsi utamanya adalah untuk menutup luka, menghentikan pendarahan ringan, dan mencegah kontaminasi bakteri dari lingkungan luar." 
+                      q: "Mengapa pemeriksaan refleks penting dalam mendeteksi masalah pada sistem saraf?", 
+                      a: "Saat tenaga medis mengetuk area tertentu dengan Reflex Hammer, mereka akan melihat bagaimana tubuh Anda merespons secara otomatis. Jika responsnya lambat, terlalu cepat, atau bahkan tidak muncul, itu memberi petunjuk bahwa jalur saraf seseorang mungkin sedang mengalami gangguan. Pemeriksaan sederhana ini membantu saya mengetahui apakah otak, sumsum tulang belakang, dan saraf bekerja dengan baik." 
                   },
                   { 
-                      q: "Kapan harus diganti?", 
-                      a: "Perban harus diganti setidaknya sekali sehari, atau segera jika menjadi basah atau kotor, untuk menjaga kebersihan luka." 
+                      q: "Apa perbedaan hasil yang terlihat ketika refleks pasien terlalu kuat atau terlalu lemah?", 
+                      a: "Ketika refleks seseorang terlalu kuat, itu bisa menandakan adanya masalah pada sistem saraf pusat, seperti ketegangan berlebih atau gangguan pada otak dan sumsum tulang belakang. Sebaliknya, kalau refleksnya terlalu lemah atau tidak muncul, dapat dicurigai ada gangguan pada saraf tepi atau otot." 
                   },
                   { 
-                      q: "Bagaimana cara memakainya?", 
-                      a: "Bersihkan luka terlebih dahulu, keringkan area sekitar, lalu balut dengan perban. Pastikan tidak terlalu kencang agar sirkulasi darah tetap lancar." 
+                      q: "Kenapa setiap jenis reflex hammer memiliki bentuk yang berbeda, seperti Taylor, Queen Square, atau Tromner?", 
+                      a: "Setiap Reflex Hammer dirancang untuk situasi tertentu. Ada yang lebih ringan untuk mengetuk area kecil, ada yang lebih besar agar saya bisa menilai refleks yang lebih dalam. Bentuknya berbeda supaya saya bisa memilih alat yang paling tepat untuk kondisi pasien dan jenis refleks yang ingin diperiksa. Dengan begitu, hasil pemeriksaannya bisa lebih akurat." 
                   }
             ]
             },
