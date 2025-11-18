@@ -639,7 +639,7 @@ function resetItem(mesh, initialPosition, initialRotation) {
     dialogBody = new BABYLON.GUI.TextBlock();
     dialogBody.color = "white";
     dialogBody.fontSizeInPixels = 70;
-    dialogBody.heightInPixels = 500;
+    dialogBody.heightInPixels = 550;
     dialogBody.textWrapping = true;
     stackPanel.addControl(dialogBody);
 
@@ -751,3 +751,4 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
