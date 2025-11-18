@@ -604,7 +604,7 @@ function resetItem(mesh, initialPosition, initialRotation) {
 
     // UI PLANE
     const uiPlane = BABYLON.MeshBuilder.CreatePlane("uiPlane", scene);
-    uiPlane.position = new BABYLON.Vector3(-19, 3, 28);
+    uiPlane.position = new BABYLON.Vector3(-19, 3, 27);
     uiPlane.rotation.x = -0.2;
     uiPlane.scaling.scaleInPlace(4);
 
@@ -751,6 +751,7 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
 
 
 
