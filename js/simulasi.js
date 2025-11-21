@@ -1038,7 +1038,7 @@ function releaseThermometer() {
                     isProcessing = true;
                     
                     // Detach stetoskop dari kamera terlebih dahulu
-                    detachStethoscopeFromCamera();
+                    releaseStethoscopeInPlace();
                     
                     // Jeda 1 detik sebelum suara dimulai
                     setTimeout(() => {
@@ -1289,6 +1289,7 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
 
 
 
