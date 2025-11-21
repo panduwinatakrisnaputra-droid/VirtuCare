@@ -294,15 +294,15 @@ let isThermometerAttached = false; // Status termometer
     const heartbeatSound = new BABYLON.Sound("heartbeat", "audio/detak jantung.mp3", scene, null, { loop: true, volume: 1 });
     
     // Invisible interaction points
-    const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.2 }, scene);
+    const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.5 }, scene);
     chestTarget.position = new BABYLON.Vector3(-14.6, 1.2, 27);
     chestTarget.isVisible = true;
 
-    const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.2 }, scene);
+    const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.5 }, scene);
     headTarget.position = new BABYLON.Vector3(-14.6, 1.15, 27.5);
     headTarget.isVisible = true;
 
-    const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.2 }, scene);
+    const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.5 }, scene);
     armTarget.position = new BABYLON.Vector3(-14.25, 1.1, 27);
     armTarget.isVisible = true;
 
@@ -1289,6 +1289,7 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
 
 
 
