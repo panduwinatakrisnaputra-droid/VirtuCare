@@ -1063,11 +1063,15 @@ function releaseThermometer() {
                     // Setelah 2 detik, sembunyikan hasil dan buka kunci
                     setTimeout(() => {
                         StethoText.isVisible = false;
-                        // Hapus billboard
                         const image2 = scene.getMeshByName("image2");
                         if (image2) image2.dispose();
+                        
+                        // Opsional: Lepaskan stetoskop agar jatuh
+                        releaseStethoscopeInPlace(); 
+                        
                         isProcessing = false;
-                    }, 2000); // 2 detik tampil
+                    }, 2000);
+                    
                 }, 1000); // 1 detik jeda
             }
         }
