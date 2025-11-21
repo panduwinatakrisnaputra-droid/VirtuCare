@@ -296,15 +296,15 @@ const createScene = async function () {
     // Invisible interaction points
     const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.5 }, scene);
     chestTarget.position = new BABYLON.Vector3(-14.6, 1.2, 27);
-    chestTarget.isVisible = true;
+    chestTarget.isVisible = false;
 
     const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.5 }, scene);
     headTarget.position = new BABYLON.Vector3(-14.6, 1.15, 27.5);
-    headTarget.isVisible = true;
+    headTarget.isVisible = false;
 
     const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.5 }, scene);
     armTarget.position = new BABYLON.Vector3(-14.25, 1.1, 27);
-    armTarget.isVisible = true;
+    armTarget.isVisible = false;
 
     // Tautkan GUI ke Target
     tempText.linkWithMesh(headTarget);
@@ -1289,6 +1289,7 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
 
 
 
