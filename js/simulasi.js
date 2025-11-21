@@ -44,9 +44,9 @@ const createScene = async function () {
     // VARIABEL BARU UNTUK ATTACH STETOSKOP
     let isStethoscopeAttached = false; // Status apakah stetoskop sedang terpasang ke kamera
     let rightVRController = null; // Untuk menyimpan controller kanan
-let stethoscopeTube = null;   // Mesh tali stetoskop
-let tubeUpdateObserver = null;
-let isThermometerAttached = false; // Status termometer
+    let stethoscopeTube = null;   // Mesh tali stetoskop
+    let tubeUpdateObserver = null;
+    let isThermometerAttached = false; // Status termometer
 
     // Aktifkan Fisika (CannonJS)
     const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
@@ -1028,41 +1028,69 @@ function releaseThermometer() {
             }
         )
     );
-    
-    // 2. Stetoskop ke Dada (Heartbeat Sound) - MODIFIKASI
     chestTarget.actionManager.registerAction(
-        new BABYLON.ExecuteCodeAction(
-            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: stethoscopeMesh }, 
-            function () {
-                if (!isProcessing && !isHeartbeatPlaying && isStethoscopeAttached) {
-                    isProcessing = true;
+    new BABYLON.ExecuteCodeAction(
+        // PERBAIKAN: Ubah parameter dari stethoscopeMesh (wrapper) ke chestpieceMesh (yang aktif di tangan)
+        { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestpieceMesh }, 
+        function () {
+            // Cek: sedang tidak memproses DAN stetoskop sedang dipegang (attached)
+            if (!isProcessing && isStethoscopeAttached) {
+                isProcessing = true;
+                
+                // Jeda 1 detik sebelum suara dimulai
+                setTimeout(() => {
+                    const BPM = (50).toFixed(1);
+                    StethoText.text = `${BPM} BPM`; // <-- AKAN MUNCUL "50 BPM"
+                    StethoText.isVisible = true;
                     
-                    // Detach stetoskop dari kamera terlebih dahulu
-                    detachStethoscopeFromCamera();
-                    
-                    // Jeda 1 detik sebelum suara dimulai
-                    setTimeout(() => {
-                        const BPM = (50).toFixed(1);
-                        StethoText.text = `${BPM} BPM`;
-                        StethoText.isVisible = true;
-                        // Tambahkan gambar 2
-                        createPngBillboard(
-                            "image2", 
-                            "DetakJantung.png", 
-                            new BABYLON.Vector3(-17, 2, 28.15), 
-                            1, 
-                            scene
-                        );
+                    // Tambahkan gambar 2
+                    createPngBillboard(
+                        "image2", 
+                        "DetakJantung.png", 
+                        new BABYLON.Vector3(-17, 2, 28.15), 
+                        1, 
+                        scene
+                    );
 
-                        setTimeout(() => {
-                            StethoText.isVisible = false;
-                            isProcessing = false;
-                        }, 2000);
-                    }, 1000);
-                }
+                    // PENTING: Mainkan suara detak jantung
+                    if (!isHeartbeatPlaying) {
+                        heartbeatSound.play();
+                        isHeartbeatPlaying = true;
+                    }
+
+                    // Reset isProcessing setelah jeda, agar alat bisa dipakai lagi
+                    setTimeout(() => {
+                        isProcessing = false; 
+                    }, 2000);
+                    
+                }, 1000);
             }
-        )
-    );
+        }
+    )
+);
+
+chestTarget.actionManager.registerAction(
+    new BABYLON.ExecuteCodeAction(
+        // Trigger saat chestpieceMesh menjauh dari chestTarget
+        { trigger: BABYLON.ActionManager.OnIntersectionExitTrigger, parameter: chestpieceMesh }, 
+        function () {
+            // Hentikan suara jika sedang berjalan
+            if (isHeartbeatPlaying) {
+                heartbeatSound.stop();
+                isHeartbeatPlaying = false;
+            }
+            // Sembunyikan teks hasil pemeriksaan
+            StethoText.isVisible = false;
+            // Hapus billboard
+            const image2 = scene.getMeshByName("image2");
+            if (image2) image2.dispose();
+            
+            // Reset isProcessing
+            isProcessing = false;
+        }
+    )
+);
+
 
     // 3. Tensimeter ke Lengan Kanan (Tekanan Darah)
     armTarget.actionManager.registerAction(
@@ -1289,9 +1317,6 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
-
-
 
 
 
