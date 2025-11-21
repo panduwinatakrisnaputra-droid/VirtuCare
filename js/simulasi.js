@@ -1031,21 +1031,17 @@ function releaseThermometer() {
     
     chestTarget.actionManager.registerAction(
     new BABYLON.ExecuteCodeAction(
-        // Perhatian: Seharusnya menggunakan chestpieceMesh (yang sedang dipegang)
-        // Namun, jika Anda menggunakan stethoscopeMesh (Wrapper item), pastikan ia adalah yang benar
-        // Jika Anda menggunakan logika attach/detach yang menonaktifkan wrapper saat di-grab, 
-        // gunakan chestpieceMesh untuk deteksi interseksi saat stetoskop sedang dipegang.
-        // Berdasarkan kode Anda, Anda menggunakan stethoscopeMesh (wrapper), jadi saya akan pertahankan itu.
-        // BUGFIX UTAMA: Hapus detach
-        { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: stethoscopeMesh }, 
+        // ✅ PERBAIKAN UTAMA: Mengganti parameter trigger dari stethoscopeMesh ke chestpieceMesh
+        // chestpieceMesh adalah bagian stetoskop yang terlihat dan dipegang saat isStethoscopeAttached = true.
+        { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestpieceMesh }, 
         function () {
-            // Cek apakah item yang masuk ke area target adalah CHESTPIECE/STETOSKOP YANG SEDANG DIATTACH
+            // Cek apakah stetoskop sudah di-attach dan interaksi tidak sedang diproses
             if (!isProcessing && isStethoscopeAttached) {
                 isProcessing = true; // Kunci interaksi
 
-                // Jeda 1 detik sebelum suara dimulai
+                // Jeda 1 detik sebelum hasil muncul
                 setTimeout(() => {
-                    const BPM = (50).toFixed(0); // Ubah toFixed(1) ke toFixed(0) karena BPM biasanya integer
+                    const BPM = (50).toFixed(0); 
                     StethoText.text = `${BPM} BPM`;
                     StethoText.isVisible = true;
                     // Tambahkan gambar 2
@@ -1056,23 +1052,20 @@ function releaseThermometer() {
                         1, 
                         scene
                     );
-                    
-                    // Suara detak jantung dapat dimulai di sini jika diinginkan
-                    // heartbeatSound.play(); // 🔊 SUARA HEARTBEAT
 
                     // Setelah 2 detik, sembunyikan hasil dan buka kunci
                     setTimeout(() => {
                         StethoText.isVisible = false;
+                        // Hapus billboard
                         const image2 = scene.getMeshByName("image2");
                         if (image2) image2.dispose();
-                        
-                        // Opsional: Lepaskan stetoskop agar jatuh
-                        releaseStethoscopeInPlace(); 
-                        
                         isProcessing = false;
-                    }, 2000);
-                    
-                }, 1000); // 1 detik jeda
+                        
+                        // Opsional: Jika Anda ingin stetoskop langsung lepas setelah pembacaan selesai.
+                        // releaseStethoscopeInPlace(); 
+                        
+                    }, 2000); 
+                }, 1000); 
             }
         }
     )
