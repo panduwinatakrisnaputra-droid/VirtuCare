@@ -129,7 +129,7 @@ let isThermometerAttached = false; // Status termometer
             result.meshes[0].position = new BABYLON.Vector3(-21.9, 0, 9.7);
             result.meshes[0].scaling = new BABYLON.Vector3(-0.46, 0.46, 0.46);
             result.meshes[0].getChildMeshes().forEach(mesh => {
-                mesh.checkCollisions = true;
+                mesh.checkCollisions = false;
             });
         }
     }).catch((error) => { console.error("Gagal memuat model ruangan:", error); });
@@ -1289,6 +1289,7 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
 
 
 
