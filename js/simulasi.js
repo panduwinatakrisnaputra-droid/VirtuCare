@@ -296,15 +296,15 @@ let isThermometerAttached = false; // Status termometer
     // Invisible interaction points
     const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.2 }, scene);
     chestTarget.position = new BABYLON.Vector3(-14.6, 1.2, 27);
-    chestTarget.isVisible = false;
+    chestTarget.isVisible = true;
 
     const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.2 }, scene);
     headTarget.position = new BABYLON.Vector3(-14.6, 1.15, 27.5);
-    headTarget.isVisible = false;
+    headTarget.isVisible = true;
 
     const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.2 }, scene);
     armTarget.position = new BABYLON.Vector3(-14.25, 1.1, 27);
-    armTarget.isVisible = false;
+    armTarget.isVisible = true;
 
     // Tautkan GUI ke Target
     tempText.linkWithMesh(headTarget);
