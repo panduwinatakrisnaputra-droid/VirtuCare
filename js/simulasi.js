@@ -1029,47 +1029,40 @@ function releaseThermometer() {
         )
     );
     
+    // 2. Stetoskop ke Dada (Heartbeat Sound) - MODIFIKASI
     chestTarget.actionManager.registerAction(
-    new BABYLON.ExecuteCodeAction(
-        // ✅ PERBAIKAN UTAMA: Mengganti parameter trigger dari stethoscopeMesh ke chestpieceMesh
-        // chestpieceMesh adalah bagian stetoskop yang terlihat dan dipegang saat isStethoscopeAttached = true.
-        { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestpieceMesh }, 
-        function () {
-            // Cek apakah stetoskop sudah di-attach dan interaksi tidak sedang diproses
-            if (!isProcessing && isStethoscopeAttached) {
-                isProcessing = true; // Kunci interaksi
-
-                // Jeda 1 detik sebelum hasil muncul
-                setTimeout(() => {
-                    const BPM = (50).toFixed(0); 
-                    StethoText.text = `${BPM} BPM`;
-                    StethoText.isVisible = true;
-                    // Tambahkan gambar 2
-                    createPngBillboard(
-                        "image2", 
-                        "DetakJantung.png", 
-                        new BABYLON.Vector3(-17, 2, 28.15), 
-                        1, 
-                        scene
-                    );
-
-                    // Setelah 2 detik, sembunyikan hasil dan buka kunci
+        new BABYLON.ExecuteCodeAction(
+            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: stethoscopeMesh }, 
+            function () {
+                if (!isProcessing && !isHeartbeatPlaying && isStethoscopeAttached) {
+                    isProcessing = true;
+                    
+                    // Detach stetoskop dari kamera terlebih dahulu
+                    detachStethoscopeFromCamera();
+                    
+                    // Jeda 1 detik sebelum suara dimulai
                     setTimeout(() => {
-                        StethoText.isVisible = false;
-                        // Hapus billboard
-                        const image2 = scene.getMeshByName("image2");
-                        if (image2) image2.dispose();
-                        isProcessing = false;
-                        
-                        // Opsional: Jika Anda ingin stetoskop langsung lepas setelah pembacaan selesai.
-                        // releaseStethoscopeInPlace(); 
-                        
-                    }, 2000); 
-                }, 1000); 
+                        const BPM = (50).toFixed(1);
+                        StethoText.text = `${BPM} BPM`;
+                        StethoText.isVisible = true;
+                        // Tambahkan gambar 2
+                        createPngBillboard(
+                            "image2", 
+                            "DetakJantung.png", 
+                            new BABYLON.Vector3(-17, 2, 28.15), 
+                            1, 
+                            scene
+                        );
+
+                        setTimeout(() => {
+                            StethoText.isVisible = false;
+                            isProcessing = false;
+                        }, 2000);
+                    }, 1000);
+                }
             }
-        }
-    )
-);
+        )
+    );
 
     // 3. Tensimeter ke Lengan Kanan (Tekanan Darah)
     armTarget.actionManager.registerAction(
