@@ -1028,70 +1028,71 @@ function releaseThermometer() {
             }
         )
     );
-    chestTarget.actionManager.registerAction(
-    new BABYLON.ExecuteCodeAction(
-        // PERBAIKAN: Ubah parameter dari stethoscopeMesh (wrapper) ke chestpieceMesh (yang aktif di tangan)
-        { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestpieceMesh }, 
-        function () {
-            // Cek: sedang tidak memproses DAN stetoskop sedang dipegang (attached)
-            if (!isProcessing && isStethoscopeAttached) {
-                isProcessing = true;
-                
-                // Jeda 1 detik sebelum suara dimulai
-                setTimeout(() => {
-                    const BPM = (50).toFixed(1);
-                    StethoText.text = `${BPM} BPM`; // <-- AKAN MUNCUL "50 BPM"
-                    StethoText.isVisible = true;
+    if (chestpieceMesh) {
+    chestpieceMesh.actionManager = new BABYLON.ActionManager(scene);
+    chestpieceMesh.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            // Gunakan OnIntersectionEnterTrigger, dan parameter targetnya adalah chestTarget
+            { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestTarget }, 
+            function () {
+                // Tambahkan pengecekan `chestpieceMesh.isVisible` atau `isStethoscopeAttached` 
+                // untuk memastikan stetoskop sedang dipegang dan aktif
+                if (!isProcessing && isStethoscopeAttached) {
+                    isProcessing = true;
                     
-                    // Tambahkan gambar 2
-                    createPngBillboard(
-                        "image2", 
-                        "DetakJantung.png", 
-                        new BABYLON.Vector3(-17, 2, 28.15), 
-                        1, 
-                        scene
-                    );
+                    // Jeda 1 detik sebelum hasil muncul
+                    setTimeout(() => {
+                        const BPM = (50).toFixed(1);
+                        // Tampilkan hasil
+                        StethoText.text = `${BPM} BPM`;
+                        StethoText.isVisible = true;
 
-                    // PENTING: Mainkan suara detak jantung
-                    if (!isHeartbeatPlaying) {
+                        // Tambahkan gambar 2 (Panggil seperti di kode asli)
+                        createPngBillboard(
+                            "image2", 
+                            "DetakJantung.png", 
+                            new BABYLON.Vector3(-17, 2, 28.15), 
+                            1, 
+                            scene
+                        );
+
+                        // Mainkan suara (Opsional: Heartbeat bisa diputar loop selama kontak)
                         heartbeatSound.play();
                         isHeartbeatPlaying = true;
-                    }
-
-                    // Reset isProcessing setelah jeda, agar alat bisa dipakai lagi
-                    setTimeout(() => {
-                        isProcessing = false; 
-                    }, 2000);
-                    
-                }, 1000);
+                        
+                        // Jeda tampilan (teks)
+                        setTimeout(() => {
+                            StethoText.isVisible = false;
+                            // isProcessing = false; // TIDAK DIBUKA DI SINI, DIBUKA SAAT LEAVE TARGET
+                        }, 2000);
+                        
+                    }, 1000);
+                }
             }
-        }
-    )
-);
-
-chestTarget.actionManager.registerAction(
-    new BABYLON.ExecuteCodeAction(
-        // Trigger saat chestpieceMesh menjauh dari chestTarget
-        { trigger: BABYLON.ActionManager.OnIntersectionExitTrigger, parameter: chestpieceMesh }, 
-        function () {
-            // Hentikan suara jika sedang berjalan
-            if (isHeartbeatPlaying) {
-                heartbeatSound.stop();
-                isHeartbeatPlaying = false;
+        )
+    );
+    
+    // LOGIKA TAMBAHAN: Hentikan suara dan reset processing saat keluar dari target
+    chestpieceMesh.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            // Gunakan OnIntersectionExitTrigger, dan parameter targetnya adalah chestTarget
+            { trigger: BABYLON.ActionManager.OnIntersectionExitTrigger, parameter: chestTarget }, 
+            function () {
+                if (isHeartbeatPlaying) {
+                    heartbeatSound.stop();
+                    isHeartbeatPlaying = false;
+                }
+                // Reset processing agar bisa interaksi lagi
+                isProcessing = false; 
+                StethoText.isVisible = false;
+                // Hapus billboard
+                const image2 = scene.getMeshByName("image2");
+                if (image2) image2.dispose();
             }
-            // Sembunyikan teks hasil pemeriksaan
-            StethoText.isVisible = false;
-            // Hapus billboard
-            const image2 = scene.getMeshByName("image2");
-            if (image2) image2.dispose();
-            
-            // Reset isProcessing
-            isProcessing = false;
-        }
-    )
-);
-
-
+        )
+    );
+}
+    
     // 3. Tensimeter ke Lengan Kanan (Tekanan Darah)
     armTarget.actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(
