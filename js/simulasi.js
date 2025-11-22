@@ -129,7 +129,7 @@ const createScene = async function () {
             result.meshes[0].position = new BABYLON.Vector3(-21.9, 0, 9.7);
             result.meshes[0].scaling = new BABYLON.Vector3(-0.46, 0.46, 0.46);
             result.meshes[0].getChildMeshes().forEach(mesh => {
-                mesh.checkCollisions = false;
+                mesh.checkCollisions = true;
             });
         }
     }).catch((error) => { console.error("Gagal memuat model ruangan:", error); });
@@ -238,6 +238,16 @@ const createScene = async function () {
     mejaCollision1.isVisible = false;
     mejaCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
         mejaCollision1,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.2 },
+        scene
+    );
+
+    const kasurCollision1= BABYLON.MeshBuilder.CreateBox("kasurCollision", {height: 0.5, width: 1, depth: 4}, scene);
+    kasurCollision1.position = new BABYLON.Vector3(-14.7, 0.8, 27.5);
+    kasurCollision1.isVisible = false;
+    kasurCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
+        kasurCollision1,
         BABYLON.PhysicsImpostor.BoxImpostor,
         { mass: 0, restitution: 0.2 },
         scene
@@ -1084,7 +1094,7 @@ function releaseThermometer() {
                         createPngBillboard(
                             "image3", 
                             "TekananDarah.png", 
-                            new BABYLON.Vector3(-16.5, 2.5, 28.15), 
+                            new BABYLON.Vector3(-16.5, 2, 28.15), 
                             1, 
                             scene
                         );
