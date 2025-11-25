@@ -47,7 +47,7 @@ const createScene = async function () {
     let stethoscopeTube = null;   // Mesh tali stetoskop
     let tubeUpdateObserver = null;
     let isThermometerAttached = false; // Status termometer
-
+    let isTensimeterAttached = false;
     // Aktifkan Fisika (CannonJS)
     const gravityVector = new BABYLON.Vector3(0, -9.81, 0);
     // Pastikan library CannonJS sudah dimuat di HTML
@@ -129,7 +129,7 @@ const createScene = async function () {
             result.meshes[0].position = new BABYLON.Vector3(-21.9, 0, 9.7);
             result.meshes[0].scaling = new BABYLON.Vector3(-0.46, 0.46, 0.46);
             result.meshes[0].getChildMeshes().forEach(mesh => {
-                mesh.checkCollisions = true;
+                mesh.checkCollisions = false;
             });
         }
     }).catch((error) => { console.error("Gagal memuat model ruangan:", error); });
@@ -183,6 +183,9 @@ const createScene = async function () {
                                 // Cek Termometer (TAMBAHAN BARU)
                                 if (isThermometerAttached) {
                                     releaseThermometer();
+                                }
+                                if (isTensimeterAttached) {
+                                    releaseTensimeter();
                                 }
                             }
                         });
@@ -243,9 +246,10 @@ const createScene = async function () {
         scene
     );
 
-    const kasurCollision1= BABYLON.MeshBuilder.CreateBox("kasurCollision", {height: 0.5, width: 1, depth: 4}, scene);
-    kasurCollision1.position = new BABYLON.Vector3(-14.7, 0.8, 27.5);
+    const kasurCollision1= BABYLON.MeshBuilder.CreateBox("kasurCollision", {height: .4, width: 1, depth: 4}, scene);
+    kasurCollision1.position = new BABYLON.Vector3(-14.57, 0.8, 27.5);
     kasurCollision1.isVisible = false;
+    kasurCollision1.checkCollisions=true;
     kasurCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
         kasurCollision1,
         BABYLON.PhysicsImpostor.BoxImpostor,
@@ -407,7 +411,7 @@ const createScene = async function () {
      
     thermometerMesh = createGrabbableItem("thermometer", "thermometer.glb", 
         ITEM_POSITIONS.thermometer.pos, 
-        new BABYLON.Vector3(0.25, 0.25, 0.25),
+        new BABYLON.Vector3(-0.25, -0.25, -0.25),
         ITEM_POSITIONS.thermometer.rot,
         false
     );
@@ -421,9 +425,14 @@ const createScene = async function () {
         ITEM_POSITIONS.tensimeter.pos, 
         new BABYLON.Vector3(0.3, 0.3, 0.3),
         ITEM_POSITIONS.tensimeter.rot,
-        ITEM_POSITIONS.tensimeter.rot,
         false
     );
+if (tensimeterMesh.dragBehavior) {
+        tensimeterMesh.dragBehavior.onDragStartObservable.add(() => {
+            console.log("Tensimeter didrag pertama kali...");
+            attachTensimeterToController();
+        });
+    }
 
     // Infus (Static, mass 0)
     BABYLON.SceneLoader.ImportMesh("", "assets/", "infus.glb", scene, function (meshes) {
@@ -473,7 +482,7 @@ const createScene = async function () {
                             createPngBillboard(
                                 "image2", 
                                 "DetakJantung.png", 
-                                new BABYLON.Vector3(-17, 2.5, 28.15), // Posisi y sedikit dinaikkan
+                                new BABYLON.Vector3(-17.5, 2.5, 28.15), // Posisi y sedikit dinaikkan
                                 1, 
                                 scene
                             );
@@ -739,15 +748,8 @@ function stopTubeSimulation() {
     // Angka ini menentukan posisi 'enak' di tangan. Silakan tweak jika kurang pas.
     thermometerMesh.position = new BABYLON.Vector3(0, -0.05, 0.1); // Sedikit ke depan & bawah
      
-    // Atur Rotasi agar moncong termometer menghadap depan
-    if (!thermometerMesh.rotationQuaternion) {
-        thermometerMesh.rotationQuaternion = BABYLON.Quaternion.Identity();
-    } 
-    thermometerMesh.rotationQuaternion = BABYLON.Quaternion.FromEulerAngles(
-        Math.PI/2,              // Sumbu X (Nunduk/Dongak)
-        Math.PI/2,   // Sumbu Y  (Putar Kiri -90 derajat)
-        -Math.PI/2              // Sumbu Z (Miring)
-    );
+    thermometerMesh.rotationQuaternion = null;
+    thermometerMesh.rotation = new BABYLON.Vector3(-90, -90, 0);
 
     // 4. Pastikan Terlihat & Matikan Billboard
     findAllMeshesAndSetVisibility(thermometerMesh, true);
@@ -818,6 +820,109 @@ function releaseThermometer() {
         }
     }, 1500);
 }
+function attachTensimeterToController() {
+    if (!tensimeterMesh || isTensimeterAttached || isProcessing) return;
+
+    // Cari Controller Kanan atau Camera
+    let parentTarget = null;
+    if (rightVRController) {
+        parentTarget = rightVRController.grip || rightVRController.pointer;
+    } else {
+        parentTarget = getActiveCamera(); 
+    }
+    if (!parentTarget) return;
+
+    console.log("GRAB TENSIMETER: Snap ke tangan.");
+
+    // 1. Matikan Fisika & Behavior Lama
+    if (tensimeterMesh.physicsImpostor) {
+        tensimeterMesh.physicsImpostor.dispose();
+        tensimeterMesh.physicsImpostor = null;
+    }
+    if (tensimeterMesh.dragBehavior) {
+        tensimeterMesh.dragBehavior.detach();
+    }
+
+    // 2. Tempel ke Tangan
+    tensimeterMesh.setParent(parentTarget);
+    
+    // 3. ATUR POSISI SNAP (Sesuaikan angka ini agar pas di tangan)
+    tensimeterMesh.position = new BABYLON.Vector3(0, -0.05, 0.15); 
+    
+    // Atur Rotasi agar menghadap ke arah yang benar
+    tensimeterMesh.rotationQuaternion = null;
+    // Ubah nilai ini jika arah tensimeter terbalik di tangan
+    tensimeterMesh.rotation = new BABYLON.Vector3(0, Math.PI, 0); 
+
+    // 4. Pastikan Terlihat & Matikan Billboard
+    findAllMeshesAndSetVisibility(tensimeterMesh, true);
+    tensimeterMesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
+
+    isTensimeterAttached = true;
+}
+function releaseTensimeter() {
+    if (!tensimeterMesh || !isTensimeterAttached) return;
+
+    console.log("RELEASE TENSIMETER: Jatuh fisika.");
+
+    // 1. Hapus Behavior Lama
+    if (tensimeterMesh.dragBehavior) {
+        tensimeterMesh.dragBehavior.detach();
+        tensimeterMesh.removeBehavior(tensimeterMesh.dragBehavior);
+        tensimeterMesh.dragBehavior = null;
+    }
+
+    // 2. Matikan Raycast Sementara
+    setHierarchicalPickable(tensimeterMesh, false);
+
+    // 3. Lepas dari Tangan (Unparent)
+    const dropPosition = tensimeterMesh.absolutePosition.clone();
+    tensimeterMesh.setParent(null);
+    tensimeterMesh.position.copyFrom(dropPosition);
+    
+    // Reset rotasi agar jatuh wajar
+    tensimeterMesh.rotationQuaternion = null;
+    tensimeterMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+
+    // 4. Aktifkan Fisika (Jatuh)
+    tensimeterMesh.checkCollisions = true;
+    if (tensimeterMesh.physicsImpostor) {
+        tensimeterMesh.physicsImpostor.dispose();
+    }
+    // Massa tensimeter mungkin lebih berat dari termometer
+    tensimeterMesh.physicsImpostor = new BABYLON.PhysicsImpostor(
+        tensimeterMesh,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 2.0, restitution: 0.1, friction: 0.6 }, 
+        scene
+    );
+
+    isTensimeterAttached = false;
+
+    // 5. COOLDOWN: Pasang kembali Grab setelah 1.5 detik
+    setTimeout(() => {
+        if (tensimeterMesh) {
+            console.log("Tensimeter siap diambil lagi.");
+            
+            // a. Hidupkan sensor sentuh
+            setHierarchicalPickable(tensimeterMesh, true);
+
+            // b. Buat Behavior Baru
+            const newDragBehavior = new BABYLON.SixDofDragBehavior();
+            newDragBehavior.dragDeltaRatio = 1;
+            newDragBehavior.zDragFactor = 1;
+            newDragBehavior.detachCameraControls = true;
+            
+            // c. Pasang Listener GRAB
+            newDragBehavior.onDragStartObservable.add(() => {
+                attachTensimeterToController(); // Panggil fungsi snap saat di-grab
+            });
+
+            tensimeterMesh.addBehavior(newDragBehavior);
+            tensimeterMesh.dragBehavior = newDragBehavior;
+        }
+    }, 1500);
+}
     // =====================================
     // Fungsi Reset Item
     // =====================================
@@ -874,7 +979,9 @@ function releaseThermometer() {
         if (isThermometerAttached) {
              releaseThermometer();
         }
-         
+        if (isTensimeterAttached) {
+             releaseTensimeter();
+        }
         // 2. Reset semua item lainnya (HANYA jika tidak sedang di-detach In Place)
         // Kita panggil resetItem secara eksplisit untuk item yang tidak dipegang saat reset
         resetItem(thermometerMesh, ITEM_POSITIONS.thermometer.pos, ITEM_POSITIONS.thermometer.rot);
@@ -1061,7 +1168,7 @@ function releaseThermometer() {
                         createPngBillboard(
                             "image1", 
                             "SuhuTubuh.png", 
-                            new BABYLON.Vector3(-17.5, 2.5, 28.15), // Posisi di samping meja
+                            new BABYLON.Vector3(-16.5, 2.5, 28.15), // Posisi di samping meja
                             1, // Ukuran lebar bidang
                             scene
                         );
@@ -1094,7 +1201,7 @@ function releaseThermometer() {
                         createPngBillboard(
                             "image3", 
                             "TekananDarah.png", 
-                            new BABYLON.Vector3(-16.5, 2, 28.15), 
+                            new BABYLON.Vector3(-17, 2, 28.15), 
                             1, 
                             scene
                         );
