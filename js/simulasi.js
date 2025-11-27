@@ -180,7 +180,6 @@ const createScene = async function () {
                              
                                 // Cek Stetoskop
                                 if (isStethoscopeAttached) {
-                                    // releaseStethoscopeInPlace(); // Jangan release disini jika sedang snap ke pasien
                                     // Logic release hanya dijalankan saat interaksi selesai atau jika user melepaskannya sebelum interaksi
                                 }
                                  
@@ -524,6 +523,7 @@ if (tensimeterMesh.dragBehavior) {
                     if (!isProcessing && !isHeartbeatPlaying && isStethoscopeAttached) {
                         
                         // 1. SNAP: Lepas dari controller dan tempel ke target (mempertahankan tali)
+                        // stopTubeSimulation(); // Baris ini DIHAPUS agar tali tetap jalan
                         chestpieceMesh.setParent(null); // Detach dari Controller
                         chestpieceMesh.setParent(chestTarget); // SNAP ke Target
                         
@@ -848,7 +848,7 @@ function releaseThermometer() {
     thermometerMesh.setParent(null);
     thermometerMesh.position.copyFrom(dropPosition);
      
-    // Reset rotasi agar jatuh wajar (tegak lurus gravitasi)
+    // Reset rotasi agar jatuh wajar (teguk lurus gravitasi)
     thermometerMesh.rotationQuaternion = null;
     thermometerMesh.rotation = new BABYLON.Vector3(0, 0, 0);
 
@@ -1030,14 +1030,7 @@ function releaseTensimeter() {
             mesh.getScene()
         );
         // --- PERBAIKAN: AKTIFKAN KEMBALI DRAG BEHAVIOR ---
-        // Khusus untuk stetoskop, pasang lagi behavior-nya
-        if (mesh.name === "stethoscopeWrapper" || mesh === stethoscopeMesh) {
-            // Karena dragBehavior di-detach/dispose saat attach/release, kita perlu memastikan 
-            // kita membuat ulang logika drag behavior yang benar, bukan hanya melampirkan referensi lama.
-            // Logika re-arming dilakukan di dalam releaseStethoscopeInPlace() / releaseThermometer()
-            // Bagian ini hanya untuk reset murni, kita biarkan logic re-arm bekerja 1.5s setelah jatuh.
-        }
-        console.log(`[RESET] Item ${mesh.name} berhasil diatur ulang.`);
+        // Logika re-arming dilakukan di dalam releaseInPlace() / releaseThermometer()
     }
      
     function resetAllItems() {
@@ -1249,11 +1242,11 @@ function releaseTensimeter() {
                          
                     }, 1000);
                 }
-            )
+            }
         )
     );
      
-    // 2. Stetoskop ke Dada (Heartbeat Sound) - LOGIKA SUDAH DIPINDAHKAN KE CALLBACK chestpiece.glb (baris 340)
+    // 2. Stetoskop ke Dada (Heartbeat Sound) - LOGIKA SUDAH DIPINDAHKAN KE CALLBACK chestpiece.glb
 
     // 3. Tensimeter ke Lengan Kanan (Tekanan Darah)
     armTarget.actionManager.registerAction(
@@ -1449,7 +1442,7 @@ function releaseTensimeter() {
     if (currentState === 8) {
       dialogTitle.text = "";
       typeWriterEffect(TAHAP_8_BODY, dialogBody, scene, () => {
-         lanjutButton.textBlock.text = "Selesai";
+        lanjutButton.textBlock.text = "Selesai";
         lanjutButton.isHitTestVisible = true;
         lanjutButton.onPointerClickObservable.clear(); // Hapus listener lama
         lanjutButton.onPointerClickObservable.add(() => {
@@ -1457,7 +1450,7 @@ function releaseTensimeter() {
         });
       });
     }
-  }
+  } // Penutup fungsi handleLanjutClick() yang sudah diperiksa
 
   const grabBehavior = new BABYLON.SixDofDragBehavior();
   grabBehavior.allowMultiPointer = true;
