@@ -139,7 +139,7 @@ const createScene = async function () {
 
     BABYLON.SceneLoader.ImportMeshAsync("", "assets/", "Avatar_Virtucare.glb", scene)
         .then((result) => {
-            const root = result.meshes[0];
+            const root = meshes[0];
             root.position = new BABYLON.Vector3(-19, 0.5, 28);
             root.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
             root.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
@@ -175,21 +175,20 @@ const createScene = async function () {
 
                     if (triggerComponent) {
                         triggerComponent.onButtonStateChangedObservable.add((component) => {
-                            // JIKA TRIGGER DILEPAS (pressed === false) & ALAT SEDANG DI ATTACH
+                            // JIKA TRIGGER DILEPAS (pressed === false)
                             if (component.pressed === false) {
-                             
-                                // Cek Stetoskop (hanya dilepas jika user melepaskannya sebelum interaksi snap)
-                                if (isStethoscopeAttached && !chestpieceMesh.parent) { 
-                                     releaseStethoscopeInPlace();
-                                }
-                                
-                                // Cek Termometer
-                                if (isThermometerAttached) {
-                                    releaseThermometer();
-                                }
-                                // Cek Tensimeter
-                                if (isTensimeterAttached) {
-                                    releaseTensimeter();
+                            
+                                // HANYA RELEASE JIKA TIDAK SEDANG DALAM PROSES (SNAPPING KE PASIEN)
+                                if (!isProcessing) {
+                                    if (isStethoscopeAttached) { 
+                                        releaseStethoscopeInPlace();
+                                    }
+                                    if (isThermometerAttached) {
+                                        releaseThermometer();
+                                    }
+                                    if (isTensimeterAttached) {
+                                        releaseTensimeter();
+                                    }
                                 }
                             }
                         });
@@ -351,7 +350,7 @@ const createScene = async function () {
      
     // Invisible interaction points
     const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.5 }, scene);
-    chestTarget.position = new BABYLON.Vector3(-14.6, 1.2, 27);
+    chestTarget.position = new BABYLON.Vector3(-14.55, 1.3, 27.2);
     chestTarget.isVisible = false; // Set ke false agar tidak terlihat
 
     const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.5 }, scene);
@@ -531,7 +530,7 @@ if (tensimeterMesh.dragBehavior) {
                         chestpieceMesh.position = new BABYLON.Vector3(0, 0, 0); 
                         chestpieceMesh.rotationQuaternion = null;
                         // Rotasi agar chestpiece menghadap ke atas/depan
-                        chestpieceMesh.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0); 
+                        chestpieceMesh.rotation = new BABYLON.Vector3(0, 0, 0); 
                         
                         // Nonaktifkan pickable saat sudah snap
                         setHierarchicalPickable(chestpieceMesh, false); 
@@ -556,7 +555,7 @@ if (tensimeterMesh.dragBehavior) {
                                 StethoText.isVisible = false;
                                 isProcessing = false;
                                 
-                                // 2. UN-SNAP: Lepas dari target dan kembalikan ke meja
+                                // 2. UN-SNAP: Lepas dari target dan kembalikan ke meja (memulai re-arming)
                                 chestpieceMesh.setParent(null); // Lepas dari target
                                 releaseStethoscopeInPlace(); // Panggil fungsi yang mengembalikan stetoskop ke posisi semula
                             }, 2000);
@@ -706,13 +705,16 @@ function stopTubeSimulation() {
     // 1. Stop Tali
     stopTubeSimulation();
 
-    // 2. HAPUS BEHAVIOR LAMA (Agar tidak lengket)
-    if (stethoscopeMesh.dragBehavior) {
-        stethoscopeMesh.dragBehavior.detach();
-        stethoscopeMesh.removeBehavior(stethoscopeMesh.dragBehavior);
-        stethoscopeMesh.dragBehavior = null; // Bersihkan referensi
+    // **PERBAIKAN KRITIS UNTUK BUG GRAB/RELEASE**
+    // 2. HAPUS SEMUA INSTANCE BEHAVIOR GRAB YANG MUNGKIN TERSISA
+    let existingDragBehavior = stethoscopeMesh.getBehaviorByName("SixDofDrag");
+    if (existingDragBehavior) {
+        existingDragBehavior.detach();
+        stethoscopeMesh.removeBehavior(existingDragBehavior);
     }
-     
+    stethoscopeMesh.dragBehavior = null; 
+    // END PERBAIKAN
+
     // Matikan Pickable (Ghost Mode) sementara
     setHierarchicalPickable(stethoscopeMesh, false);
 
@@ -770,10 +772,11 @@ function stopTubeSimulation() {
 
             // b. BUAT BEHAVIOR BARU
             const newDragBehavior = new BABYLON.SixDofDragBehavior();
+            newDragBehavior.name = "SixDofDrag"; // Tambahkan nama untuk identifikasi
             newDragBehavior.dragDeltaRatio = 1;
             newDragBehavior.zDragFactor = 1;
             newDragBehavior.detachCameraControls = true;
-             
+            
             // --- [PASANG LISTENER GRAB BARU] ---
             newDragBehavior.onDragStartObservable.add(() => {
                 console.log("Stetoskop di-grab lagi!");
@@ -836,11 +839,12 @@ function releaseThermometer() {
     console.log("RELEASE THERMOMETER: Jatuh fisika.");
 
     // 1. Hapus Behavior Lama (Agar tidak lengket)
-    if (thermometerMesh.dragBehavior) {
-        thermometerMesh.dragBehavior.detach();
-        thermometerMesh.removeBehavior(thermometerMesh.dragBehavior);
-        thermometerMesh.dragBehavior = null;
+    let existingDragBehavior = thermometerMesh.getBehaviorByName("SixDofDrag");
+    if (existingDragBehavior) {
+        existingDragBehavior.detach();
+        thermometerMesh.removeBehavior(existingDragBehavior);
     }
+    thermometerMesh.dragBehavior = null;
 
     // 2. Matikan Raycast Sementara (Ghost Mode)
     setHierarchicalPickable(thermometerMesh, false);
@@ -876,8 +880,9 @@ function releaseThermometer() {
             // a. Hidupkan sensor sentuh
             setHierarchicalPickable(thermometerMesh, true);
 
-            // b. Buat Behavior Baru
+            // b. BUAT BEHAVIOR BARU
             const newDragBehavior = new BABYLON.SixDofDragBehavior();
+            newDragBehavior.name = "SixDofDrag";
             newDragBehavior.dragDeltaRatio = 1;
             newDragBehavior.zDragFactor = 1;
             newDragBehavior.detachCameraControls = true;
@@ -938,11 +943,12 @@ function releaseTensimeter() {
     console.log("RELEASE TENSIMETER: Jatuh fisika.");
 
     // 1. Hapus Behavior Lama
-    if (tensimeterMesh.dragBehavior) {
-        tensimeterMesh.dragBehavior.detach();
-        tensimeterMesh.removeBehavior(tensimeterMesh.dragBehavior);
-        tensimeterMesh.dragBehavior = null;
+    let existingDragBehavior = tensimeterMesh.getBehaviorByName("SixDofDrag");
+    if (existingDragBehavior) {
+        existingDragBehavior.detach();
+        tensimeterMesh.removeBehavior(existingDragBehavior);
     }
+    tensimeterMesh.dragBehavior = null;
 
     // 2. Matikan Raycast Sementara
     setHierarchicalPickable(tensimeterMesh, false);
@@ -981,6 +987,7 @@ function releaseTensimeter() {
 
             // b. Buat Behavior Baru
             const newDragBehavior = new BABYLON.SixDofDragBehavior();
+            newDragBehavior.name = "SixDofDrag";
             newDragBehavior.dragDeltaRatio = 1;
             newDragBehavior.zDragFactor = 1;
             newDragBehavior.detachCameraControls = true;
@@ -1009,6 +1016,15 @@ function releaseTensimeter() {
             mesh.physicsImpostor.dispose();
             mesh.physicsImpostor = null; 
         }
+        
+        // **PERBAIKAN: Hapus Behavior Grab sebelum Reset**
+        let existingDragBehavior = mesh.getBehaviorByName("SixDofDrag");
+        if (existingDragBehavior) {
+            existingDragBehavior.detach();
+            mesh.removeBehavior(existingDragBehavior);
+        }
+        mesh.dragBehavior = null;
+        // END PERBAIKAN
          
         // 2. Hapus parenting 
         mesh.setParent(null); 
@@ -1031,14 +1047,39 @@ function releaseTensimeter() {
             { mass: mass, restitution: restitution },
             mesh.getScene()
         );
-        // Logika re-arming dilakukan di dalam releaseInPlace() / releaseThermometer()
+        
+        // Memasang kembali Listener Grab Awal (Jika mesh ini adalah Stethoscope/Thermometer/Tensimeter)
+        if (mesh.name.includes("Wrapper")) {
+            const initialDragBehavior = new BABYLON.SixDofDragBehavior();
+            initialDragBehavior.name = "SixDofDrag";
+            initialDragBehavior.dragDeltaRatio = 1;
+            initialDragBehavior.zDragFactor = 1;
+            initialDragBehavior.detachCameraControls = true;
+            
+            if (mesh.name.includes("stethoscope")) {
+                initialDragBehavior.onDragStartObservable.add(() => {
+                    attachStethoscopeToController();
+                });
+            } else if (mesh.name.includes("thermometer")) {
+                initialDragBehavior.onDragStartObservable.add(() => {
+                    attachThermometerToController();
+                });
+            } else if (mesh.name.includes("tensimeter")) {
+                initialDragBehavior.onDragStartObservable.add(() => {
+                    attachTensimeterToController();
+                });
+            }
+            mesh.addBehavior(initialDragBehavior);
+            mesh.dragBehavior = initialDragBehavior;
+        }
+
         console.log(`[RESET] Item ${mesh.name} berhasil diatur ulang.`);
     }
      
     function resetAllItems() {
         // 1. Detach stetoskop dulu jika terpasang
         if (isStethoscopeAttached) {
-            // Gunakan releaseInPlace agar fisikanya bekerja (jatuh) dan re-arming
+            // Gunakan releaseInPlace agar fisiknya bekerja (jatuh) dan re-arming
             releaseStethoscopeInPlace(); 
         } 
         if (isThermometerAttached) {
@@ -1221,7 +1262,7 @@ function releaseTensimeter() {
         new BABYLON.ExecuteCodeAction(
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
             function () {
-                if (!isProcessing) { // Ditambahkan isThermometerAttached check
+                if (!isProcessing) { 
                     isProcessing = true;
 
                     // Jeda 1 detik sebelum beep dan menampilkan hasil
@@ -1241,7 +1282,7 @@ function releaseTensimeter() {
                         setTimeout(() => {
                             tempText.isVisible = false;
                             isProcessing = false;
-                            
+
                         }, 2000);
                          
                     }, 1000);
@@ -1257,7 +1298,7 @@ function releaseTensimeter() {
         new BABYLON.ExecuteCodeAction(
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: tensimeterMesh }, 
             function () {
-                if (!isProcessing && isTensimeterAttached) { // Ditambahkan isTensimeterAttached check
+                if (!isProcessing && isTensimeterAttached) { 
                     isProcessing = true;
 
                     // --- SNAP TENSIMETER ---
@@ -1268,7 +1309,7 @@ function releaseTensimeter() {
                     tensimeterMesh.position = new BABYLON.Vector3(0, 0, 0); 
                     tensimeterMesh.rotationQuaternion = null;
                     // Rotasi agar tensimeter terlihat melingkari lengan pasien
-                    tensimeterMesh.rotation = new BABYLON.Vector3(0, Math.PI / 2, Math.PI / 2); 
+                    tensimeterMesh.rotation = new BABYLON.Vector3(0*DEG_TO_RAD, 0*DEG_TO_RAD, 0*DEG_TO_RAD); 
                     setHierarchicalPickable(tensimeterMesh, false); 
                     // ------------------------
 
@@ -1290,9 +1331,9 @@ function releaseTensimeter() {
                             tensiText.isVisible = false;
                             isProcessing = false;
 
-                            // --- UN-SNAP TENSIMETER ---
+                            // --- UN-SNAP TENSIMETER (MEMULAI RE-ARMING) ---
                             tensimeterMesh.setParent(null);
-                            releaseTensimeter(); // Jatuhkan kembali
+                            releaseTensimeter(); 
                             // -------------------------
                         }, 2000);
                     }, 1000);
@@ -1495,4 +1536,3 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
