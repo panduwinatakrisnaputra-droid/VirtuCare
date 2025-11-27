@@ -351,10 +351,10 @@ const createScene = async function () {
     // Invisible interaction points
     const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.5 }, scene);
     chestTarget.position = new BABYLON.Vector3(-14.6, 1.35, 27);
-    chestTarget.isVisible = true; // Set ke false agar tidak terlihat
+    chestTarget.isVisible = false; // Set ke false agar tidak terlihat
 
     const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.5 }, scene);
-    headTarget.position = new BABYLON.Vector3(-14.6, 1.15, 27.5);
+    headTarget.position = new BABYLON.Vector3(-14.6, 1.2, 27.5);
     headTarget.isVisible = false; // Set ke false agar tidak terlihat
 
     const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.5 }, scene);
