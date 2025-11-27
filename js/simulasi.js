@@ -1306,7 +1306,7 @@ function releaseTensimeter() {
                     tensimeterMesh.setParent(armTarget); // SNAP ke Target
                     
                     // Atur posisi dan rotasi lokal agar pas di tengah target
-                    tensimeterMesh.position = new BABYLON.Vector3(0, 0, 0); 
+                    tensimeterMesh.position = new BABYLON.Vector3(-1, 0, 2); 
                     tensimeterMesh.rotationQuaternion = null;
                     // Rotasi agar tensimeter terlihat melingkari lengan pasien
                     tensimeterMesh.rotation = new BABYLON.Vector3(90*DEG_TO_RAD, 60*DEG_TO_RAD, 0*DEG_TO_RAD); 
@@ -1536,6 +1536,7 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
 
 
 
