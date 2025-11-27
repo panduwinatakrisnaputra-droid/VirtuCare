@@ -1267,7 +1267,7 @@ function releaseTensimeter() {
                     tensimeterMesh.position = new BABYLON.Vector3(0, 0, 0); 
                     tensimeterMesh.rotationQuaternion = null;
                     // Rotasi agar tensimeter terlihat melingkari lengan pasien
-                    tensimeterMesh.rotation = new BABYLON.Vector3(0, Math.PI / 2, Math.PI / 2); 
+                    tensimeterMesh.rotation = new BABYLON.Vector3(0, 0, 0); 
                     setHierarchicalPickable(tensimeterMesh, false); 
                     // ------------------------
 
@@ -1494,3 +1494,4 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
