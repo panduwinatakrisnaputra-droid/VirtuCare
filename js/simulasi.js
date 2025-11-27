@@ -531,7 +531,7 @@ if (tensimeterMesh.dragBehavior) {
                         chestpieceMesh.position = new BABYLON.Vector3(0, 0, 0); 
                         chestpieceMesh.rotationQuaternion = null;
                         // Rotasi agar chestpiece menghadap ke atas/depan
-                        chestpieceMesh.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0); 
+                        chestpieceMesh.rotation = new BABYLON.Vector3(Math.PI / 2,Math.PI / 2 , 0); 
                         
                         // Nonaktifkan pickable saat sudah snap
                         setHierarchicalPickable(chestpieceMesh, false); 
