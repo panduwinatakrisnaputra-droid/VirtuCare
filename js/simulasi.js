@@ -1221,18 +1221,9 @@ function releaseTensimeter() {
         new BABYLON.ExecuteCodeAction(
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
             function () {
-                if (!isProcessing && isThermometerAttached) { // Ditambahkan isThermometerAttached check
+                if (!isProcessing) { 
                     isProcessing = true;
                     
-                    // --- SNAP TERMOMETER ---
-                    thermometerMesh.setParent(null); // Detach dari Controller
-                    thermometerMesh.setParent(headTarget); // SNAP ke Target
-                    thermometerMesh.position = new BABYLON.Vector3(0, 0, 0); // Di tengah target
-                    thermometerMesh.rotationQuaternion = null;
-                    thermometerMesh.rotation = new BABYLON.Vector3(0, 0, 0); // Rotasi agar terlihat lurus di dahi/kepala
-                    setHierarchicalPickable(thermometerMesh, false); 
-                    // -----------------------
-
                     // Jeda 1 detik sebelum beep dan menampilkan hasil
                     setTimeout(() => {
                         beepSound.play(); // 🔊 SUARA BEEP
@@ -1250,11 +1241,6 @@ function releaseTensimeter() {
                         setTimeout(() => {
                             tempText.isVisible = false;
                             isProcessing = false;
-                            
-                            // --- UN-SNAP TERMOMETER ---
-                            thermometerMesh.setParent(null);
-                            releaseThermometer(); // Jatuhkan kembali
-                            // --------------------------
                         }, 2000);
                          
                     }, 1000);
