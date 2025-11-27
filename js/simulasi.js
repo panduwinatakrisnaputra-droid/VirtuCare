@@ -360,7 +360,7 @@ const createScene = async function () {
 
     const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.5 }, scene);
     armTarget.position = new BABYLON.Vector3(-14.25, 1.1, 27);
-    armTarget.isVisible = false; // Set ke false agar tidak terlihat
+    armTarget.isVisible = true; // Set ke false agar tidak terlihat
 
     // Tautkan GUI ke Target
     tempText.linkWithMesh(headTarget);
@@ -1506,3 +1506,4 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
+
