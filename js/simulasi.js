@@ -531,7 +531,7 @@ if (tensimeterMesh.dragBehavior) {
                         chestpieceMesh.position = new BABYLON.Vector3(0, 0, 0); 
                         chestpieceMesh.rotationQuaternion = null;
                         // Rotasi agar chestpiece menghadap ke atas/depan
-                        chestpieceMesh.rotation = new BABYLON.Vector3(Math.PI / 2,Math.PI / 2 , 0); 
+                        chestpieceMesh.rotation = new BABYLON.Vector3(Math.PI / 2,0, Math.PI / 2 ); 
                         
                         // Nonaktifkan pickable saat sudah snap
                         setHierarchicalPickable(chestpieceMesh, false); 
@@ -1267,7 +1267,7 @@ function releaseTensimeter() {
                     tensimeterMesh.position = new BABYLON.Vector3(0, 0, 0); 
                     tensimeterMesh.rotationQuaternion = null;
                     // Rotasi agar tensimeter terlihat melingkari lengan pasien
-                    tensimeterMesh.rotation = new BABYLON.Vector3(0, 0, 0); 
+                    tensimeterMesh.rotation = new BABYLON.Vector3(0, Math.PI / 2, Math.PI / 2); 
                     setHierarchicalPickable(tensimeterMesh, false); 
                     // ------------------------
 
@@ -1494,4 +1494,3 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
