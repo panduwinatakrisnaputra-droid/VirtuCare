@@ -358,7 +358,7 @@ const createScene = async function () {
     headTarget.isVisible = false; // Set ke false agar tidak terlihat
 
     const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.5 }, scene);
-    armTarget.position = new BABYLON.Vector3(-14.4, .9, 27.2);
+    armTarget.position = new BABYLON.Vector3(-14.3, 1, 27.2);
     armTarget.isVisible = false; // Set ke false agar tidak terlihat
 
     // Tautkan GUI ke Target
