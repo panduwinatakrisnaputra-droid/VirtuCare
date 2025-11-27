@@ -9,7 +9,7 @@ const engine = new BABYLON.Engine(canvas, true);
 // ================================
 // Definisikan Posisi Awal Item & Rotasi Awal
 // ================================
-const START_Y = 1.6; // Ketinggian awal item
+const START_Y = 1.65; // Ketinggian awal item
 const DEG_TO_RAD = Math.PI / 180; // Konversi Derajat ke Radian
 
 const ITEM_POSITIONS = {
@@ -18,14 +18,15 @@ const ITEM_POSITIONS = {
         rot: new BABYLON.Vector3(0, Math.PI, 0) // Rotasi awal Stethoscope
     },
     thermometer: {
-        pos: new BABYLON.Vector3(-16.3, START_Y, 27.5),
-        // Konversi dari (80, 160, 0) derajat ke radian
-        rot: new BABYLON.Vector3(80 * DEG_TO_RAD, 160 * DEG_TO_RAD, 0 * DEG_TO_RAD)
-    },
+    pos: new BABYLON.Vector3(-16.3, START_Y, 27.5),
+    // Rotasi 90 derajat (Math.PI / 2) pada sumbu X.
+    // Sumbu Y dan Z dikembalikan ke 0.
+    rot: new BABYLON.Vector3(Math.PI/2,Math.PI,0)
+},
     tensimeter: {
         pos: new BABYLON.Vector3(-17.5, START_Y, 27.5),
         // Konversi dari (-110, 160, 100) derajat ke radian
-        rot: new BABYLON.Vector3(-110 * DEG_TO_RAD, 160 * DEG_TO_RAD, 100 * DEG_TO_RAD)
+        rot: new BABYLON.Vector3(0, Math.PI, 2)
     }
 };
 
@@ -54,10 +55,12 @@ const createScene = async function () {
     const physicsPlugin = new BABYLON.CannonJSPlugin();
     scene.enablePhysics(gravityVector, physicsPlugin);
 
+
+    
     // ================================
     // Buat ground (lantai dunia)
     // ================================
-    const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
+    const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 1000, height: 1000 }, scene);
     ground.checkCollisions = true;
     ground.position.y = 0;
 
@@ -177,7 +180,8 @@ const createScene = async function () {
                              
                                 // Cek Stetoskop
                                 if (isStethoscopeAttached) {
-                                    releaseStethoscopeInPlace(); 
+                                    // releaseStethoscopeInPlace(); // Jangan release disini jika sedang snap ke pasien
+                                    // Logic release hanya dijalankan saat interaksi selesai atau jika user melepaskannya sebelum interaksi
                                 }
                                  
                                 // Cek Termometer (TAMBAHAN BARU)
@@ -236,7 +240,7 @@ const createScene = async function () {
         camera.checkCollisions = true;
     }
 
-    const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 0.5, width: 2, depth: 0.7}, scene);
+    const mejaCollision1= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 0.4, width: 0.7, depth: 0.7}, scene);
     mejaCollision1.position = new BABYLON.Vector3(-17, 1, 27.5);
     mejaCollision1.isVisible = false;
     mejaCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
@@ -245,6 +249,45 @@ const createScene = async function () {
         { mass: 0, restitution: 0.2 },
         scene
     );
+    const mejaCollision2= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 0.6, width: 0.7, depth: 0.7}, scene);
+    mejaCollision2.position = new BABYLON.Vector3(-17.7, 1, 27.5);
+    mejaCollision2.isVisible = false;
+    mejaCollision2.physicsImpostor = new BABYLON.PhysicsImpostor(
+        mejaCollision2,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.2 },
+        scene
+    );
+    const mejaCollision3= BABYLON.MeshBuilder.CreateBox("mejaCollision", {height: 0.6, width: 0.7, depth: 0.7}, scene);
+    mejaCollision3.position = new BABYLON.Vector3(-16.3, 1, 27.5);
+    mejaCollision3.isVisible = false;
+    mejaCollision3.physicsImpostor = new BABYLON.PhysicsImpostor(
+        mejaCollision3,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.2 },
+        scene
+    );
+
+     const dindingCollision1= BABYLON.MeshBuilder.CreateBox("dindingCollision", {height: 10, width: 0.2, depth: 19}, scene);
+    dindingCollision1.position = new BABYLON.Vector3(-22.6, 1, 27.5);
+    dindingCollision1.isVisible = false;
+    dindingCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
+        dindingCollision1,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.2 },
+        scene
+    );
+
+    const dindingCollision2= BABYLON.MeshBuilder.CreateBox("dindingCollision", {height: 10, width: 0.2, depth: 19}, scene);
+    dindingCollision2.position = new BABYLON.Vector3(-12.5, 1, 27.5);
+    dindingCollision2.isVisible = false;
+    dindingCollision2.physicsImpostor = new BABYLON.PhysicsImpostor(
+        dindingCollision2,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.2 },
+        scene
+    );
+
 
     const kasurCollision1= BABYLON.MeshBuilder.CreateBox("kasurCollision", {height: .4, width: 1, depth: 4}, scene);
     kasurCollision1.position = new BABYLON.Vector3(-14.57, 0.8, 27.5);
@@ -252,6 +295,17 @@ const createScene = async function () {
     kasurCollision1.checkCollisions=true;
     kasurCollision1.physicsImpostor = new BABYLON.PhysicsImpostor(
         kasurCollision1,
+        BABYLON.PhysicsImpostor.BoxImpostor,
+        { mass: 0, restitution: 0.2 },
+        scene
+    );
+
+    const lantaiCollision= BABYLON.MeshBuilder.CreateBox("lantaiCollision", {height: 0.4, width: 16, depth: 19}, scene);
+    lantaiCollision.position = new BABYLON.Vector3(-14.57, 0, 27.5);
+    lantaiCollision.isVisible = false;
+    lantaiCollision.checkCollisions=true;
+    lantaiCollision.physicsImpostor = new BABYLON.PhysicsImpostor(
+        lantaiCollision,
         BABYLON.PhysicsImpostor.BoxImpostor,
         { mass: 0, restitution: 0.2 },
         scene
@@ -329,7 +383,7 @@ const createScene = async function () {
     // ===================================================
 
     const itemPhysicsSize = 0.2; // 20cm
-    const itemPhysicsMass = 0.01; // Massa ringan
+    const itemPhysicsMass = 0.5; // Massa ringan
 
     /**
      * Fungsi Helper untuk memuat item grabbable dengan wrapper fisika
@@ -462,16 +516,27 @@ if (tensimeterMesh.dragBehavior) {
         // SEMBUNYIKAN DI AWAL (Hanya muncul saat dipegang)
         findAllMeshesAndSetVisibility(chestpieceMesh, false);
         
-        // >>> PERBAIKAN BUG TYPEERROR: PINDAHKAN LOGIKA INTERAKSI STETOSKOP KE SINI <<<
-        // 2. Stetoskop ke Dada (Heartbeat Sound)
+        // >>> LOGIKA INTERAKSI STETOSKOP DENGAN SNAPPING BARU <<<
         chestTarget.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(
-                { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestpieceMesh },  // <-- GUNAKAN chestpieceMesh
+                { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestpieceMesh },  
                 function () {
                     if (!isProcessing && !isHeartbeatPlaying && isStethoscopeAttached) {
-                        isProcessing = true;
                         
-                        // **HAPUS detachStethoscopeFromCamera(); agar stetoskop tidak balik ke meja saat interaksi**
+                        // 1. SNAP: Lepas dari controller dan tempel ke target (mempertahankan tali)
+                        chestpieceMesh.setParent(null); // Detach dari Controller
+                        chestpieceMesh.setParent(chestTarget); // SNAP ke Target
+                        
+                        // Reset posisi dan rotasi lokal agar pas di tengah target
+                        chestpieceMesh.position = new BABYLON.Vector3(0, 0, 0); 
+                        chestpieceMesh.rotationQuaternion = null;
+                        // Rotasi agar chestpiece menghadap ke atas/depan
+                        chestpieceMesh.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0); 
+                        
+                        // Nonaktifkan pickable saat sudah snap
+                        setHierarchicalPickable(chestpieceMesh, false); 
+                        
+                        isProcessing = true;
                         
                         // Jeda 1 detik sebelum suara dimulai
                         setTimeout(() => {
@@ -490,12 +555,17 @@ if (tensimeterMesh.dragBehavior) {
                             setTimeout(() => {
                                 StethoText.isVisible = false;
                                 isProcessing = false;
+                                
+                                // 2. UN-SNAP: Lepas dari target dan kembalikan ke meja
+                                chestpieceMesh.setParent(null); // Lepas dari target
+                                releaseStethoscopeInPlace(); // Panggil fungsi yang mengembalikan stetoskop ke posisi semula
                             }, 2000);
                         }, 1000);
                     }
                 }
             )
         );
+        // <<< AKHIR LOGIKA INTERAKSI STETOSKOP DENGAN SNAPPING BARU >>>
     });
     // =====================================
     // FUNGSI UTILITY BARU UNTUK VISIBILITAS
@@ -529,10 +599,11 @@ if (tensimeterMesh.dragBehavior) {
     // Titik Awal: Sedikit di bawah kamera (leher)
     const startPoint = activeCam.position.add(new BABYLON.Vector3(0, -0.3, 0)); 
 
-    // Titik Akhir: Ke Chestpiece yang ada di tangan
+    // Titik Akhir: Ke Chestpiece (baik di tangan maupun di dada pasien)
     let endPoint;
     if (chestpieceMesh && chestpieceMesh.isVisible) {
-        endPoint = chestpieceMesh.absolutePosition;
+        // Menggunakan absolutePosition agar tali selalu mengikuti chestpiece
+        endPoint = chestpieceMesh.absolutePosition; 
     } else {
         // Fallback jika chestpiece error
         endPoint = stethoscopeMesh.absolutePosition;
@@ -650,7 +721,7 @@ function stopTubeSimulation() {
         chestpieceMesh.setEnabled(false); 
         chestpieceMesh.setParent(null);
 
-        // Ambil posisi terakhir tangan
+        // Ambil posisi terakhir tangan/dada
         const dropPosition = chestpieceMesh.absolutePosition.clone();
 
         // Pindahkan model utuh ke sana
@@ -703,8 +774,7 @@ function stopTubeSimulation() {
             newDragBehavior.zDragFactor = 1;
             newDragBehavior.detachCameraControls = true;
              
-            // --- [BAGIAN PENTING YANG HILANG TADI] ---
-            // Kita harus memasang lagi Listener: "Kalau di-grab, jalankan fungsi attach"
+            // --- [PASANG LISTENER GRAB BARU] ---
             newDragBehavior.onDragStartObservable.add(() => {
                 console.log("Stetoskop di-grab lagi!");
                 // Panggil fungsi attach yang sudah kita buat
@@ -1179,7 +1249,7 @@ function releaseTensimeter() {
                          
                     }, 1000);
                 }
-            }
+            )
         )
     );
      
