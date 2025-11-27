@@ -175,21 +175,20 @@ const createScene = async function () {
 
                     if (triggerComponent) {
                         triggerComponent.onButtonStateChangedObservable.add((component) => {
-                            // JIKA TRIGGER DILEPAS (pressed === false) & ALAT SEDANG DI ATTACH
+                            // JIKA TRIGGER DILEPAS (pressed === false)
                             if (component.pressed === false) {
-                             
-                                // Cek Stetoskop (hanya dilepas jika user melepaskannya sebelum interaksi snap)
-                                if (isStethoscopeAttached && !chestpieceMesh.parent) { 
-                                     releaseStethoscopeInPlace();
-                                }
-                                
-                                // Cek Termometer
-                                if (isThermometerAttached) {
-                                    releaseThermometer();
-                                }
-                                // Cek Tensimeter
-                                if (isTensimeterAttached) {
-                                    releaseTensimeter();
+                            
+                                // HANYA RELEASE JIKA TIDAK SEDANG DALAM PROSES (SNAPPING KE PASIEN)
+                                if (!isProcessing) {
+                                    if (isStethoscopeAttached) { 
+                                        releaseStethoscopeInPlace();
+                                    }
+                                    if (isThermometerAttached) {
+                                        releaseThermometer();
+                                    }
+                                    if (isTensimeterAttached) {
+                                        releaseTensimeter();
+                                    }
                                 }
                             }
                         });
@@ -531,7 +530,7 @@ if (tensimeterMesh.dragBehavior) {
                         chestpieceMesh.position = new BABYLON.Vector3(0, 0, 0); 
                         chestpieceMesh.rotationQuaternion = null;
                         // Rotasi agar chestpiece menghadap ke atas/depan
-                        chestpieceMesh.rotation = new BABYLON.Vector3(0,0,0); 
+                        chestpieceMesh.rotation = new BABYLON.Vector3(0, 0, 0); 
                         
                         // Nonaktifkan pickable saat sudah snap
                         setHierarchicalPickable(chestpieceMesh, false); 
@@ -556,7 +555,7 @@ if (tensimeterMesh.dragBehavior) {
                                 StethoText.isVisible = false;
                                 isProcessing = false;
                                 
-                                // 2. UN-SNAP: Lepas dari target dan kembalikan ke meja
+                                // 2. UN-SNAP: Lepas dari target dan kembalikan ke meja (memulai re-arming)
                                 chestpieceMesh.setParent(null); // Lepas dari target
                                 releaseStethoscopeInPlace(); // Panggil fungsi yang mengembalikan stetoskop ke posisi semula
                             }, 2000);
@@ -819,10 +818,8 @@ function stopTubeSimulation() {
     thermometerMesh.position = new BABYLON.Vector3(0, -0.05, 0.1); // Sedikit ke depan & bawah
      
     thermometerMesh.rotationQuaternion = null;
-    if (thermometerMesh.parent) {
-        // (0, Math.PI, 0) membuat objek tegak lurus dan menghadap ke belakang (ke arah user)
-        thermometerMesh.rotation = new BABYLON.Vector3(90*DEG_TO_RAD, 90*DEG_TO_RAD, 0*DEG_TO_RAD);
-    }
+    thermometerMesh.rotation = new BABYLON.Vector3(0.5, Math.PI, 0); // Rotasi agar menghadap ke user/controller
+    
     // 4. Pastikan Terlihat & Matikan Billboard
     findAllMeshesAndSetVisibility(thermometerMesh, true);
     thermometerMesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
@@ -1221,9 +1218,18 @@ function releaseTensimeter() {
         new BABYLON.ExecuteCodeAction(
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
             function () {
-                if (!isProcessing) { 
+                if (!isProcessing && isThermometerAttached) { 
                     isProcessing = true;
                     
+                    // --- SNAP TERMOMETER ---
+                    thermometerMesh.setParent(null); // Detach dari Controller
+                    thermometerMesh.setParent(headTarget); // SNAP ke Target
+                    thermometerMesh.position = new BABYLON.Vector3(0, 0, 0); // Di tengah target
+                    thermometerMesh.rotationQuaternion = null;
+                    thermometerMesh.rotation = new BABYLON.Vector3(0, 0, 0); // Rotasi agar terlihat lurus di dahi/kepala
+                    setHierarchicalPickable(thermometerMesh, false); 
+                    // -----------------------
+
                     // Jeda 1 detik sebelum beep dan menampilkan hasil
                     setTimeout(() => {
                         beepSound.play(); // 🔊 SUARA BEEP
@@ -1241,6 +1247,11 @@ function releaseTensimeter() {
                         setTimeout(() => {
                             tempText.isVisible = false;
                             isProcessing = false;
+                            
+                            // --- UN-SNAP TERMOMETER (MEMULAI RE-ARMING) ---
+                            thermometerMesh.setParent(null);
+                            releaseThermometer(); 
+                            // --------------------------
                         }, 2000);
                          
                     }, 1000);
@@ -1256,7 +1267,7 @@ function releaseTensimeter() {
         new BABYLON.ExecuteCodeAction(
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: tensimeterMesh }, 
             function () {
-                if (!isProcessing && isTensimeterAttached) { // Ditambahkan isTensimeterAttached check
+                if (!isProcessing && isTensimeterAttached) { 
                     isProcessing = true;
 
                     // --- SNAP TENSIMETER ---
@@ -1289,9 +1300,9 @@ function releaseTensimeter() {
                             tensiText.isVisible = false;
                             isProcessing = false;
 
-                            // --- UN-SNAP TENSIMETER ---
+                            // --- UN-SNAP TENSIMETER (MEMULAI RE-ARMING) ---
                             tensimeterMesh.setParent(null);
-                            releaseTensimeter(); // Jatuhkan kembali
+                            releaseTensimeter(); 
                             // -------------------------
                         }, 2000);
                     }, 1000);
@@ -1494,15 +1505,3 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
-
-
-
-
-
-
-
-
-
-
-
