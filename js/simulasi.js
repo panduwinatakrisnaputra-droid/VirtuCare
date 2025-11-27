@@ -175,18 +175,19 @@ const createScene = async function () {
 
                     if (triggerComponent) {
                         triggerComponent.onButtonStateChangedObservable.add((component) => {
-                            // JIKA TRIGGER DILEPAS (pressed === false) & STETOSKOP SEDANG NEMPEL
+                            // JIKA TRIGGER DILEPAS (pressed === false) & ALAT SEDANG DI ATTACH
                             if (component.pressed === false) {
                              
-                                // Cek Stetoskop
-                                if (isStethoscopeAttached) {
-                                    // Logic release hanya dijalankan saat interaksi selesai atau jika user melepaskannya sebelum interaksi
+                                // Cek Stetoskop (hanya dilepas jika user melepaskannya sebelum interaksi snap)
+                                if (isStethoscopeAttached && !chestpieceMesh.parent) { 
+                                     releaseStethoscopeInPlace();
                                 }
-                                 
-                                // Cek Termometer (TAMBAHAN BARU)
+                                
+                                // Cek Termometer
                                 if (isThermometerAttached) {
                                     releaseThermometer();
                                 }
+                                // Cek Tensimeter
                                 if (isTensimeterAttached) {
                                     releaseTensimeter();
                                 }
@@ -350,11 +351,11 @@ const createScene = async function () {
      
     // Invisible interaction points
     const chestTarget = BABYLON.MeshBuilder.CreateSphere("tChest", { diameter: 0.5 }, scene);
-    chestTarget.position = new BABYLON.Vector3(-14.6, 1.35, 27);
+    chestTarget.position = new BABYLON.Vector3(-14.6, 1.2, 27);
     chestTarget.isVisible = false; // Set ke false agar tidak terlihat
 
     const headTarget = BABYLON.MeshBuilder.CreateSphere("tHead", { diameter: 0.5 }, scene);
-    headTarget.position = new BABYLON.Vector3(-14.6, 1.2, 27.5);
+    headTarget.position = new BABYLON.Vector3(-14.6, 1.15, 27.5);
     headTarget.isVisible = false; // Set ke false agar tidak terlihat
 
     const armTarget = BABYLON.MeshBuilder.CreateSphere("tArm", { diameter: 0.5 }, scene);
@@ -515,7 +516,7 @@ if (tensimeterMesh.dragBehavior) {
         // SEMBUNYIKAN DI AWAL (Hanya muncul saat dipegang)
         findAllMeshesAndSetVisibility(chestpieceMesh, false);
         
-        // >>> LOGIKA INTERAKSI STETOSKOP DENGAN SNAPPING BARU <<<
+        // >>> LOGIKA INTERAKSI STETOSKOP DENGAN SNAPPING <<<
         chestTarget.actionManager.registerAction(
             new BABYLON.ExecuteCodeAction(
                 { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: chestpieceMesh },  
@@ -523,7 +524,6 @@ if (tensimeterMesh.dragBehavior) {
                     if (!isProcessing && !isHeartbeatPlaying && isStethoscopeAttached) {
                         
                         // 1. SNAP: Lepas dari controller dan tempel ke target (mempertahankan tali)
-                        // stopTubeSimulation(); // Baris ini DIHAPUS agar tali tetap jalan
                         chestpieceMesh.setParent(null); // Detach dari Controller
                         chestpieceMesh.setParent(chestTarget); // SNAP ke Target
                         
@@ -565,7 +565,7 @@ if (tensimeterMesh.dragBehavior) {
                 }
             )
         );
-        // <<< AKHIR LOGIKA INTERAKSI STETOSKOP DENGAN SNAPPING BARU >>>
+        // <<< AKHIR LOGIKA INTERAKSI STETOSKOP DENGAN SNAPPING >>>
     });
     // =====================================
     // FUNGSI UTILITY BARU UNTUK VISIBILITAS
@@ -1029,8 +1029,8 @@ function releaseTensimeter() {
             { mass: mass, restitution: restitution },
             mesh.getScene()
         );
-        // --- PERBAIKAN: AKTIFKAN KEMBALI DRAG BEHAVIOR ---
         // Logika re-arming dilakukan di dalam releaseInPlace() / releaseThermometer()
+        console.log(`[RESET] Item ${mesh.name} berhasil diatur ulang.`);
     }
      
     function resetAllItems() {
@@ -1219,8 +1219,18 @@ function releaseTensimeter() {
         new BABYLON.ExecuteCodeAction(
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: thermometerMesh }, 
             function () {
-                if (!isProcessing) {
+                if (!isProcessing && isThermometerAttached) { // Ditambahkan isThermometerAttached check
                     isProcessing = true;
+                    
+                    // --- SNAP TERMOMETER ---
+                    thermometerMesh.setParent(null); // Detach dari Controller
+                    thermometerMesh.setParent(headTarget); // SNAP ke Target
+                    thermometerMesh.position = new BABYLON.Vector3(0, 0, 0); // Di tengah target
+                    thermometerMesh.rotationQuaternion = null;
+                    thermometerMesh.rotation = new BABYLON.Vector3(0, 0, 0); // Rotasi agar terlihat lurus di dahi/kepala
+                    setHierarchicalPickable(thermometerMesh, false); 
+                    // -----------------------
+
                     // Jeda 1 detik sebelum beep dan menampilkan hasil
                     setTimeout(() => {
                         beepSound.play(); // 🔊 SUARA BEEP
@@ -1238,6 +1248,11 @@ function releaseTensimeter() {
                         setTimeout(() => {
                             tempText.isVisible = false;
                             isProcessing = false;
+                            
+                            // --- UN-SNAP TERMOMETER ---
+                            thermometerMesh.setParent(null);
+                            releaseThermometer(); // Jatuhkan kembali
+                            // --------------------------
                         }, 2000);
                          
                     }, 1000);
@@ -1253,8 +1268,21 @@ function releaseTensimeter() {
         new BABYLON.ExecuteCodeAction(
             { trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger, parameter: tensimeterMesh }, 
             function () {
-                if (!isProcessing) {
+                if (!isProcessing && isTensimeterAttached) { // Ditambahkan isTensimeterAttached check
                     isProcessing = true;
+
+                    // --- SNAP TENSIMETER ---
+                    tensimeterMesh.setParent(null); // Detach dari Controller
+                    tensimeterMesh.setParent(armTarget); // SNAP ke Target
+                    
+                    // Atur posisi dan rotasi lokal agar pas di tengah target
+                    tensimeterMesh.position = new BABYLON.Vector3(0, 0, 0); 
+                    tensimeterMesh.rotationQuaternion = null;
+                    // Rotasi agar tensimeter terlihat melingkari lengan pasien
+                    tensimeterMesh.rotation = new BABYLON.Vector3(0, Math.PI / 2, Math.PI / 2); 
+                    setHierarchicalPickable(tensimeterMesh, false); 
+                    // ------------------------
+
                     setTimeout(() => {
                         const systolic = Math.floor(90);
                         const diastolic = Math.floor(60);
@@ -1272,6 +1300,11 @@ function releaseTensimeter() {
                         setTimeout(() => {
                             tensiText.isVisible = false;
                             isProcessing = false;
+
+                            // --- UN-SNAP TENSIMETER ---
+                            tensimeterMesh.setParent(null);
+                            releaseTensimeter(); // Jatuhkan kembali
+                            // -------------------------
                         }, 2000);
                     }, 1000);
                 }
@@ -1450,7 +1483,7 @@ function releaseTensimeter() {
         });
       });
     }
-  } // Penutup fungsi handleLanjutClick() yang sudah diperiksa
+  }
 
   const grabBehavior = new BABYLON.SixDofDragBehavior();
   grabBehavior.allowMultiPointer = true;
@@ -1473,6 +1506,3 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
-
-
