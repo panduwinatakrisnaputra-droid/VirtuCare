@@ -813,27 +813,23 @@ function stopTubeSimulation() {
 
     // 2. Tempel ke Tangan
     thermometerMesh.setParent(parentTarget);
-    
-    // 3. ATUR POSISI SNAP
-    // Posisi sedikit disesuaikan agar tidak tenggelam dalam controller
-    thermometerMesh.position = new BABYLON.Vector3(0, 0.05, 0); 
-    
+     
+    // 3. ATUR POSISI SNAP (POSISI SCAN SUHU)
+    // Angka ini menentukan posisi 'enak' di tangan. Silakan tweak jika kurang pas.
+    thermometerMesh.position = new BABYLON.Vector3(0, -0.05, 0.1); // Sedikit ke depan & bawah
+     
     thermometerMesh.rotationQuaternion = null;
-
-    // --- MODIFIKASI: Menggunakan IF untuk rotasi tegak ---
     if (thermometerMesh.parent) {
         // (0, Math.PI, 0) membuat objek tegak lurus dan menghadap ke belakang (ke arah user)
         thermometerMesh.rotation = new BABYLON.Vector3(90*DEG_TO_RAD, 90*DEG_TO_RAD, 0*DEG_TO_RAD);
     }
-    // -----------------------------------------------------
-
     // 4. Pastikan Terlihat & Matikan Billboard
     findAllMeshesAndSetVisibility(thermometerMesh, true);
     thermometerMesh.billboardMode = BABYLON.Mesh.BILLBOARDMODE_NONE;
 
     isThermometerAttached = true;
 }
-    
+
 function releaseThermometer() {
     if (!thermometerMesh || !isThermometerAttached) return;
 
@@ -1512,4 +1508,3 @@ createScene().then(scene => {
 });
 
 window.addEventListener("resize", () => engine.resize());
-
